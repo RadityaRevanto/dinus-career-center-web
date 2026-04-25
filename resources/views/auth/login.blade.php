@@ -6,103 +6,144 @@
     <title>Login - Dinus Career Center</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- POPPINS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
-<body class="min-h-screen flex bg-slate-100">
-<!-- LEFT (BRANDING) -->
-<div class="hidden lg:flex w-1/2 relative bg-indigo-600 text-white p-12 flex-col justify-between overflow-hidden">
-    <!-- glow -->
-    <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-indigo-400 opacity-30 blur-3xl rounded-full"></div>
-    <div class="relative z-10">
-        <h1 class="text-3xl font-bold">Dinus Career Center</h1>
-        <p class="text-indigo-100 mt-2 text-sm">Universitas Dian Nuswantoro</p>
-    </div>
-    <div class="relative z-10 space-y-4">
-        <h2 class="text-3xl font-semibold leading-snug">
-            Temukan Talenta Terbaik 🎓
-        </h2>
-        <p class="text-indigo-100 text-sm max-w-md">
-            Kelola lowongan, pantau pelamar, dan rekrut lebih cepat dalam satu platform.
-        </p>
-    </div>
+<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-[Poppins]">
 
-    <div class="relative z-10 text-xs text-indigo-200">
-        © 2026 Dinus Career Center
-    </div>
-</div>
+<div class="w-[95%] max-w-[1600px] min-h-[820px]
+            bg-white rounded-[36px]
+            shadow-[0_40px_120px_rgba(0,0,0,0.12)]
+            overflow-hidden flex">
 
-<!-- RIGHT -->
-<div class="flex w-full lg:w-1/2 items-center justify-center p-6">
+    <!-- LEFT -->
+    <div class="hidden md:flex w-1/2 bg-slate-100 p-24 flex-col justify-between">
 
-<div class="w-full max-w-md">
-
-    <!-- CARD -->
-    <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 p-8 overflow-hidden">
-
-        <!-- glow -->
-        <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-200 blur-3xl opacity-30"></div>
-
-        <!-- HEADER -->
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-900">
-                Masuk ke Sistem
-            </h2>
-            <p class="text-sm text-slate-500">
-                Dinus Career Center
+        <div>
+            <h1 class="text-4xl font-bold text-slate-800 leading-[1.2] tracking-tight">
+                <span class="text-blue-600">Udinus </span>Career<br>
+                Center
+            </h1>
+            <p class="text-slate-500 mt-6 max-w-lg leading-relaxed text-base">
+                Kelola lowongan, pantau pelamar, dan rekrut lebih cepat dalam satu platform modern yang efisien.
             </p>
         </div>
 
-        <!-- FORM -->
-        <form class="space-y-5">
-            <!-- EMAIL -->
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
-                    Email
-                </label>
-                <input type="email"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm
-                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-            </div>
-
-            <!-- PASSWORD -->
-            <div>
-                <div class="flex justify-between">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">
-                        Kata Sandi
-                    </label>
-                </div>
-                <input type="password"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm
-                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-            </div>
-
-            <div class="flex items-center justify-between text-left">
-                <a href="#" class="text-xs text-indigo-600 hover:underline">
-                    Lupa Kata Sandi?
-                </a>
-            </div>
-
-            <!-- BUTTON -->
-            <button type="submit"
-                class="w-full bg-indigo-600 text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-indigo-500 transition transform hover:scale-[1.02]">
-                Masuk
-            </button>
-
-        </form>
-
-        <!-- FOOTER -->
-        <div class="mt-6 text-center text-sm text-slate-500">
-            Belum punya akun perusahaan?
+        <div class="flex justify-center">
+            <img src="https://cdn.dribbble.com/userupload/3870987/file/original-6b6f9c5d82d8bb2f9dbd3a8e63efb8b8.png"
+                 class="w-[500px]">
         </div>
 
-        <a href="/company-register"
-           class="mt-3 block w-full text-center border border-slate-300 py-2 rounded-xl text-sm font-medium hover:bg-slate-50 transition">
-            Daftar Perusahaan
-        </a>
+        <div class="flex items-center justify-between text-sm text-slate-500">
+            <span>Belum punya akun?</span>
+            <a href="/company-register" class="text-blue-600 font-medium hover:underline">
+                Daftar
+            </a>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="w-full md:w-1/2 bg-white relative flex items-center justify-center">
+
+        <div class="w-full max-w-xl">
+
+            <!-- HEADER -->
+            <div class="mb-12 text-center">
+
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-2 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.15)]">
+                        <img src="/images/dcc.jpg" class="w-20 h-20 object-contain">
+                    </div>
+                </div>
+
+                <h2 class="text-4xl font-semibold text-slate-800">
+                    Selamat Datang
+                </h2>
+
+                <p class="text-slate-500 mt-3 text-base max-w-md mx-auto">
+                    Masuk untuk melanjutkan ke dashboard
+                </p>
+
+            </div>
+
+            <!-- FORM -->
+            <form class="space-y-7">
+
+                <!-- EMAIL -->
+                <div>
+                    <label class="text-sm font-medium text-slate-700">
+                        Email
+                    </label>
+
+                    <div class="relative mt-3">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-width="1.8"
+                                d="M3 8l9 6 9-6M21 8v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8"/>
+                        </svg>
+
+                        <input type="email" placeholder="nama@email.com"
+                            class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-300
+                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                            outline-none shadow-sm transition text-sm">
+                    </div>
+                </div>
+
+                <!-- PASSWORD -->
+                <div x-data="{ show: false }">
+                    <label class="text-sm font-medium text-slate-700">Password</label>
+
+                    <div class="relative mt-3">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-width="1.8"
+                                d="M12 11c1.657 0 3-1.343 3-3V6a3 3 0 10-6 0v2c0 1.657 1.343 3 3 3z"/>
+                            <path stroke-width="1.8"
+                                d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z"/>
+                        </svg>
+
+                        <input :type="show ? 'text' : 'password'" placeholder="Masukkan password"
+                            class="w-full pl-11 pr-11 py-4 rounded-xl border border-slate-300
+                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                            outline-none shadow-sm transition text-sm">
+
+                        <button type="button"
+                            @click="show = !show"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            👁
+                        </button>
+                    </div>
+                </div>
+
+                <!-- REMEMBER -->
+                <div class="flex justify-between">
+                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                        <input type="checkbox" class="rounded border-slate-300">
+                        Ingat saya
+                    </div>
+                    <a href="#" class="text-sm text-blue-600 hover:underline">
+                        Lupa password?
+                    </a>
+                </div>
+
+                <!-- BUTTON -->
+                <button type="submit"
+                    class="w-full mt-10 bg-blue-600 hover:bg-blue-500 text-white
+                    py-4 rounded-xl font-semibold
+                    shadow-md hover:shadow-xl
+                    transition duration-200 transform hover:scale-[1.02]">
+                    Masuk
+                </button>
+
+            </form>
+        </div>
     </div>
 </div>
-</div>
+
 </body>
 </html>
