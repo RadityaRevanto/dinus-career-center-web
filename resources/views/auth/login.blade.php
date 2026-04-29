@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Dinus Career Center</title>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- POPPINS -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
@@ -21,7 +19,6 @@
 
     <!-- LEFT -->
     <div class="hidden md:flex w-1/2 bg-slate-100 p-24 flex-col justify-between">
-
         <div>
             <h1 class="text-4xl font-bold text-slate-800 leading-[1.2] tracking-tight">
                 <span class="text-blue-600">Udinus </span>Career<br>
@@ -50,9 +47,21 @@
 
         <div class="w-full max-w-xl">
 
+            <!-- ALERT -->
+            @if(session('error'))
+                <div class="mb-4 text-red-500 text-sm text-center">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="mb-4 text-green-500 text-sm text-center">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <!-- HEADER -->
             <div class="mb-12 text-center">
-
                 <div class="flex justify-center mb-5">
                     <div class="bg-white p-2 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.15)]">
                         <img src="/images/dcc.jpg" class="w-20 h-20 object-contain">
@@ -66,11 +75,11 @@
                 <p class="text-slate-500 mt-3 text-base max-w-md mx-auto">
                     Masuk untuk melanjutkan ke dashboard
                 </p>
-
             </div>
 
             <!-- FORM -->
-            <form class="space-y-7">
+            <form method="POST" action="/login" class="space-y-7">
+                @csrf
 
                 <!-- EMAIL -->
                 <div>
@@ -80,9 +89,9 @@
 
                     <div class="relative mt-3">
                         <i data-lucide="mail"
-                           class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                           class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
 
-                        <input type="email" placeholder="nama@email.com"
+                        <input type="email" name="email" placeholder="nama@email.com"
                             class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-300
                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                             outline-none shadow-sm transition text-sm">
@@ -95,38 +104,25 @@
 
                     <div class="relative mt-3">
                         <i data-lucide="lock"
-                        class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                        class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
 
-                        <input :type="show ? 'text' : 'password'" placeholder="Masukkan password"
+                        <input :type="show ? 'text' : 'password'" name="password" placeholder="Masukkan password"
                             class="w-full pl-11 pr-11 py-4 rounded-xl border border-slate-300
                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                             outline-none shadow-sm transition text-sm">
 
                         <button type="button"
                             @click="show = !show"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                             👁
                         </button>
                     </div>
                 </div>
 
-                <!-- REMEMBER -->
-                <div class="flex justify-between">
-                    <div class="flex items-center gap-2 text-sm text-slate-600">
-                        <input type="checkbox" class="rounded border-slate-300">
-                        Ingat saya
-                    </div>
-                    <a href="#" class="text-sm text-blue-600 hover:underline">
-                        Lupa password?
-                    </a>
-                </div>
-
                 <!-- BUTTON -->
                 <button type="submit"
                     class="w-full mt-10 bg-blue-600 hover:bg-blue-500 text-white
-                    py-4 rounded-xl font-semibold
-                    shadow-md hover:shadow-xl
-                    transition duration-200 transform hover:scale-[1.02]">
+                    py-4 rounded-xl font-semibold shadow-md">
                     Masuk
                 </button>
 
@@ -134,9 +130,8 @@
         </div>
     </div>
 </div>
+
 <script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

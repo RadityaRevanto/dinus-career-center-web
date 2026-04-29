@@ -1,38 +1,47 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+// =====================
+// PUBLIC ROUTES
+// =====================
+Route::get('/', fn() => view('auth.login'));
+Route::get('/login', fn() => view('auth.login'))->name('login');
+Route::get('/company-register', fn() => view('auth.company-register'))->name('company.register');
 
-// Auth Route
-Route::get('/login', function () { return view('auth.login'); });
+// AUTH POST
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/register-company', [AuthController::class, 'registerCompany'])->name('register.company');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Company Dashboard UI Routes
-Route::get('/company-register', function () { return view('auth.company-register'); });
-Route::get('/company/jobs', function () { return view('company.jobs.index'); });
-Route::get('/company/jobs/create', function () { return view('company.jobs.create'); });
-Route::get('/company/applicants', function () { return view('company.applicants.index'); });
-
-Route::get('/admin', function () { return view('admin.layouts.app'); });
-
-Route::prefix('admin')->group(function () {
-    Route::get('/dashboard', fn() => view('admin.pages.dashboard'))->name('dashboard');
-    Route::get('/companies', fn() => view('admin.pages.companies'))->name('companies');
+// =====================
+// ADMIN ROUTES (hanya role admin)
+// =====================
+Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/companies', [AdminController::class, 'companies'])->name('companies');
     Route::get('/jobs', fn() => view('admin.pages.job_listings'))->name('job_listings');
-    
     Route::get('/events', fn() => view('admin.pages.event.index'))->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
+    Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
 });
 
-Route::prefix('company')->group(function () {
-    Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
-    Route::get('/jobs', fn() => view('company.pages.jobs.index'))->name('jobs');
-    Route::get('/jobs/show', fn() => view('company.pages.jobs.show'))->name('jobs.show');
-    Route::get('/jobs/create', fn() => view('company.pages.jobs.create'))->name('jobs.create');
-    Route::get('/jobs/edit', fn() => view('company.pages.jobs.edit'))->name('jobs.edit');
-    
-    Route::get('/applicants', fn() => view('company.pages.pelamar.index'))->name('applicants');
-    Route::get('/applicants/show', fn() => view('company.pages.pelamar.show'))->name('applicants.show');
+// =====================
+// COMPANY ROUTES (hanya role perusahaan)
+// =====================
+Route::middleware(['auth.supabase', 'role:perusahaan'])->group(function () {
+    Route::prefix('company')->group(function () {
+        Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
+
+        Route::get('/jobs', fn() => view('company.pages.jobs.index'))->name('jobs');
+        Route::get('/jobs/show', fn() => view('company.pages.jobs.show'))->name('jobs.show');
+        Route::get('/jobs/create', fn() => view('company.pages.jobs.create'))->name('jobs.create');
+        Route::get('/jobs/edit', fn() => view('company.pages.jobs.edit'))->name('jobs.edit');
+
+        Route::get('/applicants', fn() => view('company.pages.pelamar.index'))->name('applicants');
+        Route::get('/applicants/show', fn() => view('company.pages.pelamar.show'))->name('applicants.show');
+        Route::get('/applicants/edit', fn() => view('company.pages.pelamar.edit'))->name('applicants.edit');
+    });
 });

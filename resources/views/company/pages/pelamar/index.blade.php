@@ -1,238 +1,364 @@
 @extends('company.layouts.app')
+
 @section('content')
-
-<!-- STATS -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-
-    <!-- PENDING -->
-    <div class="bg-white p-5 rounded-xl border border-slate-200 ">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            Pending
-        </p>
-
-        <div class="flex items-end justify-between mt-3">
-            <h2 class="text-2xl font-bold text-black">0</h2>
-
-            <span class="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium">
-                +12%
-            </span>
+<div class=" space-y-8">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen Pelamar</h1>
+            <p class="text-sm text-gray-500 mt-2">Kelola semua kandidat yang melamar ke berbagai posisi di perusahaan Anda.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Ekspor Data
+            </button>
         </div>
     </div>
 
-    <!-- INTERVIEW -->
-    <div class="bg-white p-5 rounded-xl border border-slate-200  border-l-4 border-indigo-500">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            Interview
-        </p>
-
-        <div class="flex items-end justify-between mt-3">
-            <h2 class="text-2xl font-bold text-black">0</h2>
-
-            <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
-                Tetap
-            </span>
-        </div>
-    </div>
-
-    <!-- DITERIMA -->
-    <div class="bg-white p-5 rounded-xl border border-slate-200 ">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            Diterima
-        </p>
-
-        <div class="flex items-end justify-between mt-3">
-            <h2 class="text-2xl font-bold text-black">0</h2>
-
-            <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-medium">
-                +5%
-            </span>
-        </div>
-    </div>
-
-    <!-- DITOLAK -->
-    <div class="bg-white p-5 rounded-xl border border-slate-200 ">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            Ditolak
-        </p>
-
-        <div class="flex items-end justify-between mt-3">
-            <h2 class="text-2xl font-bold text-black">0</h2>
-
-            <span class="text-xs px-2 py-1 rounded-full bg-rose-50 text-rose-600 font-medium">
-                -2%
-            </span>
-        </div>
-    </div>
-
-</div>
-    <div class="bg-white border border-slate-200 rounded-xl  overflow-hidden mb-8">
-        <!-- Top Toolbar -->
-        <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white">
-            <div class="w-full sm:w-72 relative">
-                <input type="text" placeholder="Search applicants..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-                <svg class="h-5 w-5 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Stat 1 -->
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Pelamar</p>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <p class="text-2xl font-extrabold text-gray-900">1,284</p>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+12%</span>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <select class="form-select border border-slate-300 rounded-lg px-4 py-2 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    <option>All Jobs</option>
-                    <option>Frontend Developer</option>
-                    <option>UI/UX Designer</option>
-                </select>
-                <select class="form-select border border-slate-300 rounded-lg px-4 py-2 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    <option>All Status</option>
-                    <option>Applied</option>
-                    <option>Reviewed</option>
-                    <option>Interview</option>
-                    <option>Hired</option>
-                    <option>Rejected</option>
-                </select>
+        </div>
+        <!-- Stat 2 -->
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Menunggu Review</p>
+                    <p class="text-2xl font-extrabold text-gray-900 mt-1">156</p>
+                </div>
+            </div>
+        </div>
+        <!-- Stat 3 -->
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Tahap Wawancara</p>
+                    <p class="text-2xl font-extrabold text-gray-900 mt-1">42</p>
+                </div>
+            </div>
+        </div>
+        <!-- Stat 4 -->
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Diterima (Hired)</p>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <p class="text-2xl font-extrabold text-gray-900">18</p>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden">
+        
+        <!-- Toolbar (Search & Filters) -->
+        <div class="p-6 sm:px-8 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/30">
+            <!-- Search -->
+            <div class="relative w-full sm:max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 shadow-sm" placeholder="Cari nama pelamar atau email...">
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <div class="relative w-full sm:w-48">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
+                        <option value="">Semua Posisi</option>
+                        <option value="frontend">Frontend Developer</option>
+                        <option value="uiux">UI/UX Designer</option>
+                        <option value="backend">Backend Engineer</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+
+                <div class="relative w-full sm:w-40">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    </div>
+                    <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
+                        <option value="">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="review">Direview</option>
+                        <option value="interview">Wawancara</option>
+                        <option value="hired">Diterima</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Table -->
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Applicant Name</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Applied For</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">CV / Match</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/80">
+                    <tr>
+                        <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Profil Pelamar
+                        </th>
+                        <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Melamar Posisi
+                        </th>
+                        <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Dokumen / Skor
+                        </th>
+                        <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 sm:px-8 py-5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Aksi
+                        </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
-                    <!-- Row 1 -->
-                    <tr class="hover:bg-slate-50 transition-colors" x-data="{ state: 'pending' }">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <img class="h-10 w-10 rounded-full bg-slate-200" src="https://ui-avatars.com/api/?name=John+Doe&background=random" alt="">
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    <!-- Applicant 1 -->
+                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex items-center gap-4">
+                                <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=John+Doe&background=e0e7ff&color=4f46e5&bold=true" alt="">
                                 <div>
-                                    <span class="block font-medium text-slate-900">John Doe</span>
-                                    <span class="block text-sm text-slate-500">john.doe@example.com</span>
+                                    <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">John Doe</div>
+                                    <div class="text-xs text-gray-500 mt-1">john.doe@example.com</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-700 font-medium">Frontend Developer</td>
-                        <td class="px-6 py-4">
-                            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded border border-slate-200 text-sm font-medium transition-colors">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                Resume.pdf
-                            </button>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="text-sm font-semibold text-gray-900">Frontend Developer</div>
+                            <div class="text-xs text-gray-500 mt-1">2 hari yang lalu</div>
                         </td>
-                        <td class="px-6 py-4">
-                            <span x-show="state == 'Applied'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Applied</span>
-                            <span x-show="state == 'Reviewed'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Reviewed</span>
-                            <span x-show="state == 'Interview'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Interview</span>
-                            <span x-show="state == 'Hired'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Hired</span>
-                            <span x-show="state == 'Rejected'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Rejected</span>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex flex-col gap-2">
+                                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    Resume.pdf
+                                </button>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-500 h-full w-[92%]"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-emerald-600">92% Match</span>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <!-- DROPDOWN -->
-                                <div x-data="{ open: false, state: 'applied', steps: ['applied','reviewed','interview','hired'], top:0, left:0 }">
-
-                                    <button type="button"
-                                        @click="
-                                            open = !open;
-                                            let rect = $el.getBoundingClientRect();
-                                            top = rect.bottom + window.scrollY;
-                                            left = rect.right - 160;
-                                        "
-                                        class="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-sm font-medium">
-                                        <span class="capitalize" x-text="state"></span>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                Pending Review
+                            </span>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600 transition-colors tooltip" title="Lihat Detail">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </a>
+                                <div class="w-px h-5 bg-gray-200"></div>
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" @click.away="open = false" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
+                                        Tindakan
+                                        <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
-                                    <!-- DROPDOWN -->
-                                    <div x-show="open"
-                                        @click.outside="open = false"
-                                        x-transition
-                                        x-cloak
-                                        :style="'position:fixed; top:'+top+'px; left:'+left+'px;'"
-                                        class="w-40 bg-white border border-slate-200 rounded-lg shadow-lg z-[9999]">
-                                        <template x-for="step in steps" :key="step">
-                                            <button type="button"
-                                                @click="state = step; open = false"
-                                                class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 capitalize">
-                                                <span x-text="step"></span>
+                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 overflow-hidden text-left" style="display: none;">
+                                        <div class="p-1.5">
+                                            <button @click="open = false; alert('Status diubah ke: Pending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pending Review
                                             </button>
-                                        </template>
+                                            <button @click="open = false; alert('Status diubah ke: Wawancara')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-sky-500"></span> Wawancara
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Diterima')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Diterima (Hired)
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Ditolak')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Ditolak (Rejected)
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <!-- VIEW DETAIL -->
-                                <a href="{{ route('applicants.show') }}"
-                                    class="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded hover:bg-slate-200 transition">
-                                    View Detail
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Applicant 2 -->
+                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex items-center gap-4">
+                                <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=Jane+Smith&background=fce7f3&color=db2777&bold=true" alt="">
+                                <div>
+                                    <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Jane Smith</div>
+                                    <div class="text-xs text-gray-500 mt-1">jane.smith@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="text-sm font-semibold text-gray-900">UI/UX Designer</div>
+                            <div class="text-xs text-gray-500 mt-1">3 hari yang lalu</div>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex flex-col gap-2">
+                                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    Portfolio.pdf
+                                </button>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-500 h-full w-[85%]"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-indigo-600">85% Match</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                                Tahap Wawancara
+                            </span>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600 transition-colors tooltip" title="Lihat Detail">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
+                                <div class="w-px h-5 bg-gray-200"></div>
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" @click.away="open = false" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
+                                        Tindakan
+                                        <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 overflow-hidden text-left" style="display: none;">
+                                        <div class="p-1.5">
+                                            <button @click="open = false; alert('Status diubah ke: Pending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pending Review
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Wawancara')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-sky-500"></span> Wawancara
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Diterima')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Diterima (Hired)
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Ditolak')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Ditolak (Rejected)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
 
-                    <!-- Row 2 -->
-                    <tr class="hover:bg-slate-50 transition-colors" x-data="{ state: 'accepted' }">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <img class="h-10 w-10 rounded-full bg-slate-200" src="https://ui-avatars.com/api/?name=Jane+Smith&background=random" alt="">
+                    <!-- Applicant 3 -->
+                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex items-center gap-4">
+                                <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=Alex+Johnson&background=dcfce3&color=166534&bold=true" alt="">
                                 <div>
-                                    <span class="block font-medium text-slate-900">Jane Smith</span>
-                                    <span class="block text-sm text-slate-500">jane.smith@example.com</span>
+                                    <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Alex Johnson</div>
+                                    <div class="text-xs text-gray-500 mt-1">alex.j@example.com</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-700 font-medium">UI/UX Designer</td>
-                        <td class="px-6 py-4">
-                            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded border border-slate-200 text-sm font-medium transition-colors">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                Portfolio.pdf
-                            </button>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="text-sm font-semibold text-gray-900">Backend Engineer</div>
+                            <div class="text-xs text-gray-500 mt-1">1 minggu yang lalu</div>
                         </td>
-                        <td class="px-6 py-4">
-                            <span x-show="state == 'pending'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pending</span>
-                            <span x-show="state == 'accepted'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Accepted</span>
-                            <span x-show="state == 'rejected'" style="display: none" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Rejected</span>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <div class="flex flex-col gap-2">
+                                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    CV_Alex.pdf
+                                </button>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-500 h-full w-[98%]"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-emerald-600">98% Match</span>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <!-- DROPDOWN -->
-                                <div x-data="{ open: false, state: 'applied', steps: ['applied','reviewed','interview','hired'], top:0, left:0 }">
-
-                                    <button type="button"
-                                        @click="
-                                            open = !open;
-                                            let rect = $el.getBoundingClientRect();
-                                            top = rect.bottom + window.scrollY;
-                                            left = rect.right - 160;
-                                        "
-                                        class="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-sm font-medium">
-                                        <span class="capitalize" x-text="state"></span>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Diterima (Hired)
+                            </span>
+                        </td>
+                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="{{ route('applicants.edit') }}" class="text-gray-400 hover:text-indigo-600 transition-colors tooltip" title="Lihat Detail">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </a>
+                                <div class="w-px h-5 bg-gray-200"></div>
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" @click.away="open = false" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
+                                        Tindakan
+                                        <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
-                                    <!-- DROPDOWN -->
-                                    <div x-show="open"
-                                        @click.outside="open = false"
-                                        x-transition
-                                        x-cloak
-                                        :style="'position:fixed; top:'+top+'px; left:'+left+'px;'"
-                                        class="w-40 bg-white border border-slate-200 rounded-lg shadow-lg z-[9999]">
-                                        <template x-for="step in steps" :key="step">
-                                            <button type="button"
-                                                @click="state = step; open = false"
-                                                class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 capitalize">
-                                                <span x-text="step"></span>
+                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 overflow-hidden text-left" style="display: none;">
+                                        <div class="p-1.5">
+                                            <button @click="open = false; alert('Status diubah ke: Pending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pending Review
                                             </button>
-                                        </template>
+                                            <button @click="open = false; alert('Status diubah ke: Wawancara')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-sky-500"></span> Wawancara
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Diterima')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Diterima (Hired)
+                                            </button>
+                                            <button @click="open = false; alert('Status diubah ke: Ditolak')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition-colors">
+                                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Ditolak (Rejected)
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <!-- VIEW DETAIL -->
-                                <a href="#"
-                                    class="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded hover:bg-slate-200 transition">
-                                    View Detail
-                                </a>
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination Placeholder -->
+        <div class="px-6 sm:px-8 py-5 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
+            <span class="text-sm text-gray-500">Menampilkan <span class="font-bold text-gray-900">1</span> sampai <span class="font-bold text-gray-900">3</span> dari <span class="font-bold text-gray-900">1,284</span> pelamar</span>
+            <div class="flex items-center gap-2">
+                <button disabled class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 text-sm font-semibold cursor-not-allowed">Sebelumnya</button>
+                <button class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-colors">Selanjutnya</button>
+            </div>
+        </div>
     </div>
+</div>
 @endsection

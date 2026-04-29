@@ -85,7 +85,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
             <p class="text-sm text-slate-600">Showing <span class="font-medium text-slate-900">1</span> to <span class="font-medium text-slate-900">2</span> of <span class="font-medium text-slate-900">142</span> results</p>

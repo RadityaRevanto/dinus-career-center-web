@@ -13,8 +13,8 @@
             </span>
 
             <input type="text" placeholder="Search..."
-                class="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-gray-50 border border-gray-200 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 
+                class="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-gray-50 border border-gray-200
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
                        transition">
         </div>
     </div>
@@ -42,8 +42,5 @@
                     d="M12 8a4 4 0 100 8 4 4 0 000-8zm8 4a8 8 0 01-.2 1.7l2.1 1.6-2 3.5-2.5-1a8 8 0 01-3 1.7l-.4 2.6h-4l-.4-2.6a8 8 0 01-3-1.7l-2.5 1-2-3.5 2.1-1.6A8 8 0 014 12c0-.6.1-1.1.2-1.7L2.1 8.7l2-3.5 2.5 1a8 8 0 013-1.7l.4-2.6h4l.4 2.6a8 8 0 013 1.7l2.5-1 2 3.5-2.1 1.6c.1.6.2 1.1.2 1.7z"/>
             </svg>
         </button>
-
-
     </div>
-
 </header>

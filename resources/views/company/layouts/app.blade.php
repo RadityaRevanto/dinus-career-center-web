@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 <body class="bg-base-100 text-base-content antialiased">
     <!-- Wrapper Utama: h-screen agar Header & Footer menempel di atas/bawah -->
@@ -26,4 +27,5 @@
     </div>
 </body>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </html>
