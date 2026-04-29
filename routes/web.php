@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LowonganController;
 
 // =====================
 // PUBLIC ROUTES
@@ -31,17 +32,17 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
 // =====================
 // COMPANY ROUTES (hanya role perusahaan)
 // =====================
-Route::middleware(['auth.supabase', 'role:perusahaan'])->group(function () {
-    Route::prefix('company')->group(function () {
-        Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
+Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->group(function () {
+    Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
 
-        Route::get('/jobs', fn() => view('company.pages.jobs.index'))->name('jobs');
-        Route::get('/jobs/show', fn() => view('company.pages.jobs.show'))->name('jobs.show');
-        Route::get('/jobs/create', fn() => view('company.pages.jobs.create'))->name('jobs.create');
-        Route::get('/jobs/edit', fn() => view('company.pages.jobs.edit'))->name('jobs.edit');
+    // Lowongan
+    Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
+    Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
+    Route::post('/jobs', [LowonganController::class, 'store'])->name('jobs.store');
+    Route::get('/jobs/{id}/edit', [LowonganController::class, 'edit'])->name('jobs.edit');
+    Route::patch('/jobs/{id}', [LowonganController::class, 'update'])->name('jobs.update');
+    Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
 
-        Route::get('/applicants', fn() => view('company.pages.pelamar.index'))->name('applicants');
-        Route::get('/applicants/show', fn() => view('company.pages.pelamar.show'))->name('applicants.show');
-        Route::get('/applicants/edit', fn() => view('company.pages.pelamar.edit'))->name('applicants.edit');
-    });
+    Route::get('/applicants', fn() => view('company.pages.pelamar.index'))->name('applicants');
+    Route::get('/applicants/show', fn() => view('company.pages.pelamar.show'))->name('applicants.show');
 });
