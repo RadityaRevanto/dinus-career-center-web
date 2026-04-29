@@ -1,9 +1,7 @@
 @extends('company.layouts.app')
 @section('content')
 
-    <!-- Overview Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Stat 1 -->
+    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
             <div class="p-3 bg-indigo-100 text-indigo-600 rounded-lg">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,7 +14,6 @@
             </div>
         </div>
 
-        <!-- Stat 2 -->
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
             <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,7 +26,6 @@
             </div>
         </div>
 
-        <!-- Stat 3 -->
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
             <div class="p-3 bg-purple-100 text-purple-600 rounded-lg">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,20 +37,18 @@
                 <p class="text-2xl font-bold text-slate-900">0 <span class="text-sm font-normal text-slate-500">this week</span></p>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <!-- Quick Actions -->
-    <div class="mb-8">
+    <!-- <div class="mb-8">
         <a href="/company/jobs/create" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Post a New Job
         </a>
-    </div>
+    </div> -->
 
-    <!-- Recent Applicants -->
-    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <!-- <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
             <h2 class="text-lg font-semibold text-slate-900">Recent Applicants</h2>
             <a href="/company/applicants" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">View All</a>
@@ -109,5 +103,5 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </div> -->
 @endsection

@@ -11,7 +11,6 @@ Route::get('/login', function () { return view('auth.login'); });
 
 // Company Dashboard UI Routes
 Route::get('/company-register', function () { return view('auth.company-register'); });
-// Route::get('/company/dashboard', function () { return view('company.dashboard'); });
 Route::get('/company/jobs', function () { return view('company.jobs.index'); });
 Route::get('/company/jobs/create', function () { return view('company.jobs.create'); });
 Route::get('/company/applicants', function () { return view('company.applicants.index'); });

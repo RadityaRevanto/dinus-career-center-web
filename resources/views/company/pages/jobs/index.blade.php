@@ -22,7 +22,6 @@
 <!-- STATS -->
 <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
 
-    <!-- CARD 1 -->
     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
         <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -37,7 +36,6 @@
         </div>
     </div>
 
-    <!-- CARD 2 -->
     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
         <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -51,8 +49,6 @@
             <p class="text-2xl font-semibold text-black">84</p>
         </div>
     </div>
-
-    <!-- CARD 3 -->
     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
         <div class="p-3 bg-orange-50 text-orange-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -66,8 +62,6 @@
             <p class="text-2xl font-semibold text-black">1,402</p>
         </div>
     </div>
-
-    <!-- CARD 4 -->
     <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
         <div class="p-3 bg-purple-50 text-purple-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -119,19 +113,14 @@
                 <td class="px-6 py-4 text-indigo-600 font-semibold">32</td>
                 <td class="px-6 py-4 text-right">
                     <div class="flex justify-end items-center gap-2">
-                        <!-- VIEW -->
                         <a href="{{ route('jobs.show') }}"
                         class="px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition">
                             View Detail
                         </a>
-
-                        <!-- EDIT -->
                         <a href="{{ route('jobs.edit') }}"
                         class="px-3 py-1 text-xs bg-slate-100 text-slate-700 rounded hover:bg-slate-200 transition">
                             Edit
                         </a>
-
-                        <!-- DELETE -->
                         <form action="" method="POST"
                             onsubmit="return confirm('Yakin ingin menghapus?')">
                             @csrf
@@ -142,12 +131,11 @@
                                 Hapus
                             </button>
                         </form>
-
                     </div>
                 </td>
             </tr>
 
-                        <tr class="hover:bg-slate-50">
+            <tr class="hover:bg-slate-50">
                 <td class="px-6 py-4">
                     <p class="font-semibold">HRD</p>
                     <p class="text-xs text-slate-500">Diposting 5 hari lalu</p>
@@ -162,24 +150,18 @@
                 <td class="px-6 py-4 text-indigo-600 font-semibold">32</td>
                 <td class="px-6 py-4 text-right">
                     <div class="flex justify-end items-center gap-2">
-                        <!-- VIEW -->
                         <a href="{{ route('jobs.show') }}"
                         class="px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition">
                             View Detail
                         </a>
-
-                        <!-- EDIT -->
                         <a href="{{ route('jobs.edit') }}"
                         class="px-3 py-1 text-xs bg-slate-100 text-slate-700 rounded hover:bg-slate-200 transition">
                             Edit
                         </a>
-
-                        <!-- DELETE -->
                         <form action="" method="POST"
                             onsubmit="return confirm('Yakin ingin menghapus?')">
                             @csrf
                             @method('DELETE')
-
                             <button type="submit"
                                 class="px-3 py-1 text-xs bg-rose-50 text-rose-600 rounded hover:bg-rose-100 transition">
                                 Hapus

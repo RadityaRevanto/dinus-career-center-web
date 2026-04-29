@@ -2,7 +2,6 @@
 
 @section('content')
 
-<!-- HEADER -->
 <div class="mb-6 flex justify-between items-center">
     <div>
         <h1 class="text-2xl font-semibold text-black">Frontend Developer</h1>
@@ -14,9 +13,7 @@
     </span>
 </div>
 
-<!-- STATS -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-
     <div class="bg-white p-4 rounded-xl border border-slate-200">
         <p class="text-xs text-slate-500">Total Pelamar</p>
         <p class="text-xl font-semibold text-black mt-1">32</p>
@@ -34,10 +31,9 @@
 
 </div>
 
-<!-- APPLICANT LIST -->
 <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
-    <!-- HEADER -->
+ 
     <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
         <h2 class="font-semibold text-black">Daftar Pelamar</h2>
 
@@ -45,7 +41,6 @@
             class="border border-slate-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
     </div>
 
-    <!-- TABLE -->
     <div class="overflow-x-auto">
                 <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -59,7 +54,6 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
-                    <!-- Row 1 -->
                     <tr class="hover:bg-slate-50 transition-colors" x-data="{ state: 'pending' }">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
@@ -97,8 +91,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Row 2 -->
                     <tr class="hover:bg-slate-50 transition-colors" x-data="{ state: 'accepted' }">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">

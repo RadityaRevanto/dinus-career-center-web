@@ -24,7 +24,7 @@
                     ? 'bg-blue-50 text-blue-600 font-medium' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Overview
+                Dashboard
             </a>
             <a href="{{ route('jobs') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
@@ -32,7 +32,7 @@
                     ? 'bg-blue-50 text-blue-600 font-medium' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Jobs
+                Lowongan
             </a>
             <a href="{{ route('applicants') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
@@ -40,7 +40,7 @@
                     ? 'bg-blue-50 text-blue-600 font-medium' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Applicants
+                Pelamar
             </a>
         </nav>
     </div>

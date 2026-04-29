@@ -79,12 +79,8 @@
                     </label>
 
                     <div class="relative mt-3">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-width="1.8"
-                                d="M3 8l9 6 9-6M21 8v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8"/>
-                        </svg>
+                        <i data-lucide="mail"
+                           class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
 
                         <input type="email" placeholder="nama@email.com"
                             class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-300
@@ -98,14 +94,8 @@
                     <label class="text-sm font-medium text-slate-700">Password</label>
 
                     <div class="relative mt-3">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-width="1.8"
-                                d="M12 11c1.657 0 3-1.343 3-3V6a3 3 0 10-6 0v2c0 1.657 1.343 3 3 3z"/>
-                            <path stroke-width="1.8"
-                                d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z"/>
-                        </svg>
+                        <i data-lucide="lock"
+                        class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
 
                         <input :type="show ? 'text' : 'password'" placeholder="Masukkan password"
                             class="w-full pl-11 pr-11 py-4 rounded-xl border border-slate-300
@@ -144,6 +134,9 @@
         </div>
     </div>
 </div>
-
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
