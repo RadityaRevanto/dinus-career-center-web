@@ -5,21 +5,15 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LowonganController;
 
-// =====================
-// PUBLIC ROUTES
-// =====================
+
 Route::get('/', fn() => view('auth.login'));
 Route::get('/login', fn() => view('auth.login'))->name('login');
 Route::get('/company-register', fn() => view('auth.company-register'))->name('company.register');
 
-// AUTH POST
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register-company', [AuthController::class, 'registerCompany'])->name('register.company');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// =====================
-// ADMIN ROUTES (hanya role admin)
-// =====================
 Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/companies', [AdminController::class, 'companies'])->name('companies');
@@ -29,13 +23,9 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
 });
 
-// =====================
-// COMPANY ROUTES (hanya role perusahaan)
-// =====================
 Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->group(function () {
     Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
 
-    // Lowongan
     Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
     Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
     Route::post('/jobs', [LowonganController::class, 'store'])->name('jobs.store');

@@ -27,9 +27,6 @@ class AdminController extends Controller
         ];
     }
 
-    // =====================
-    // DASHBOARD
-    // =====================
     public function dashboard()
     {
         $perusahaan = Http::withHeaders($this->headers())
@@ -40,9 +37,7 @@ class AdminController extends Controller
 
         return view('admin.pages.dashboard', compact('perusahaan'));
     }
-    // =====================
-    // COMPANIES LIST
-    // =====================
+
     public function companies()
     {
         $perusahaan = Http::withHeaders($this->headers())
@@ -54,9 +49,6 @@ class AdminController extends Controller
         return view('admin.pages.companies', compact('perusahaan'));
     }
 
-    // =====================
-    // VERIFY COMPANY
-    // =====================
     public function verifyCompany(Request $request)
     {
         $request->validate([
@@ -64,7 +56,6 @@ class AdminController extends Controller
             'status' => 'required|in:accepted,rejected,pending',
         ]);
 
-        // Ambil data perusahaan dulu
         $perusahaan = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/perusahaan', [
                 'perusahaan_id' => 'eq.' . $request->id,
@@ -75,7 +66,6 @@ class AdminController extends Controller
             return back()->with('error', 'Perusahaan tidak ditemukan');
         }
 
-        // Update status
         $res = Http::withHeaders($this->headers())
             ->post($this->baseUrl . '/rest/v1/rpc/verify_perusahaan', [
                 'target_id'  => $request->id,
@@ -86,7 +76,6 @@ class AdminController extends Controller
             return back()->with('error', 'Gagal verifikasi: ' . $res->body());
         }
 
-        // Kirim email notifikasi jika accepted atau rejected
         if (in_array($request->status, ['accepted', 'rejected'])) {
             Mail::to($perusahaan[0]['email_perusahaan'])
                 ->send(new CompanyVerified(

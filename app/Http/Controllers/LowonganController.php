@@ -35,9 +35,6 @@ class LowonganController extends Controller
         return compact('jabatan', 'jurusan', 'tipePekerjaan', 'sektor');
     }
 
-    // =====================
-    // LIST LOWONGAN
-    // =====================
     public function index()
     {
         $perusahaanId = session('user')['id'];
@@ -52,18 +49,12 @@ class LowonganController extends Controller
         return view('company.pages.jobs.index', compact('lowongan'));
     }
 
-    // =====================
-    // CREATE FORM
-    // =====================
     public function create()
     {
         $masterData = $this->getMasterData();
         return view('company.pages.jobs.create', $masterData);
     }
 
-    // =====================
-    // STORE
-    // =====================
     public function store(Request $request)
     {
         $request->validate([
@@ -101,9 +92,6 @@ class LowonganController extends Controller
         return redirect()->route('jobs')->with('success', 'Lowongan berhasil dibuat!');
     }
 
-    // =====================
-    // EDIT FORM
-    // =====================
     public function edit(string $id)
     {
         $perusahaanId = session('user')['id'];
@@ -123,9 +111,6 @@ class LowonganController extends Controller
         return view('company.pages.jobs.edit', array_merge(['lowongan' => $lowongan[0]], $masterData));
     }
 
-    // =====================
-    // UPDATE
-    // =====================
     public function update(Request $request, string $id)
     {
         $request->validate([
@@ -162,9 +147,6 @@ class LowonganController extends Controller
         return redirect()->route('jobs')->with('success', 'Lowongan berhasil diupdate!');
     }
 
-    // =====================
-    // DELETE
-    // =====================
     public function destroy(string $id)
     {
         $perusahaanId = session('user')['id'];

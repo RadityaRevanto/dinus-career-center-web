@@ -20,7 +20,7 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Stat 1 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 border border-gray-100  hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -35,7 +35,7 @@
             </div>
         </div>
         <!-- Stat 2 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 border border-gray-100  hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -47,7 +47,7 @@
             </div>
         </div>
         <!-- Stat 3 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 border border-gray-100  hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -59,7 +59,7 @@
             </div>
         </div>
         <!-- Stat 4 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Main Table Container -->
-    <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden">
+    <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden">
         
         <!-- Toolbar (Search & Filters) -->
         <div class="p-6 sm:px-8 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/30">
@@ -318,7 +318,7 @@
                         </td>
                         <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-3">
-                                <a href="{{ route('applicants.edit') }}" class="text-gray-400 hover:text-indigo-600 transition-colors tooltip" title="Lihat Detail">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600 transition-colors tooltip" title="Lihat Detail">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
                                 <div class="w-px h-5 bg-gray-200"></div>
@@ -327,7 +327,7 @@
                                         Tindakan
                                         <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
-                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 overflow-hidden text-left" style="display: none;">
+                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl  z-50 overflow-hidden text-left" style="display: none;">
                                         <div class="p-1.5">
                                             <button @click="open = false; alert('Status diubah ke: Pending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
                                                 <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pending Review

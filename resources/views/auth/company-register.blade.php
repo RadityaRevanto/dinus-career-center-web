@@ -8,17 +8,33 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-[Poppins] x-data="{ step: 1, registered: {{ session('success') ? 'true' : 'false' }} }"
-    x-data="{ step: 1, registered: {{ session('success') ? 'true' : 'false' }} }">
+<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-sans"
+    x-data="{ 
+        step: 1, 
+        registered: {{ session('success') ? 'true' : 'false' }},
+        errorMessage: '',
+        validateStep() {
+            let currentStepDiv = document.getElementById('step-' + this.step);
+            if (!currentStepDiv) return true;
+            let inputs = currentStepDiv.querySelectorAll('input[required], textarea[required]');
+            for (let i = 0; i < inputs.length; i++) {
+                if (!inputs[i].value.trim()) {
+                    this.errorMessage = 'Mohon lengkapi semua field yang wajib diisi sebelum melanjutkan.';
+                    return false;
+                }
+            }
+            this.errorMessage = '';
+            return true;
+        }
+    }">
 
     <!-- MAIN CARD -->
     <div
         class="w-[95%] max-w-[1600px] min-h-[820px]
             bg-white rounded-[36px]
-            shadow-[0_40px_120px_rgba(0,0,0,0.12)]
             overflow-hidden flex">
 
         <!-- LEFT -->
@@ -70,7 +86,7 @@
                 <div class="mb-10 text-center">
 
                     <div class="flex justify-center mb-5">
-                        <div class="bg-white p-2 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.15)]">
+                        <div class="bg-white p-2 rounded-full ">
                             <img src="/images/dcc.jpg" class="w-20 h-20 object-contain">
                         </div>
                     </div>
@@ -99,8 +115,16 @@
                 </div>
                 @endif
 
+                <!-- Validation Error Message from Alpine -->
+                <div x-show="errorMessage" style="display: none;" class="mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200" x-transition>
+                    <p class="text-amber-600 text-sm flex items-center gap-2">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span x-text="errorMessage"></span>
+                    </p>
+                </div>
+
                 <!-- FORM — hapus @submit Alpine, biarkan submit normal ke server -->
-                <form method="POST" action="/register-company">
+                <form method="POST" action="/register-company" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-6 flex items-center gap-2">
                         <div class="h-8 w-1 rounded-full bg-blue-600"></div>
@@ -109,13 +133,13 @@
                     </div>
 
                     <!-- STEP 1 -->
-                    <div x-show="step===1" class="space-y-5">
+                    <div id="step-1" x-show="step===1" class="space-y-5">
 
                         <!-- EMAIL -->
                         <div class="relative group">
                             <i data-lucide="mail"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="email" name="email" placeholder="Email Perusahaan"
+                            <input type="email" name="email" placeholder="Email Perusahaan" required
                                 value="{{ old('email') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -125,7 +149,7 @@
                         <div class="relative group">
                             <i data-lucide="lock"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="password" name="password" placeholder="Kata Sandi"
+                            <input type="password" name="password" placeholder="Kata Sandi" required
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                         </div>
@@ -134,7 +158,7 @@
                         <div class="relative group">
                             <i data-lucide="shield-check"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="password" name="password_confirmation" placeholder="Konfirmasi Kata Sandi"
+                            <input type="password" name="password_confirmation" placeholder="Konfirmasi Kata Sandi" required
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                         </div>
@@ -142,13 +166,13 @@
                     </div>
 
                     <!-- STEP 2 -->
-                    <div x-show="step===2" class="space-y-5">
+                    <div id="step-2" x-show="step===2" class="space-y-5">
 
                         <!-- COMPANY -->
                         <div class="relative group">
                             <i data-lucide="building-2"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="nama_perusahaan" placeholder="Nama Perusahaan"
+                            <input type="text" name="nama_perusahaan" placeholder="Nama Perusahaan" required
                                 value="{{ old('nama_perusahaan') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -158,7 +182,7 @@
                         <div class="relative group">
                             <i data-lucide="briefcase"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="jenis_penyedia" placeholder="Industri"
+                            <input type="text" name="jenis_penyedia" placeholder="Industri" required
                                 value="{{ old('jenis_penyedia') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -168,16 +192,43 @@
                         <div class="relative group">
                             <i data-lucide="globe"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="website_perusahaan" placeholder="Website"
+                            <input type="text" name="website_perusahaan" placeholder="Website" required
                                 value="{{ old('website_perusahaan') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                         </div>
 
+                        <!-- LOGO PERUSAHAAN -->
+                            <div class="relative group" x-data="{ fileName: '' }">
+                                <i data-lucide="image"
+                                    class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
+                                
+                                <label class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-300 text-sm bg-white cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 outline-none relative flex items-center justify-between transition-all m-0">
+                                    <span class="truncate" x-text="fileName || 'Upload Logo Perusahaan (Opsional)'" 
+                                        :class="fileName ? 'text-slate-800 font-medium' : 'text-slate-400'"></span>
+                                    <span class="bg-slate-100 text-slate-600 text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-slate-200 transition-colors ml-2 shrink-0">
+                                        Pilih File
+                                    </span>
+                                    <input type="file" name="logo" accept="image/*" class="sr-only"
+                                        @change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''">
+                                </label>
+
+                                {{-- Preview logo --}}
+                                <div x-show="fileName" class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                    <span x-text="'File dipilih: ' + fileName"></span>
+                                </div>
+                            </div>
+
+                            {{-- Error validasi logo --}}
+                            @error('logo')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+
                         <!-- DESCRIPTION -->
                         <div class="relative group">
                             <i data-lucide="file-text" class="w-5 h-5 text-slate-400 absolute left-4 top-5"></i>
-                            <textarea name="deskripsi_perusahaan" rows="3" placeholder="Deskripsi"
+                            <textarea name="deskripsi_perusahaan" rows="3" placeholder="Deskripsi" required
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">{{ old('deskripsi_perusahaan') }}</textarea>
                         </div>
@@ -185,12 +236,12 @@
                     </div>
 
                     <!-- STEP 3 -->
-                    <div x-show="step===3" class="space-y-5">
+                    <div id="step-3" x-show="step===3" class="space-y-5">
 
                         <!-- ADDRESS -->
                         <div class="relative group">
                             <i data-lucide="map-pin" class="w-5 h-5 text-slate-400 absolute left-4 top-5"></i>
-                            <textarea name="alamat_perusahaan" rows="2" placeholder="Alamat"
+                            <textarea name="alamat_perusahaan" rows="2" placeholder="Alamat" required
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">{{ old('alamat_perusahaan') }}</textarea>
                         </div>
@@ -199,7 +250,7 @@
                         <div class="relative group">
                             <i data-lucide="map"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="kota" placeholder="Kota"
+                            <input type="text" name="kota" placeholder="Kota" required
                                 value="{{ old('kota') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -209,7 +260,7 @@
                         <div class="relative group">
                             <i data-lucide="mailbox"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="kode_pos" placeholder="Kode Pos"
+                            <input type="text" name="kode_pos" placeholder="Kode Pos" required
                                 value="{{ old('kode_pos') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -219,7 +270,7 @@
                         <div class="relative group">
                             <i data-lucide="phone"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="no_handphone" placeholder="Nomor Handphone"
+                            <input type="text" name="no_handphone" placeholder="Nomor Handphone" required
                                 value="{{ old('no_handphone') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -228,13 +279,13 @@
                     </div>
 
                     <!-- STEP 4 -->
-                    <div x-show="step===4" class="space-y-5">
+                    <div id="step-4" x-show="step===4" class="space-y-5">
 
                         <!-- PERSON -->
                         <div class="relative group">
                             <i data-lucide="user"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="nama_cp" placeholder="Nama Contact Person"
+                            <input type="text" name="nama_cp" placeholder="Nama Contact Person" required
                                 value="{{ old('nama_cp') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -244,7 +295,7 @@
                         <div class="relative group">
                             <i data-lucide="phone"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="no_telepon" placeholder="Nomor Telepon"
+                            <input type="text" name="no_telepon" placeholder="Nomor Telepon" required
                                 value="{{ old('no_telepon') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -254,7 +305,7 @@
                         <div class="relative group">
                             <i data-lucide="phone"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="no_fax" placeholder="Nomor Fax"
+                            <input type="text" name="no_fax" placeholder="Nomor Fax (Opsional)"
                                 value="{{ old('no_fax') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -264,7 +315,7 @@
                         <div class="relative group">
                             <i data-lucide="badge-check"
                                 class="w-5 h-5 text-slate-400 group-focus-within:text-blue-600 absolute left-4 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" name="jabatan" placeholder="Jabatan"
+                            <input type="text" name="jabatan" placeholder="Jabatan" required
                                 value="{{ old('jabatan') }}"
                                 class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 text-sm
                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -283,14 +334,14 @@
                         </button>
 
                         <!-- NEXT -->
-                        <button type="button" x-show="step<4" @click="step++"
+                        <button type="button" x-show="step<4" @click="if(validateStep()) step++"
                             class="flex-1 bg-blue-600 text-white py-4 rounded-xl
                             hover:bg-blue-500 transition font-semibold">
                             Selanjutnya →
                         </button>
 
                         <!-- SUBMIT -->
-                        <button type="submit" x-show="step===4"
+                        <button type="button" x-show="step===4" @click="if(validateStep()) $el.closest('form').submit()"
                             class="flex-1 bg-blue-600 text-white py-4 rounded-xl
                             hover:bg-blue-500 transition font-semibold">
                             Kirim Pendaftaran

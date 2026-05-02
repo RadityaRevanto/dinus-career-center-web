@@ -7,14 +7,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-[Poppins]">
+<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-sans">
 
 <div class="w-[95%] max-w-[1600px] min-h-[820px]
             bg-white rounded-[36px]
-            shadow-[0_40px_120px_rgba(0,0,0,0.12)]
             overflow-hidden flex">
 
     <!-- LEFT -->
@@ -63,7 +62,7 @@
             <!-- HEADER -->
             <div class="mb-12 text-center">
                 <div class="flex justify-center mb-5">
-                    <div class="bg-white p-2 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.15)]">
+                    <div class="bg-white p-2 rounded-full">
                         <img src="/images/dcc.jpg" class="w-20 h-20 object-contain">
                     </div>
                 </div>
