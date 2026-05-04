@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LowonganController;
-
+use App\Http\Controllers\LamaranController;
 
 Route::get('/', fn() => view('auth.login'));
 Route::get('/login', fn() => view('auth.login'))->name('login');
@@ -33,6 +33,6 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
     Route::patch('/jobs/{id}', [LowonganController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
 
-    Route::get('/applicants', fn() => view('company.pages.pelamar.index'))->name('applicants');
-    Route::get('/applicants/show', fn() => view('company.pages.pelamar.show'))->name('applicants.show');
+    Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
+    Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
 });
