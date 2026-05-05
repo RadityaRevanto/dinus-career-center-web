@@ -11,7 +11,7 @@
             </div>
             <div>
                 <h1 class="text-sm font-semibold text-gray-900 tracking-tight">DCC Mobile</h1>
-                <p class="text-xs text-gray-400">Admin Management</p>
+                <p class="text-xs text-gray-400">Perusahaan Management</p>
             </div>
         </div>
 
@@ -19,25 +19,25 @@
         <nav class="mt-2 px-3 space-y-1">
             <!-- Item -->
             <a href="{{ route('overview') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('overview') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
                 Dashboard
             </a>
             <a href="{{ route('jobs') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('jobs') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
                 Lowongan
             </a>
             <a href="{{ route('applicants') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('applicants') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
                 Pelamar
