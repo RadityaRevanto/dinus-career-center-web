@@ -4,7 +4,7 @@
 
     <!-- Greeting -->
     <div>
-        <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Selamat Datang! 👋</h2>
+        <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Selamat Datang! 👋</h2>
         <p class="text-sm text-gray-500 mt-1">Berikut ringkasan aktivitas rekrutmen perusahaan Anda.</p>
     </div>
 

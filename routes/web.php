@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\LamaranController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', fn() => view('auth.login'));
 Route::get('/login', fn() => view('auth.login'))->name('login');
@@ -35,4 +36,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
 
     Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
     Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
+
+    Route::get('/profile', [ProfileController::class, 'show'])->name('company.profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('company.profile.update');
 });

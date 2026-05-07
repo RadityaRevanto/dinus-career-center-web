@@ -68,16 +68,11 @@
                 </span>
             </div>
 
-            <!-- Arrow -->
-            <svg class="w-4 h-4 text-gray-400 transition group-hover:rotate-180" 
-                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M19 9l-7 7-7-7"/>
-            </svg>
+
         </button>
 
         <!-- Dropdown -->
-        <div class="absolute bottom-full mb-2 w-full opacity-0 scale-95 pointer-events-none 
+        <!-- <div class="absolute bottom-full mb-2 w-full opacity-0 scale-95 pointer-events-none 
                     group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto 
                     transition-all duration-150">
             
@@ -99,7 +94,7 @@
                 </form>
 
             </div>
-        </div>
+        </div> -->
 
     </div>
 </div>
