@@ -46,7 +46,23 @@ class AdminController extends Controller
                 'order'  => 'created_at.desc',
             ])->json();
 
-        return view('admin.pages.companies', compact('perusahaan'));
+        return view('admin.pages.companies.index', compact('perusahaan'));
+    }
+
+    public function showCompany(string $id)
+    {
+        $perusahaan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/perusahaan', [
+                'perusahaan_id' => 'eq.' . $id,
+                'select'        => '*',
+            ])->json();
+
+        if (empty($perusahaan)) {
+            abort(404, 'Perusahaan tidak ditemukan');
+        }
+
+        $data = $perusahaan[0];
+        return view('admin.pages.companies.show', compact('data'));
     }
 
     public function verifyCompany(Request $request)

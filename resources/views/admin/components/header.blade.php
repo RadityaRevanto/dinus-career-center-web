@@ -1,23 +1,29 @@
 <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6">
 
-    <!-- Search -->
-    <div class="flex items-center w-full max-w-md">
-        <div class="relative w-full">
-            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <!-- icon search -->
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M21 21l-4.3-4.3m1.3-5.2a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </span>
-
-            <input type="text" placeholder="Search..."
-                class="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-gray-50 border border-gray-200 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 
-                       transition">
-        </div>
-    </div>
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-sm">
+        <a href="{{ route('dashboard') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+            </svg>
+        </a>
+        <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="font-medium text-gray-800">
+            @if(request()->routeIs('dashboard'))
+                Dashboard
+            @elseif(request()->routeIs('companies*'))
+                Perusahaan
+            @elseif(request()->routeIs('job_listings*'))
+                Lowongan
+            @elseif(request()->routeIs('events*'))
+                Event
+            @else
+                {{ ucfirst(request()->segment(2) ?? 'Halaman') }}
+            @endif
+        </span>
+    </nav>
 
     <!-- Right Section -->
     <div class="flex items-center gap-3 ml-6">
