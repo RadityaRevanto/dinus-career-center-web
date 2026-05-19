@@ -18,7 +18,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/companies', [AdminController::class, 'companies'])->name('companies');
-    Route::get('/jobs', fn() => view('admin.pages.job_listings'))->name('job_listings');
+    Route::get('/companies/{id}', [AdminController::class, 'showCompany'])->name('companies.show');
+    Route::get('/lowongan', fn() => view('admin.pages.lowongan.index'))->name('lowongan.index');
     Route::get('/events', fn() => view('admin.pages.event.index'))->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');

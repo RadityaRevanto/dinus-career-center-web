@@ -21,39 +21,39 @@
             
             <!-- Item -->
             <a href="{{ route('dashboard') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('dashboard') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
                 Dashboard
             </a>
 
             <a href="{{ route('companies') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('companies') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Companies
+                Perusahaan
             </a>
 
-            <a href="{{ route('job_listings') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('job_listings') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+            <a href="{{ route('lowongan.index') }}"
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            {{ request()->routeIs('lowongan.index') 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Job Listings
+                Lowongan
             </a>
 
             <a href="{{ route('events') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
             {{ request()->routeIs('events') 
-                    ? 'bg-blue-50 text-blue-600 font-medium' 
+                    ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
-                Events
+                Event
             </a>
         </nav>
     </div>
