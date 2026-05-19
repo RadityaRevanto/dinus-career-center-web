@@ -65,6 +65,17 @@ class AdminController extends Controller
         return view('admin.pages.companies.show', compact('data'));
     }
 
+    public function lowongan()
+    {
+        $lowongan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'select' => '*,jabatan(nama),jurusan(nama),tipe_pekerjaan(nama),sektor(nama),perusahaan(nama_perusahaan,kota)',
+                'order'  => 'created_at.desc',
+            ])->json();
+
+        return view('admin.pages.lowongan.index', compact('lowongan'));
+    }
+
     public function verifyCompany(Request $request)
     {
         $request->validate([
