@@ -76,6 +76,18 @@ class AdminController extends Controller
         return view('admin.pages.lowongan.index', compact('lowongan'));
     }
 
+    public function auditLog()
+    {
+        $logs = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/audit_log', [
+                'select' => '*',
+                'order'  => 'created_at.desc',
+                'limit'  => 200,
+            ])->json();
+
+        return view('admin.pages.audit-log.index', compact('logs'));
+    }
+
     public function verifyCompany(Request $request)
     {
         $request->validate([

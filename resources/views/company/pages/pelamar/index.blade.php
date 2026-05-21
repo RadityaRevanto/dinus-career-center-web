@@ -164,9 +164,9 @@
                                         {{ $pelamar['nama_lengkap'] ?? '-' }}
                                     </div>
                                     <div class="text-xs text-gray-500 mt-1">{{ $pelamar['email'] ?? '-' }}</div>
-                                    @if($pelamar['nim'])
+                                    <!-- @if($pelamar['nim'])
                                     <div class="text-xs text-gray-400">NIM: {{ $pelamar['nim'] }}</div>
-                                    @endif
+                                    @endif -->
                                 </div>
                             </div>
                         </td>
@@ -183,20 +183,13 @@
                         <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
                             <div class="flex flex-col gap-1">
                                 @if(!empty($berkas['cv']))
-                                <a href="{{ $berkas['cv'] }}" target="_blank"
+                                <a href="{{ route('applicants.berkas', ['id' => $l['lamaran_id'], 'tipe' => 'cv']) }}" target="_blank"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-blue-200">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     CV
                                 </a>
                                 @endif
-                                @if(!empty($berkas['portofolio']))
-                                <a href="{{ $berkas['portofolio'] }}" target="_blank"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-blue-200">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    Portofolio
-                                </a>
-                                @endif
-                                @if(empty($berkas['cv']) && empty($berkas['portofolio']))
+                                @if(empty($berkas['cv']))
                                 <span class="text-xs text-gray-400">Tidak ada dokumen</span>
                                 @endif
                             </div>
@@ -219,34 +212,15 @@
                             </span>
                         </td>
 
-                        {{-- AKSI --}}
-                        <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
-                            <div class="flex items-center justify-end gap-3">
-                                <div class="relative" x-data="{ open: false }">
-                                    <button @click="open = !open" @click.away="open = false" type="button"
-                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors border border-blue-100 focus:outline-none">
-                                        Tindakan
-                                        <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </button>
-                                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak
-                                        class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-50 overflow-hidden text-left"
-                                        style="display: none;">
-                                        <div class="p-1.5">
-                                            @foreach(['applied' => ['bg-amber-500', 'Applied'], 'reviewed' => ['bg-sky-500', 'Reviewed'], 'interview' => ['bg-blue-500', 'Interview'], 'completed' => ['bg-emerald-500', 'Completed']] as $status => $config)
-                                            <form method="POST" action="{{ route('applicants.status', $l['lamaran_id']) }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="{{ $status }}">
-                                                <button type="submit"
-                                                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors">
-                                                    <span class="w-2 h-2 rounded-full {{ $config[0] }}"></span>
-                                                    {{ $config[1] }}
-                                                </button>
-                                            </form>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
+                        <!-- Actions -->
+                        <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end items-center gap-2">
+                                <a href="{{ route('applicants.edit', $l['lamaran_id']) }}" class="p-2.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-200" title="Edit">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                                <button class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Delete">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                             </div>
                         </td>
                     </tr>

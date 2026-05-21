@@ -23,6 +23,7 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
     Route::get('/events', fn() => view('admin.pages.event.index'))->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
+    Route::get('/audit-log', [AdminController::class, 'auditLog'])->name('audit-log.index');
 });
 
 Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->group(function () {
@@ -36,7 +37,9 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
     Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
 
     Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
+    Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
     Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
+    Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('company.profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('company.profile.update');

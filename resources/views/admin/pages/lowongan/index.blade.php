@@ -186,7 +186,6 @@
         </div>
 
         @if($totalLowongan > 0)
-        <!-- Footer / Pagination -->
         <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
             <p class="text-sm text-gray-500 font-medium">Menampilkan <span class="text-gray-900 font-semibold">{{ $totalLowongan }}</span> lowongan</p>
         </div>
