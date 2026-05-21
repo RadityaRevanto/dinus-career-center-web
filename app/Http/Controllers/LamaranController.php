@@ -29,18 +29,19 @@ class LamaranController extends Controller
     {
         $perusahaanId = session('user')['id'];
 
-        $lamaran = Http::withHeaders($this->headers())
+        $response = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
-                'select' => '
-                    lamaran_id,
-                    status_terakhir,
-                    created_at,
-                    pelamar:pelamar_id(pelamar_id, nama_lengkap, email, foto_profil, nim, bidang),
-                    lowongan:lowongan_id(lowongan_id, judul, perusahaan_id),
-                    berkas:berkas_lamaran_id(cv, portofolio, surat_lamaran)
-                ',
-                'order' => 'created_at.desc',
-            ])->json();
+                'select' => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+                'order'  => 'created_at.desc',
+            ]);
+
+        $lamaran = $response->json();
+
+        // Safeguard: if Supabase returns an error object instead of an array of rows
+        if (!is_array($lamaran) || (isset($lamaran['message']) || isset($lamaran['code']))) {
+            \Log::error('Supabase lamaran query failed', ['response' => $lamaran]);
+            $lamaran = [];
+        }
 
         $lamaran = array_filter($lamaran, function($l) use ($perusahaanId) {
             return ($l['lowongan']['perusahaan_id'] ?? null) === $perusahaanId;
@@ -65,6 +66,32 @@ class LamaranController extends Controller
             'lamaran' => array_values($lamaran),
             'stats'   => $stats,
             'lowongan' => $lowongan,
+        ]);
+    }
+
+    public function edit(string $lamaranId)
+    {
+        $perusahaanId = session('user')['id'];
+
+        $response = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lamaran_id' => 'eq.' . $lamaranId,
+                'select'     => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+            ])->json();
+
+        if (empty($response) || !is_array($response)) {
+            abort(404, 'Lamaran tidak ditemukan.');
+        }
+
+        $lamaran = $response[0];
+
+        // Verifikasi kepemilikan
+        if (($lamaran['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        return view('company.pages.pelamar.edit', [
+            'lamaran' => $lamaran,
         ]);
     }
 
@@ -96,5 +123,65 @@ class LamaranController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Proxy download dokumen pelamar supaya URL Supabase tidak terexpose ke browser.
+     */
+    public function downloadBerkas(string $lamaranId, string $tipe)
+    {
+        $allowedTypes = ['cv', 'portofolio', 'surat_lamaran'];
+
+        if (!in_array($tipe, $allowedTypes)) {
+            abort(404, 'Tipe dokumen tidak valid.');
+        }
+
+        $perusahaanId = session('user')['id'];
+
+        // Ambil data lamaran beserta berkas & verifikasi kepemilikan
+        $lamaran = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lamaran_id' => 'eq.' . $lamaranId,
+                'select'     => 'lamaran_id,lowongan:lowongan_id(perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+            ])->json();
+
+        if (empty($lamaran) || ($lamaran[0]['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $fileUrl = $lamaran[0]['berkas'][$tipe] ?? null;
+
+        if (empty($fileUrl)) {
+            abort(404, 'Dokumen tidak ditemukan.');
+        }
+
+        // Fetch file dari Supabase secara server-side
+        $fileResponse = Http::withHeaders([
+            'apikey'        => $this->serviceRole,
+            'Authorization' => 'Bearer ' . $this->serviceRole,
+        ])->get($fileUrl);
+
+        if ($fileResponse->failed()) {
+            abort(502, 'Gagal mengambil dokumen.');
+        }
+
+        $contentType = $fileResponse->header('Content-Type') ?? 'application/octet-stream';
+
+        // Tentukan nama file yang user-friendly
+        $extension = match (true) {
+            str_contains($contentType, 'pdf')  => 'pdf',
+            str_contains($contentType, 'word') => 'docx',
+            str_contains($contentType, 'png')  => 'png',
+            str_contains($contentType, 'jpeg'), str_contains($contentType, 'jpg') => 'jpg',
+            default => 'pdf',
+        };
+
+        $filename = $tipe . '_' . $lamaranId . '.' . $extension;
+
+        return response($fileResponse->body(), 200, [
+            'Content-Type'        => $contentType,
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Cache-Control'       => 'private, max-age=3600',
+        ]);
     }
 }
