@@ -31,7 +31,7 @@ class LamaranController extends Controller
 
         $response = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
-                'select' => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+                'select' => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
                 'order'  => 'created_at.desc',
             ]);
 
@@ -76,7 +76,7 @@ class LamaranController extends Controller
         $response = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lamaran_id' => 'eq.' . $lamaranId,
-                'select'     => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+                'select'     => 'lamaran_id,status_terakhir,created_at,updated_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
             ])->json();
 
         if (empty($response) || !is_array($response)) {
@@ -97,16 +97,24 @@ class LamaranController extends Controller
 
     public function updateStatus(Request $request, string $lamaranId)
     {
-        $request->validate([
+        $rules = [
             'status' => 'required|in:applied,reviewed,interview,completed',
-        ]);
+        ];
+
+        if ($request->status === 'interview') {
+            $rules['interview_time']  = 'required|date';
+            $rules['link_meet']       = 'required|url';
+            $rules['pesan_tambahan']  = 'nullable|string|max:500';
+        }
+
+        $request->validate($rules);
 
         $perusahaanId = session('user')['id'];
 
         $lamaran = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lamaran_id' => 'eq.' . $lamaranId,
-                'select'     => 'lamaran_id,lowongan:lowongan_id(perusahaan_id)',
+                'select'     => 'lamaran_id,pelamar_id,lowongan:lowongan_id(perusahaan_id,judul)',
             ])->json();
 
         if (empty($lamaran) || ($lamaran[0]['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
@@ -122,6 +130,49 @@ class LamaranController extends Controller
             return response()->json(['error' => 'Gagal update status'], 500);
         }
 
+        // Jika status interview, update notifikasi yang dibuat trigger dengan detail jadwal
+        if ($request->status === 'interview') {
+            $judulLowongan = $lamaran[0]['lowongan']['judul'] ?? 'posisi ini';
+            $jamFormatted  = \Carbon\Carbon::parse($request->interview_time)
+                                ->translatedFormat('l, d M Y \p\u\k\u\l H:i');
+
+            $pesan  = 'Selamat! Lamaran Anda untuk posisi "' . $judulLowongan . '" telah lolos ke tahap interview.' . "\n\n";
+            $pesan .= '📅 Jadwal: ' . $jamFormatted . "\n";
+            $pesan .= '🔗 Link Meeting: ' . $request->link_meet;
+
+            if (!empty($request->pesan_tambahan)) {
+                $pesan .= "\n\n💬 " . $request->pesan_tambahan;
+            }
+
+            // Cari notifikasi interview terbaru yang dibuat trigger, lalu update dengan detail lengkap
+            $notif = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/rest/v1/notifikasi', [
+                    'lamaran_id' => 'eq.' . $lamaranId,
+                    'tipe'       => 'eq.interview',
+                    'order'      => 'created_at.desc',
+                    'limit'      => 1,
+                ])->json();
+
+            if (!empty($notif) && isset($notif[0]['notifikasi_id'])) {
+                Http::withHeaders($this->headers())
+                    ->patch($this->baseUrl . '/rest/v1/notifikasi?notifikasi_id=eq.' . $notif[0]['notifikasi_id'], [
+                        'pesan'     => $pesan,
+                        'link_zoom' => $request->link_meet,
+                    ]);
+            } else {
+                // Fallback: trigger belum sempat insert, insert manual
+                Http::withHeaders($this->headers())
+                    ->post($this->baseUrl . '/rest/v1/notifikasi', [
+                        'pelamar_id' => $lamaran[0]['pelamar_id'],
+                        'lamaran_id' => $lamaranId,
+                        'judul'      => '🎉 Selamat! Anda Lolos ke Tahap Interview',
+                        'pesan'      => $pesan,
+                        'tipe'       => 'interview',
+                        'link_zoom'  => $request->link_meet,
+                    ]);
+            }
+        }
+
         return response()->json(['success' => true]);
     }
 
@@ -130,7 +181,7 @@ class LamaranController extends Controller
      */
     public function downloadBerkas(string $lamaranId, string $tipe)
     {
-        $allowedTypes = ['cv', 'portofolio', 'surat_lamaran'];
+        $allowedTypes = ['cv', 'portofolio', 'surat_lamaran', 'transkip_nilai', 'pas_foto'];
 
         if (!in_array($tipe, $allowedTypes)) {
             abort(404, 'Tipe dokumen tidak valid.');
@@ -142,7 +193,7 @@ class LamaranController extends Controller
         $lamaran = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lamaran_id' => 'eq.' . $lamaranId,
-                'select'     => 'lamaran_id,lowongan:lowongan_id(perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran)',
+                'select'     => 'lamaran_id,lowongan:lowongan_id(perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
             ])->json();
 
         if (empty($lamaran) || ($lamaran[0]['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
@@ -184,4 +235,5 @@ class LamaranController extends Controller
             'Cache-Control'       => 'private, max-age=3600',
         ]);
     }
+    
 }
