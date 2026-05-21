@@ -39,7 +39,9 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
     Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
     Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
     Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
-    Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran');
+    Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
+
+    
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('company.profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('company.profile.update');

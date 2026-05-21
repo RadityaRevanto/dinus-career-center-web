@@ -81,13 +81,147 @@
                     </div>
                 </div>
 
-                <!-- Status Saat Ini -->
-                <div class="bg-gray-50/80 rounded-xl p-3.5">
-                    <p class="text-xs text-gray-400 mb-1">Status Saat Ini</p>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $cfg[0] }}">
-                        <span class="w-1.5 h-1.5 rounded-full {{ $cfg[1] }}"></span>
-                        {{ $cfg[2] }}
-                    </span>
+                <!-- Timeline Status -->
+                @php
+                    $statusSteps = ['applied', 'reviewed', 'interview', 'completed'];
+                    $currentIndex = array_search($lamaran['status_terakhir'], $statusSteps);
+                    if ($currentIndex === false) $currentIndex = 0;
+
+                    $stepMeta = [
+                        'applied'   => [
+                            'label'        => 'Applied',
+                            'desc'         => 'Lamaran diterima oleh sistem',
+                            'bg'           => 'bg-amber-50',
+                            'text'         => 'text-amber-700',
+                            'border'       => 'border-amber-100',
+                            'bgLight'      => 'bg-amber-50/30',
+                            'borderLight'  => 'border-amber-100/60',
+                            'dot'          => 'bg-amber-500',
+                            'ping'         => 'bg-amber-400',
+                            'ring'         => 'ring-amber-500/20',
+                        ],
+                        'reviewed'  => [
+                            'label'        => 'Reviewed',
+                            'desc'         => 'Sedang ditinjau oleh tim HRD',
+                            'bg'           => 'bg-sky-50',
+                            'text'         => 'text-sky-700',
+                            'border'       => 'border-sky-100',
+                            'bgLight'      => 'bg-sky-50/30',
+                            'borderLight'  => 'border-sky-100/60',
+                            'dot'          => 'bg-sky-500',
+                            'ping'         => 'bg-sky-400',
+                            'ring'         => 'ring-sky-500/20',
+                        ],
+                        'interview' => [
+                            'label'        => 'Interview',
+                            'desc'         => 'Tahap wawancara dengan kandidat',
+                            'bg'           => 'bg-blue-50',
+                            'text'         => 'text-blue-700',
+                            'border'       => 'border-blue-100',
+                            'bgLight'      => 'bg-blue-50/30',
+                            'borderLight'  => 'border-blue-100/60',
+                            'dot'          => 'bg-blue-500',
+                            'ping'         => 'bg-blue-400',
+                            'ring'         => 'ring-blue-500/20',
+                        ],
+                        'completed' => [
+                            'label'        => 'Completed',
+                            'desc'         => 'Seluruh rangkaian proses selesai',
+                            'bg'           => 'bg-emerald-50',
+                            'text'         => 'text-emerald-700',
+                            'border'       => 'border-emerald-100',
+                            'bgLight'      => 'bg-emerald-50/30',
+                            'borderLight'  => 'border-emerald-100/60',
+                            'dot'          => 'bg-emerald-500',
+                            'ping'         => 'bg-emerald-400',
+                            'ring'         => 'ring-emerald-500/20',
+                        ],
+                    ];
+                @endphp
+                <div class="mt-4 p-5 bg-gray-50/40 border border-gray-100/80 rounded-2xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Riwayat Status</span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100/30">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                            Real-time Status
+                        </span>
+                    </div>
+
+                    <div class="relative space-y-1">
+                        @foreach($statusSteps as $i => $step)
+                        @php
+                            $meta      = $stepMeta[$step];
+                            $isPast    = $i < $currentIndex;
+                            $isCurrent = $i === $currentIndex;
+                            $isFuture  = $i > $currentIndex;
+                            $isLast    = $i === count($statusSteps) - 1;
+
+                            // Content box dynamic styles
+                            if ($isCurrent) {
+                                $boxClass = $meta['bgLight'] . ' ' . $meta['borderLight'] . ' shadow-[0_4px_12px_-4px_rgba(0,0,0,0.03)] border';
+                            } elseif ($isPast) {
+                                $boxClass = 'bg-white border border-gray-100/70 shadow-[0_2px_6px_rgba(0,0,0,0.01)]';
+                            } else {
+                                $boxClass = 'bg-transparent border border-transparent opacity-60';
+                            }
+                        @endphp
+                        <div class="flex gap-4 group transition-all duration-300 {{ !$isLast ? 'pb-6' : '' }}">
+                            {{-- Dot + Line --}}
+                            <div class="relative flex flex-col items-center flex-shrink-0 w-8">
+                                @if($isPast)
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all duration-300 group-hover:scale-110 z-10 animate-fade-in">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                @elseif($isCurrent)
+                                <div class="w-8 h-8 rounded-full {{ $meta['bg'] }} {{ $meta['text'] }} flex items-center justify-center flex-shrink-0 ring-2 {{ $meta['ring'] }} ring-offset-2 z-10 transition-all duration-300 group-hover:scale-110">
+                                    <span class="relative flex h-3.5 w-3.5">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $meta['ping'] }} opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 {{ $meta['dot'] }}"></span>
+                                    </span>
+                                </div>
+                                @else
+                                <div class="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center flex-shrink-0 z-10 transition-all duration-300 group-hover:border-gray-400 group-hover:scale-105">
+                                    <span class="w-2 h-2 rounded-full bg-gray-300 transition-colors group-hover:bg-gray-400"></span>
+                                </div>
+                                @endif
+
+                                @if(!$isLast)
+                                <div class="absolute top-8 bottom-[-24px] w-[2px] transition-all duration-300 {{ $isPast ? 'bg-emerald-500' : 'bg-gray-200' }}"></div>
+                                @endif
+                            </div>
+
+                            {{-- Content --}}
+                            <div class="min-w-0 flex-1 p-3.5 rounded-2xl transition-all duration-300 -mt-1 {{ $boxClass }} hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.04)]">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                                    <p class="text-sm font-bold tracking-wide {{ $isFuture ? 'text-gray-400' : 'text-gray-900' }} {{ $isCurrent ? $meta['text'] : '' }}">
+                                        {{ $meta['label'] }}
+                                    </p>
+                                    
+                                    @if($isCurrent || ($isPast && $i === 0))
+                                    @php
+                                        // Applied pakai created_at, status lain pakai updated_at (kapan status terakhir diubah)
+                                        $timestampToShow = ($step === 'applied')
+                                            ? $lamaran['created_at']
+                                            : ($lamaran['updated_at'] ?? $lamaran['created_at']);
+                                    @endphp
+                                    <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] text-[10px] font-semibold text-gray-500 select-none">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        {{ \Carbon\Carbon::parse($timestampToShow)->translatedFormat('d M Y, H:i') }}
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                <p class="text-xs mt-1 leading-relaxed {{ $isFuture ? 'text-gray-400/80' : 'text-gray-500' }}">
+                                    {{ $meta['desc'] }}
+                                </p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,7 +233,7 @@
             <div class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100">
                     <h3 class="text-sm font-semibold text-gray-900">Dokumen Lamaran</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">CV, portofolio, dan surat lamaran.</p>
+                    <p class="text-xs text-gray-400 mt-0.5">CV, portofolio, surat lamaran, transkip nilai, dan pas foto.</p>
                 </div>
                 <div class="p-6 space-y-4">
                     @if(!empty($berkas['cv']))
@@ -158,8 +292,46 @@
                         </a>
                     </div>
                     @endif
-                    
-                    @if(empty($berkas['cv']) && empty($berkas['portofolio']) && empty($berkas['surat_lamaran']))
+
+                    @if(!empty($berkas['transkip_nilai']))
+                    <div class="bg-gray-50/80 rounded-xl p-3.5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">Transkip Nilai</p>
+                                <p class="text-xs text-gray-400">Dokumen Akademik</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('applicants.berkas', ['id' => $lamaran['lamaran_id'], 'tipe' => 'transkip_nilai']) }}" target="_blank"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-50 rounded-lg transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Lihat
+                        </a>
+                    </div>
+                    @endif
+
+                    @if(!empty($berkas['pas_foto']))
+                    <div class="bg-gray-50/80 rounded-xl p-3.5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">Pas Foto</p>
+                                <p class="text-xs text-gray-400">Foto Formal</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('applicants.berkas', ['id' => $lamaran['lamaran_id'], 'tipe' => 'pas_foto']) }}" target="_blank"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-50 rounded-lg transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Lihat
+                        </a>
+                    </div>
+                    @endif
+
+                    @if(empty($berkas['cv']) && empty($berkas['portofolio']) && empty($berkas['surat_lamaran']) && empty($berkas['transkip_nilai']) && empty($berkas['pas_foto']))
                     <div class="text-center py-6 text-gray-400">
                         <svg class="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <p class="text-sm font-medium">Tidak ada dokumen</p>
@@ -185,33 +357,92 @@
     </div>
 
     <!-- Action Bar -->
-    <div class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-sm text-gray-500">Ubah status evaluasi kandidat ini.</p>
-        <div class="flex items-center gap-3">
-            <!-- Status Select -->
-            <div class="relative">
-                <select id="status" name="status"
-                    class="block w-48 pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer">
-                    <option value="applied" {{ $lamaran['status_terakhir'] === 'applied' ? 'selected' : '' }}>Applied</option>
-                    <option value="reviewed" {{ $lamaran['status_terakhir'] === 'reviewed' ? 'selected' : '' }}>Reviewed</option>
-                    <option value="interview" {{ $lamaran['status_terakhir'] === 'interview' ? 'selected' : '' }}>Interview</option>
-                    <option value="completed" {{ $lamaran['status_terakhir'] === 'completed' ? 'selected' : '' }}>Completed</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    <div class="space-y-4">
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="text-sm font-medium text-gray-700">Ubah status evaluasi kandidat ini.</p>
+                <p class="text-xs text-gray-400 mt-0.5">Pilih <span class="font-semibold text-indigo-600">Interview</span> untuk mengirim detail jadwal ke pelamar.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Status Select -->
+                <div class="relative">
+                    <select id="status" name="status"
+                        class="block w-48 pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer">
+                        <option value="applied" {{ $lamaran['status_terakhir'] === 'applied' ? 'selected' : '' }}>Applied</option>
+                        <option value="reviewed" {{ $lamaran['status_terakhir'] === 'reviewed' ? 'selected' : '' }}>Reviewed</option>
+                        <option value="interview" {{ $lamaran['status_terakhir'] === 'interview' ? 'selected' : '' }}>Interview</option>
+                        <option value="completed" {{ $lamaran['status_terakhir'] === 'completed' ? 'selected' : '' }}>Completed</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <button type="button" id="btn-save-status"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm hover:shadow transition-all duration-200">
+                    <svg id="btn-save-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    <svg id="btn-save-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="btn-save-text">Simpan Perubahan</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Interview Detail Panel -->
+        <div id="interview-panel"
+            style="max-height:0; overflow:hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0;"
+            class="bg-white rounded-3xl border border-indigo-100 shadow-[0_4px_20px_-6px_rgba(99,102,241,0.2)]">
+            <div class="px-6 py-4 border-b border-indigo-50 bg-gradient-to-r from-indigo-50/70 to-violet-50/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Detail Jadwal Interview</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Informasi ini akan dikirim sebagai notifikasi ke pelamar.</p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Save Button -->
-            <button type="button" id="btn-save-status"
-                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm hover:shadow transition-all duration-200">
-                <svg id="btn-save-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                <svg id="btn-save-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span id="btn-save-text">Simpan Perubahan</span>
-            </button>
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <!-- Tanggal & Jam -->
+                <div>
+                    <label for="interview_time" class="block text-xs font-semibold text-gray-600 mb-1.5">
+                        Tanggal &amp; Jam Interview <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="datetime-local" id="interview_time" name="interview_time"
+                        class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer" />
+                </div>
+                <!-- Link Meeting -->
+                <div>
+                    <label for="link_meet" class="block text-xs font-semibold text-gray-600 mb-1.5">
+                        Link Google Meet / Zoom <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                            </svg>
+                        </div>
+                        <input type="url" id="link_meet" name="link_meet"
+                            class="block w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200"
+                            placeholder="https://meet.google.com/..." />
+                    </div>
+                </div>
+                <!-- Pesan Tambahan -->
+                <div class="sm:col-span-2">
+                    <label for="pesan_tambahan" class="block text-xs font-semibold text-gray-600 mb-1.5">
+                        Pesan Tambahan <span class="text-gray-400 font-normal">(opsional)</span>
+                    </label>
+                    <textarea id="pesan_tambahan" name="pesan_tambahan" rows="2"
+                        class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white resize-none placeholder-gray-400 transition-all duration-200"
+                        placeholder="Misal: Mohon hadir 10 menit sebelum jadwal. Siapkan portofolio terbaru Anda."></textarea>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -220,12 +451,47 @@
 
 @push('scripts')
 <script>
-    document.getElementById('btn-save-status').addEventListener('click', function() {
-        const btn       = this;
-        const status    = document.getElementById('status').value;
-        const textEl    = document.getElementById('btn-save-text');
-        const iconEl    = document.getElementById('btn-save-icon');
-        const spinnerEl = document.getElementById('btn-save-spinner');
+document.addEventListener('DOMContentLoaded', function () {
+    const statusSelect   = document.getElementById('status');
+    const interviewPanel = document.getElementById('interview-panel');
+    const btn            = document.getElementById('btn-save-status');
+    const textEl         = document.getElementById('btn-save-text');
+    const iconEl         = document.getElementById('btn-save-icon');
+    const spinnerEl      = document.getElementById('btn-save-spinner');
+
+    // ── Show / Hide interview panel ──────────────────────────────────────────
+    function toggleInterviewPanel() {
+        if (statusSelect.value === 'interview') {
+            interviewPanel.style.maxHeight = '600px';
+            interviewPanel.style.opacity   = '1';
+        } else {
+            interviewPanel.style.maxHeight = '0';
+            interviewPanel.style.opacity   = '0';
+        }
+    }
+
+    statusSelect.addEventListener('change', toggleInterviewPanel);
+    toggleInterviewPanel(); // run on load (if status already interview)
+
+    // ── Save button ──────────────────────────────────────────────────────────
+    btn.addEventListener('click', function () {
+        const status = statusSelect.value;
+
+        // Validate interview fields
+        if (status === 'interview') {
+            const interviewTime = document.getElementById('interview_time').value;
+            const linkMeet      = document.getElementById('link_meet').value;
+            if (!interviewTime) {
+                alert('Harap isi tanggal & jam interview terlebih dahulu.');
+                document.getElementById('interview_time').focus();
+                return;
+            }
+            if (!linkMeet) {
+                alert('Harap isi link Google Meet / Zoom terlebih dahulu.');
+                document.getElementById('link_meet').focus();
+                return;
+            }
+        }
 
         // Loading state
         btn.disabled = true;
@@ -234,12 +500,13 @@
         iconEl.classList.add('hidden');
         spinnerEl.classList.remove('hidden');
 
-        const statusLabels = {
-            applied: 'Applied',
-            reviewed: 'Reviewed',
-            interview: 'Interview',
-            completed: 'Completed',
-        };
+        // Build payload
+        const payload = { status };
+        if (status === 'interview') {
+            payload.interview_time  = document.getElementById('interview_time').value;
+            payload.link_meet       = document.getElementById('link_meet').value;
+            payload.pesan_tambahan  = document.getElementById('pesan_tambahan').value;
+        }
 
         fetch(`/company/applicants/{{ $lamaran['lamaran_id'] }}/status`, {
             method: 'PATCH',
@@ -248,19 +515,18 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({ status: status }),
+            body: JSON.stringify(payload),
         })
         .then(res => {
-            if (!res.ok) throw new Error('Gagal memperbarui status');
+            if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Gagal memperbarui status'); });
             return res.json();
         })
-        .then(data => {
+        .then(() => {
             textEl.textContent = 'Tersimpan!';
             spinnerEl.classList.add('hidden');
             iconEl.classList.remove('hidden');
             btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
             btn.classList.add('bg-emerald-600');
-
             setTimeout(() => location.reload(), 1000);
         })
         .catch(err => {
@@ -269,14 +535,14 @@
             iconEl.classList.remove('hidden');
             btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
             btn.classList.add('bg-rose-600');
-
             setTimeout(() => {
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-not-allowed', 'bg-rose-600');
                 btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
                 textEl.textContent = 'Simpan Perubahan';
-            }, 2000);
+            }, 2500);
         });
     });
+});
 </script>
 @endpush
