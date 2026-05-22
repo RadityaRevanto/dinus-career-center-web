@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\LamaranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\InterviewController;
 
 Route::get('/', fn() => view('auth.login'));
 Route::get('/login', fn() => view('auth.login'))->name('login');
@@ -27,7 +29,8 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
 });
 
 Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->group(function () {
-    Route::get('/overview', fn() => view('company.pages.overview'))->name('overview');
+    Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
+    Route::get('/interviews/calendar', [InterviewController::class, 'calendar'])->name('interviews.calendar');
 
     Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
     Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
