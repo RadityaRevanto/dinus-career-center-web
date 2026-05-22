@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modern Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
 </head>
 <body class="bg-base-100 text-base-content antialiased">
     <div class="flex h-screen overflow-hidden">
