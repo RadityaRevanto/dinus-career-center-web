@@ -2,303 +2,317 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Hero Header -->
-    <div class="bg-white rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] border border-gray-100 p-8 md:p-10 relative overflow-hidden">
-        <!-- Decorative bg -->
-        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 "></div>
-        
-        <div class="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div class="flex gap-6">
-                <div class="hidden sm:flex flex-shrink-0 h-20 w-20 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-sm">
-                    <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Frontend Developer</h1>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm mt-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Aktif
-                        </span>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-500 mt-4">
-                        <span class="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                            Full-time
-                        </span>
-                        <span class="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            Jakarta, Indonesia
-                        </span>
-                        <span class="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Rp 8jt - Rp 12jt
-                        </span>
-                    </div>
-                </div>
+
+    {{-- ── Header ──────────────────────────────────────────────────────────── --}}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Detail Lowongan</h1>
+                <p class="text-sm text-gray-500 mt-2">Informasi lengkap mengenai lowongan ini.</p>
             </div>
-            <div class="flex flex-shrink-0 items-center gap-3 mt-2 md:mt-0">
-                <a href="{{ route('jobs.edit', 1) ?? '#' }}" class="group px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2">
-                    <svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    Edit Lowongan
-                </a>
-            </div>
+        <div class="flex items-center gap-3">
+            @if(($lowongan['status_loker'] ?? '') == 'aktif')
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Aktif
+            </span>
+            @else
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>Ditutup
+            </span>
+            @endif
         </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Stat 1 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Total Pelamar</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-1">32</p>
-                </div>
-            </div>
-        </div>
-        <!-- Stat 2 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-center w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Menunggu Review</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-1">15</p>
-                </div>
-            </div>
-        </div>
-        <!-- Stat 3 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-center w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Tahap Wawancara</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-1">10</p>
-                </div>
-            </div>
-        </div>
-        <!-- Stat 4 -->
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-center w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Diterima (Hired)</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-1">4</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Grid Layout: Informasi Dasar & Informasi Tambahan berjejeran -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    <!-- Layout Container -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <!-- Left Column: Applicant Table -->
-        <div class="lg:col-span-8 space-y-6">
-            <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden">
-                <!-- Table Header & Toolbar -->
-                <div class="p-6 sm:px-8 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">Daftar Pelamar</h2>
-                        <p class="text-sm text-gray-500 mt-1">Kelola dan tinjau kandidat yang melamar.</p>
+            {{-- Informasi Dasar --}}
+            <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden h-fit">
+                <div class="p-8">
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-900">Informasi Dasar</h2>
+                        <p class="text-sm text-gray-500 mt-1">Detail utama posisi pekerjaan.</p>
                     </div>
-                    <div class="relative w-full sm:max-w-xs">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <div class="grid grid-cols-1 gap-6">
+
+                        {{-- Judul --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Lowongan</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['judul'] ?? '-' }}
+                                </div>
+                            </div>
                         </div>
-                        <input type="text" class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 bg-gray-50/50 hover:bg-gray-100/50 rounded-xl text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200" placeholder="Cari nama pelamar...">
+
+                        {{-- Jabatan --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Jabatan</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['jabatan']['nama'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Tipe Pekerjaan --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe Pekerjaan</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['tipe_pekerjaan']['nama'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Jurusan --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Jurusan</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['jurusan']['nama'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Sektor --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Sektor Industri</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['sektor']['nama'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+            </div>
 
-                <!-- Table Content -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50/80">
-                            <tr>
-                                <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Profil Pelamar
-                                </th>
-                                <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Dokumen / Match
-                                </th>
-                                <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th scope="col" class="px-6 sm:px-8 py-5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Aksi
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            <!-- Applicant 1 -->
-                            <tr class="hover:bg-indigo-50/30 transition-colors group">
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex items-center gap-4">
-                                        <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=John+Doe&background=e0e7ff&color=4f46e5&bold=true" alt="">
-                                        <div>
-                                            <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">John Doe</div>
-                                            <div class="text-xs text-gray-500 mt-1">john.doe@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex flex-col gap-2">
-                                        <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                            Resume.pdf
-                                        </button>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                <div class="bg-emerald-500 h-full w-[92%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-emerald-600">92% Match</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                        Pending Review
-                                    </span>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
-                                    <div class="relative inline-block text-left">
-                                        <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
-                                            Tindakan
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Applicant 2 -->
-                            <tr class="hover:bg-indigo-50/30 transition-colors group">
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex items-center gap-4">
-                                        <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=Jane+Smith&background=fce7f3&color=db2777&bold=true" alt="">
-                                        <div>
-                                            <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Jane Smith</div>
-                                            <div class="text-xs text-gray-500 mt-1">jane.smith@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex flex-col gap-2">
-                                        <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                            Portfolio.pdf
-                                        </button>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                <div class="bg-indigo-500 h-full w-[85%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-indigo-600">85% Match</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100 shadow-sm">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-                                        Tahap Wawancara
-                                    </span>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
-                                    <div class="relative inline-block text-left">
-                                        <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
-                                            Tindakan
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+            {{-- Informasi Tambahan --}}
+            <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden h-fit">
+                <div class="p-8">
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-900">Informasi Tambahan</h2>
+                        <p class="text-sm text-gray-500 mt-1">Kuota, gaji, deadline, dan status.</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-6">
 
-                            <!-- Applicant 3 -->
-                            <tr class="hover:bg-indigo-50/30 transition-colors group">
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex items-center gap-4">
-                                        <img class="h-11 w-11 rounded-full object-cover border border-gray-200 shadow-sm" src="https://ui-avatars.com/api/?name=Alex+Johnson&background=dcfce3&color=166534&bold=true" alt="">
-                                        <div>
-                                            <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Alex Johnson</div>
-                                            <div class="text-xs text-gray-500 mt-1">alex.j@example.com</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <div class="flex flex-col gap-2">
-                                        <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-indigo-200">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                            CV_Alex.pdf
-                                        </button>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                <div class="bg-emerald-500 h-full w-[98%]"></div>
-                                            </div>
-                                            <span class="text-xs font-bold text-emerald-600">98% Match</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        Diterima (Hired)
-                                    </span>
-                                </td>
-                                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
-                                    <div class="relative inline-block text-left">
-                                        <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-100 focus:outline-none">
-                                            Tindakan
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        {{-- Jumlah Posisi --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Posisi</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['jumlah_person'] ?? '-' }} orang
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Batas Akhir --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Batas Akhir</label>
+                            @php
+                                $batasAkhir = $lowongan['batas_akhir'] ?? null;
+                                $isExpired  = $batasAkhir && \Carbon\Carbon::parse($batasAkhir)->isPast();
+                            @endphp
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 {{ $isExpired ? 'text-rose-400' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium {{ $isExpired ? 'text-rose-600' : 'text-gray-900' }}">
+                                    {{ $batasAkhir ? \Carbon\Carbon::parse($batasAkhir)->translatedFormat('d M Y') : '-' }}
+                                    @if($isExpired)
+                                    <span class="ml-2 text-xs font-semibold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">Kadaluarsa</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Range Gaji --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Rentang Gaji</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-sm font-medium">Rp</span>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    {{ $lowongan['range_gaji'] ?? 'Tidak dicantumkan' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Status Lowongan --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status Lowongan</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
+                                    @if(($lowongan['status_loker'] ?? '') == 'aktif')
+                                        <span class="inline-flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                            Ditutup
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+    </div>
 
-        <!-- Right Column: Job Description Summary -->
-        <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] p-6 sm:p-8 sticky top-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Ringkasan Posisi</h3>
-                
-                <div class="space-y-6">
+    <!-- Detail Pekerjaan (Full Width) -->
+    <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden h-fit">
+            <div class="p-8">
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-900">Detail Pekerjaan</h2>
+                    <p class="text-sm text-gray-500 mt-1">Deskripsi peran dan persyaratan.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    {{-- Deskripsi Pekerjaan --}}
                     <div>
-                        <h4 class="text-sm font-bold text-gray-900 mb-2">Deskripsi Pekerjaan</h4>
-                        <p class="text-sm text-gray-600 leading-relaxed">
-                            Kami mencari Frontend Developer berpengalaman untuk bergabung dengan tim dinamis kami. Anda akan bertanggung jawab untuk membangun antarmuka pengguna yang interaktif dan responsif.
-                        </p>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Pekerjaan</label>
+                        <div class="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-700 leading-relaxed min-h-[9rem] whitespace-pre-line">
+                            {{ $lowongan['detail_lowongan'] ?? 'Tidak ada deskripsi.' }}
+                        </div>
                     </div>
-                    
-                    <div class="border-t border-gray-100 pt-6">
-                        <h4 class="text-sm font-bold text-gray-900 mb-3">Kualifikasi Utama</h4>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-2.5 text-sm text-gray-600">
-                                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Minimal 2 tahun pengalaman dengan React atau Vue.js
-                            </li>
-                            <li class="flex items-start gap-2.5 text-sm text-gray-600">
-                                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Pemahaman kuat HTML5, CSS3, dan JS (ES6+)
-                            </li>
-                            <li class="flex items-start gap-2.5 text-sm text-gray-600">
-                                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Terbiasa dengan integrasi API & Git
-                            </li>
-                        </ul>
+
+                    {{-- Persyaratan --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Persyaratan & Kualifikasi</label>
+                        <div class="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-700 leading-relaxed min-h-[9rem] whitespace-pre-line">
+                            {{ $lowongan['requirements'] ?? 'Tidak ada persyaratan.' }}
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
-        
+
+    {{-- ── Daftar Pelamar ──────────────────────────────────────────────────── --}}
+    @php
+        $statusConfig = [
+            'applied'   => ['bg-amber-50 text-amber-700 border-amber-100',  'bg-amber-500',  'Applied'],
+            'reviewed'  => ['bg-sky-50 text-sky-700 border-sky-100',        'bg-sky-500',    'Reviewed'],
+            'interview' => ['bg-blue-50 text-blue-700 border-blue-100',     'bg-blue-500',   'Interview'],
+            'completed' => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Completed'],
+        ];
+    @endphp
+
+    <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden">
+        {{-- Header --}}
+        <div class="px-6 sm:px-8 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-bold text-gray-900">Daftar Pelamar</h2>
+                <p class="text-sm text-gray-500 mt-0.5">
+                    <span class="font-semibold text-indigo-600">{{ count($lamaran) }}</span> pelamar untuk lowongan ini
+                </p>
+            </div>
+            <a href="{{ route('applicants') }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Semua Pelamar
+            </a>
+        </div>
+
+        @if(count($lamaran) > 0)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/80">
+                    <tr>
+                        <th class="px-6 sm:px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pelamar</th>
+                        <th class="px-6 sm:px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lowongan</th>
+                        <th class="px-6 sm:px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 sm:px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal Melamar</th>
+                        <th class="px-6 sm:px-8 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    @foreach($lamaran as $item)
+                    @php
+                        $pelamar = $item['pelamar'] ?? [];
+                        $status  = $item['status_terakhir'] ?? 'applied';
+                        $cfg     = $statusConfig[$status] ?? $statusConfig['applied'];
+                        $foto    = $pelamar['foto_profil']
+                            ?? 'https://ui-avatars.com/api/?name=' . urlencode($pelamar['nama_lengkap'] ?? 'P') . '&background=e0e7ff&color=4f46e5&bold=true&size=80';
+                    @endphp
+                    <tr class="hover:bg-indigo-50/20 transition-colors group">
+                        {{-- Pelamar --}}
+                        <td class="px-6 sm:px-8 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ $foto }}" alt="{{ $pelamar['nama_lengkap'] ?? '' }}"
+                                    class="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm flex-shrink-0" />
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                        {{ $pelamar['nama_lengkap'] ?? '-' }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-0.5">{{ $pelamar['email'] ?? '-' }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        {{-- Lowongan --}}
+                        <td class="px-6 sm:px-8 py-4 whitespace-nowrap">
+                            <p class="text-sm font-semibold text-gray-900">{{ $lowongan['judul'] ?? '-' }}</p>
+                        </td>
+                        {{-- Status --}}
+                        <td class="px-6 sm:px-8 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $cfg[0] }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $cfg[1] }}"></span>
+                                {{ $cfg[2] }}
+                            </span>
+                        </td>
+                        {{-- Tanggal --}}
+                        <td class="px-6 sm:px-8 py-4 whitespace-nowrap">
+                            <p class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($item['created_at'])->translatedFormat('d M Y') }}</p>
+                        </td>
+                        {{-- Aksi --}}
+                        <td class="px-6 sm:px-8 py-4 whitespace-nowrap text-right">
+                            <a href="{{ route('applicants.edit', $item['lamaran_id']) }}"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                Detail
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        {{-- Empty State --}}
+        <div class="py-16 text-center">
+            <div class="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <p class="text-gray-700 font-semibold text-base">Belum ada pelamar</p>
+            <p class="text-gray-400 text-sm mt-1">Belum ada kandidat yang melamar untuk lowongan ini.</p>
+        </div>
+        @endif
     </div>
 
 </div>

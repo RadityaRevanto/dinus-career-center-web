@@ -134,7 +134,7 @@
                             Melamar Posisi
                         </th>
                         <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                            Dokumen / Skor
+                            Dokumen
                         </th>
                         <th scope="col" class="px-6 sm:px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                             Status
