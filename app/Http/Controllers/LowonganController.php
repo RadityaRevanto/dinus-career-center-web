@@ -111,6 +111,36 @@ class LowonganController extends Controller
         return view('company.pages.jobs.edit', array_merge(['lowongan' => $lowongan[0]], $masterData));
     }
 
+    public function show(string $id)
+    {
+        $perusahaanId = session('user')['id'];
+
+        $lowongan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'lowongan_id'   => 'eq.' . $id,
+                'perusahaan_id' => 'eq.' . $perusahaanId,
+                'select'        => '*,jabatan(nama),jurusan(nama),tipe_pekerjaan(nama),sektor(nama)',
+            ])->json();
+
+        if (empty($lowongan)) {
+            abort(403, 'Akses ditolak');
+        }
+
+        $lamaran = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lowongan_id' => 'eq.' . $id,
+                'select'      => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang)',
+                'order'       => 'created_at.desc',
+            ])->json();
+
+        $lamaran = is_array($lamaran) ? $lamaran : [];
+
+        return view('company.pages.jobs.show', [
+            'lowongan' => $lowongan[0],
+            'lamaran'  => $lamaran,
+        ]);
+    }
+
     public function update(Request $request, string $id)
     {
         $request->validate([

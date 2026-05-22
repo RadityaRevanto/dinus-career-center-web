@@ -9,7 +9,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Edit Lowongan</h1>
-            <p class="text-sm text-gray-500 mt-1">Perbarui informasi lowongan pekerjaan yang sudah ada.</p>
+            <p class="text-sm text-gray-500 mt-2">Perbarui informasi lowongan pekerjaan yang sudah ada.</p>
         </div>
         <div class="flex items-center gap-3">
             @if(($lowongan['status_loker'] ?? '') == 'aktif')

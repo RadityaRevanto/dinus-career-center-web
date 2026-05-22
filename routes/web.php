@@ -32,6 +32,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
     Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
     Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
     Route::post('/jobs', [LowonganController::class, 'store'])->name('jobs.store');
+    Route::get('/jobs/{id}', [LowonganController::class, 'show'])->name('jobs.show');
     Route::get('/jobs/{id}/edit', [LowonganController::class, 'edit'])->name('jobs.edit');
     Route::patch('/jobs/{id}', [LowonganController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
