@@ -11,7 +11,7 @@
     <!-- Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <!-- Lowongan Aktif -->
-        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
+        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition">
                     <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -23,7 +23,7 @@
             <p class="text-sm font-medium text-gray-500 mt-1">Lowongan Aktif</p>
         </div>
         <!-- Total Pelamar -->
-        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:border-amber-200 transition-all duration-300">
+        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition">
                     <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -35,7 +35,7 @@
             <p class="text-sm font-medium text-gray-500 mt-1">Total Pelamar</p>
         </div>
         <!-- Sedang Diproses -->
-        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -47,7 +47,7 @@
             <p class="text-sm font-medium text-gray-500 mt-1">Sedang Diproses</p>
         </div>
         <!-- Completed -->
-        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg hover:border-emerald-200 transition-all duration-300">
+        <div class="group relative bg-white rounded-2xl border border-gray-200 p-5 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -202,21 +202,28 @@
                     <a href="{{ route('interviews.calendar') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition">Lihat Kalender →</a>
                 </div>
                 <div class="space-y-4">
-                    @forelse($interviews as $interview)
-                        <div class="relative pl-4 border-l-2 border-blue-500 py-1">
-                            <div class="flex items-center justify-between mb-1">
-                                <h6 class="text-base font-bold text-gray-900">{{ $interview['posisi'] }}</h6>
-                                <span class="text-sm text-gray-500 font-medium">{{ $interview['jam'] }}</span>
+                    @forelse(collect($interviews)->groupBy('tanggal') as $tanggal => $groupedInterviews)
+                        <div class="mb-4 last:mb-0">
+                            <h6 class="text-sm font-bold text-gray-700 mb-3 pb-1 border-b border-gray-100">{{ $tanggal }}</h6>
+                            <div class="space-y-3">
+                                @foreach($groupedInterviews as $interview)
+                                    <div class="relative pl-4 border-l-2 border-blue-500 py-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h6 class="text-base font-bold text-gray-900">{{ $interview['posisi'] }}</h6>
+                                            <span class="text-sm text-gray-500 font-medium">{{ $interview['jam'] }}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500 mt-0.5">{{ $interview['nama_pelamar'] }}</p>
+                                        @if(!empty($interview['link_zoom']) && $interview['link_zoom'] !== '#')
+                                            <a href="{{ $interview['link_zoom'] }}" target="_blank" class="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-blue-600 hover:underline">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                </svg>
+                                                Gabung Meeting
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endforeach
                             </div>
-                            <p class="text-sm text-gray-500 mt-0.5">{{ $interview['nama_pelamar'] }} • {{ $interview['tanggal'] }}</p>
-                            @if(!empty($interview['link_zoom']) && $interview['link_zoom'] !== '#')
-                                <a href="{{ $interview['link_zoom'] }}" target="_blank" class="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-blue-600 hover:underline">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                    </svg>
-                                    Gabung Meeting
-                                </a>
-                            @endif
                         </div>
                     @empty
                         <div class="text-center py-6 text-sm text-gray-500">Tidak ada jadwal interview dalam waktu dekat</div>

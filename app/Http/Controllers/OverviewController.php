@@ -119,7 +119,7 @@ class OverviewController extends Controller
         // --- Lamaran Terbaru (Limit 5) ---
         $lamaranTerbaru = array_slice($lamaran, 0, 5);
 
-        // --- Schedule / Jadwal Interview (Limit 3) ---
+        // --- Schedule / Jadwal Interview (Khusus Hari Ini) ---
         $notifikasiResponse = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/notifikasi', [
                 'tipe'   => 'eq.interview',
@@ -130,6 +130,8 @@ class OverviewController extends Controller
         $allNotif = is_array($allNotif) ? $allNotif : [];
 
         $interviews = [];
+        $todayString = \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('l, d M Y');
+        $todayStringAlt = \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y');
 
         foreach ($allNotif as $n) {
             if (($n['lamaran']['lowongan']['perusahaan_id'] ?? null) === $perusahaanId) {
@@ -148,16 +150,18 @@ class OverviewController extends Controller
                     }
                 }
                 
-                $interviews[] = [
-                    'nama_pelamar' => $n['pelamar']['nama_lengkap'] ?? 'Kandidat',
-                    'posisi'       => $n['lamaran']['lowongan']['judul'] ?? 'Pekerjaan',
-                    'jam'          => $timePart,
-                    'tanggal'      => $datePart,
-                    'link_zoom'    => $n['link_zoom'] ?? '#',
-                ];
+                if (str_contains($datePart, $todayString) || str_contains($datePart, $todayStringAlt) || $datePart === 'Hari Ini') {
+                    $interviews[] = [
+                        'nama_pelamar' => $n['pelamar']['nama_lengkap'] ?? 'Kandidat',
+                        'posisi'       => $n['lamaran']['lowongan']['judul'] ?? 'Pekerjaan',
+                        'jam'          => $timePart,
+                        'tanggal'      => $datePart,
+                        'link_zoom'    => $n['link_zoom'] ?? '#',
+                    ];
+                }
             }
         }
-        $interviews = array_slice($interviews, 0, 3);
+        // $interviews = array_slice($interviews, 0, 3); // Dihapus agar menampilkan semua jadwal hari ini
 
         // --- Lowongan Aktif Sidebar ---
         $lamaranPerLowongan = [];
