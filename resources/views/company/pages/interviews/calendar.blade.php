@@ -1,21 +1,21 @@
 @extends('company.layouts.app')
 @section('content')
-<div class="flex flex-row gap-6 h-full w-full min-w-max" x-data="interviewCalendar()" x-init="initCalendar()" x-cloak>
+<div class="flex flex-col xl:flex-row gap-4 lg:gap-6 h-full w-full max-w-full overflow-hidden" x-data="interviewCalendar()" x-init="initCalendar()" x-cloak>
     
     <!-- Calendar Section -->
-    <div class="flex-1 bg-white rounded-3xl p-6 md:p-8 shadow-sm flex flex-col border border-gray-100">
+    <div class="flex-1 min-w-0 bg-white rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 xl:p-8 shadow-sm flex flex-col border border-gray-100">
         
         <!-- Calendar Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-black text-gray-900 uppercase tracking-wide" x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
-            <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-5 lg:mb-6">
+            <h2 class="text-xl sm:text-2xl font-black text-gray-900 uppercase tracking-wide" x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
+            <div class="flex items-center gap-2 sm:gap-3">
                 <button @click="prevMonth()" class="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition border border-gray-100 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                 </button>
                 <input type="month" 
-                       class="px-4 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm font-bold hover:bg-blue-50 hover:text-blue-600 transition border border-gray-100 focus:outline-none cursor-pointer"
+                       class="w-full sm:w-auto px-3 sm:px-4 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-xs sm:text-sm font-bold hover:bg-blue-50 hover:text-blue-600 transition border border-gray-100 focus:outline-none cursor-pointer"
                        x-bind:value="currentYear + '-' + String(currentMonth + 1).padStart(2, '0')"
                        @change="let parts = $event.target.value.split('-'); currentYear = parseInt(parts[0]); currentMonth = parseInt(parts[1]) - 1;">
                 <button @click="nextMonth()" class="p-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition border border-gray-100 focus:outline-none">
@@ -26,36 +26,39 @@
             </div>
         </div>
 
-        <!-- Days Header -->
-        <div class="grid mb-4 gap-3" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
-            <template x-for="day in days" :key="day">
-                <div class="text-center text-xs font-bold text-gray-400 tracking-widest uppercase" x-text="day"></div>
-            </template>
-        </div>
+        <!-- Scrollable Date Area -->
+        <div class="flex-1 min-h-0 max-h-[calc(100vh-260px)] overflow-auto pr-1">
+            <div class="min-w-[520px] sm:min-w-0">
+                <!-- Days Header -->
+                <div class="grid mb-2 sm:mb-4 gap-1 sm:gap-2 lg:gap-3 sticky top-0 z-10 bg-white pb-2" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
+                    <template x-for="day in days" :key="day">
+                        <div class="text-center text-[10px] sm:text-xs font-bold text-gray-400 tracking-wide sm:tracking-widest uppercase" x-text="day"></div>
+                    </template>
+                </div>
 
-        <!-- Calendar Grid -->
-        <div class="grid gap-3 flex-1" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
+                <!-- Calendar Grid -->
+                <div class="grid gap-1 sm:gap-2 lg:gap-3" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
             
             <!-- Blank days from previous month -->
             <template x-for="blankDay in blankDays">
-                <div class="border border-gray-100 rounded-2xl p-3 min-h-[110px] flex flex-col opacity-40 bg-gray-50/50">
-                    <span class="text-sm font-semibold text-gray-500" x-text="blankDay.date"></span>
+                <div class="border border-gray-100 rounded-xl lg:rounded-2xl p-1.5 sm:p-2 lg:p-3 min-h-[64px] sm:min-h-[82px] lg:min-h-[100px] xl:min-h-[110px] flex flex-col opacity-40 bg-gray-50/50">
+                    <span class="text-xs sm:text-sm font-semibold text-gray-500" x-text="blankDay.date"></span>
                 </div>
             </template>
 
             <!-- Current month days -->
             <template x-for="dayObj in noOfDays" :key="dayObj.date">
                 <div @click="selectDate(dayObj.fullDate)" 
-                     class="border rounded-2xl p-3 min-h-[110px] flex flex-col relative transition-all cursor-pointer group"
+                     class="border rounded-xl lg:rounded-2xl p-1.5 sm:p-2 lg:p-3 min-h-[64px] sm:min-h-[82px] lg:min-h-[100px] xl:min-h-[110px] flex flex-col relative transition-all cursor-pointer group"
                      :class="{
-                         'border-[2px] border-blue-500 bg-[#eff4ff] shadow-sm': isSelected(dayObj.fullDate),
+                         'border-2 border-blue-500 bg-[#eff4ff] shadow-sm': isSelected(dayObj.fullDate),
                          'border-gray-100 hover:border-blue-300 hover:shadow-sm': !isSelected(dayObj.fullDate)
                      }">
                     
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-sm font-bold flex items-center justify-center rounded-full transition-colors"
+                    <div class="flex justify-between items-start mb-1 sm:mb-2">
+                        <span class="text-xs sm:text-sm font-bold flex items-center justify-center rounded-full transition-colors"
                               :class="{
-                                  'w-7 h-7 bg-blue-600 text-white': isSelected(dayObj.fullDate),
+                                  'w-6 h-6 sm:w-7 sm:h-7 bg-blue-600 text-white': isSelected(dayObj.fullDate),
                                   'text-gray-800 group-hover:text-blue-600': !isSelected(dayObj.fullDate)
                               }"
                               x-text="dayObj.date">
@@ -63,12 +66,12 @@
                         
                         <!-- Event count badge -->
                         <template x-if="getInterviewsForDate(dayObj.fullDate).length > 0 && !isSelected(dayObj.fullDate)">
-                            <span class="flex items-center justify-center w-5 h-5 bg-blue-600 text-white rounded-full text-[10px] font-bold" x-text="getInterviewsForDate(dayObj.fullDate).length"></span>
+                            <span class="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 bg-blue-600 text-white rounded-full text-[9px] sm:text-[10px] font-bold" x-text="getInterviewsForDate(dayObj.fullDate).length"></span>
                         </template>
                     </div>
 
                     <!-- List of events for the day -->
-                    <div class="mt-auto space-y-1 overflow-hidden" style="max-height: 50px;">
+                    <div class="hidden sm:block mt-auto space-y-1 overflow-hidden" style="max-height: 50px;">
                         <template x-for="(interview, index) in getInterviewsForDate(dayObj.fullDate)" :key="index">
                             <template x-if="index < 2">
                                 <div class="text-[9px] font-bold border rounded py-1 px-1.5 flex items-center gap-1.5 overflow-hidden"
@@ -90,32 +93,34 @@
 
             <!-- Blank days from next month -->
             <template x-for="nextDay in nextBlankDays">
-                <div class="border border-gray-100 rounded-2xl p-3 min-h-[110px] flex flex-col opacity-40 bg-gray-50/50">
-                    <span class="text-sm font-semibold text-gray-500" x-text="nextDay.date"></span>
+                <div class="border border-gray-100 rounded-xl lg:rounded-2xl p-1.5 sm:p-2 lg:p-3 min-h-[64px] sm:min-h-[82px] lg:min-h-[100px] xl:min-h-[110px] flex flex-col opacity-40 bg-gray-50/50">
+                    <span class="text-xs sm:text-sm font-semibold text-gray-500" x-text="nextDay.date"></span>
                 </div>
             </template>
 
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Right Sidebar (Schedule Detail) -->
-    <div class="w-[320px] bg-white rounded-3xl p-6 lg:p-8 shadow-sm flex flex-col h-fit border border-gray-100 shrink-0">
-        <div class="mb-6">
-            <div class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-600 tracking-widest mb-6 border border-blue-100">
+    <div class="w-full xl:w-[320px] bg-white rounded-2xl lg:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col h-fit border border-gray-100 shrink-0">
+        <div class="mb-5 lg:mb-6">
+            <div class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-600 tracking-widest mb-4 lg:mb-6 border border-blue-100">
                 DETAIL JADWAL
             </div>
-            <h2 class="text-[28px] font-black text-gray-900 leading-tight mb-2 tracking-wide uppercase" style="font-family: 'Arial Black', Impact, sans-serif;">
+            <h2 class="text-[22px] sm:text-[28px] font-black text-gray-900 leading-tight mb-2 tracking-wide uppercase" style="font-family: 'Arial Black', Impact, sans-serif;">
                 <span x-html="formatSelectedDateForSidebar().day"></span><br>
                 <span x-text="formatSelectedDateForSidebar().year"></span>
             </h2>
             <p class="text-sm text-gray-400 font-medium">Sesi wawancara terjadwal</p>
         </div>
 
-        <hr class="border-gray-100 mb-6">
+        <hr class="border-gray-100 mb-5 lg:mb-6">
 
         <!-- When there are interviews -->
         <template x-if="getSelectedDateInterviews().length > 0">
-            <div class="flex-1 flex flex-col overflow-hidden max-h-[500px]">
+            <div class="flex-1 flex flex-col overflow-hidden max-h-[420px] lg:max-h-[500px]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-bold text-gray-800"><span x-text="getSelectedDateInterviews().length"></span> Jadwal Interview</h3>
                 </div>
@@ -123,7 +128,7 @@
                 <!-- Scrollable List -->
                 <div class="flex-1 overflow-y-auto pr-2 space-y-3 pb-4">
                     <template x-for="(interview, index) in getSelectedDateInterviews()" :key="index">
-                        <div class="p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-blue-300 hover:shadow-sm transition-all group cursor-pointer">
+                        <div class="p-3 sm:p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-blue-300 hover:shadow-sm transition-all group cursor-pointer">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <h4 class="font-bold text-gray-900 text-sm group-hover:text-blue-600 transition-colors" x-text="interview.name"></h4>
@@ -159,9 +164,9 @@
 
         <!-- Empty State -->
         <template x-if="getSelectedDateInterviews().length === 0">
-            <div class="flex-1 flex flex-col items-center justify-center text-center pb-12 mt-4">
-                <div class="w-16 h-16 bg-gray-50 rounded-[20px] flex items-center justify-center mb-6 border border-gray-100 shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex-1 flex flex-col items-center justify-center text-center pb-8 sm:pb-12 mt-4">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gray-50 rounded-[20px] flex items-center justify-center mb-5 sm:mb-6 border border-gray-100 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>

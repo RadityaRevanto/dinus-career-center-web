@@ -9,12 +9,9 @@
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen Pelamar</h1>
             <p class="text-sm text-gray-500 mt-2">Kelola semua kandidat yang melamar ke berbagai posisi di perusahaan Anda.</p>
         </div>
-        <div class="flex items-center gap-3">
-            <button class="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Ekspor Data
-            </button>
-        </div>
+        <!-- <div class="flex items-center gap-3">
+          
+        </div> -->
     </div>
 
     <!-- Stats Grid -->
@@ -88,37 +85,25 @@
 
             <!-- Filters -->
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <div class="relative w-full sm:w-48">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
-                        <option value="">Semua Posisi</option>
-                        <option value="frontend">Frontend Developer</option>
-                        <option value="uiux">UI/UX Designer</option>
-                        <option value="backend">Backend Engineer</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-
                 <div class="relative w-full sm:w-40">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                     </div>
                     <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
                         <option value="">Semua Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="review">Direview</option>
-                        <option value="interview">Wawancara</option>
-                        <option value="hired">Diterima</option>
-                        <option value="rejected">Ditolak</option>
+                        <option value="pending">Applied</option>
+                        <option value="review">Reviewed</option>
+                        <option value="interview">Interview</option>
+                        <option value="hired">Completed</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
+                <a href="{{ route('applicants.export') }}" class="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Ekspor Data
+                </a>
             </div>
         </div>
 
@@ -236,14 +221,12 @@
             </table>
         </div>
         
-        <!-- Pagination Placeholder -->
-        <div class="px-6 sm:px-8 py-5 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-            <span class="text-sm text-gray-500">Menampilkan <span class="font-bold text-gray-900">1</span> sampai <span class="font-bold text-gray-900">3</span> dari <span class="font-bold text-gray-900">1,284</span> pelamar</span>
-            <div class="flex items-center gap-2">
-                <button disabled class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 text-sm font-semibold cursor-not-allowed">Sebelumnya</button>
-                <button class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-colors">Selanjutnya</button>
-            </div>
-        </div>
+        @include('company.components.table-pagination', [
+            'id' => 'applicants',
+            'totalRows' => count($lamaran),
+            'rowsPerPage' => 50,
+            'currentPage' => 1,
+        ])
     </div>
 </div>
 @endsection
