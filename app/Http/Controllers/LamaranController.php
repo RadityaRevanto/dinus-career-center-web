@@ -25,10 +25,8 @@ class LamaranController extends Controller
         ];
     }
 
-    public function index()
+    private function getCompanyLamaran(string $perusahaanId): array
     {
-        $perusahaanId = session('user')['id'];
-
         $response = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'select' => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
@@ -47,6 +45,14 @@ class LamaranController extends Controller
             return ($l['lowongan']['perusahaan_id'] ?? null) === $perusahaanId;
         });
 
+        return array_values($lamaran);
+    }
+
+    public function index()
+    {
+        $perusahaanId = session('user')['id'];
+        $lamaran = $this->getCompanyLamaran($perusahaanId);
+
         $stats = [
             'total'     => count($lamaran),
             'applied'   => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'applied')),
@@ -63,10 +69,25 @@ class LamaranController extends Controller
             ])->json();
 
         return view('company.pages.pelamar.index', [
-            'lamaran' => array_values($lamaran),
+            'lamaran' => $lamaran,
             'stats'   => $stats,
             'lowongan' => $lowongan,
         ]);
+    }
+
+    public function export()
+    {
+        $perusahaanId = session('user')['id'];
+        $lamaran = $this->getCompanyLamaran($perusahaanId);
+        $filename = 'data-pelamar-' . now()->format('Y-m-d-His') . '.xls';
+
+        return response()
+            ->view('company.pages.pelamar.export-excel', [
+                'lamaran' => $lamaran,
+            ])
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Cache-Control', 'max-age=0');
     }
 
     public function edit(string $lamaranId)

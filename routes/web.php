@@ -8,6 +8,7 @@ use App\Http\Controllers\LamaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\InterviewController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', fn() => view('auth.login'));
 Route::get('/login', fn() => view('auth.login'))->name('login');
@@ -41,9 +42,12 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
     Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
 
     Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
+    Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
     Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
     Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
     Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
+
+    Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('notifications.latest');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('company.profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('company.profile.update');
