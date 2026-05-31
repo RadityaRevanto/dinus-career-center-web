@@ -171,7 +171,7 @@
                         <td class="px-6 py-5 whitespace-nowrap">
                             @if(($p['status_verifikasi'] ?? '') === 'pending')
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                 Pending
                             </span>
                             @elseif(($p['status_verifikasi'] ?? '') === 'accepted')
