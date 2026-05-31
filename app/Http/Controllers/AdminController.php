@@ -133,7 +133,102 @@ class AdminController extends Controller
                 'order'  => 'created_at.desc',
             ])->json();
 
-        return view('admin.pages.lowongan.index', compact('lowongan'));
+        $lowongan = is_array($lowongan) ? $lowongan : [];
+        $lowonganIds = collect($lowongan)->pluck('lowongan_id')->filter()->values()->all();
+        $jumlahPelamar = [];
+
+        if (!empty($lowonganIds)) {
+            $lamaran = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/rest/v1/lamaran', [
+                    'select'      => 'lowongan_id',
+                    'lowongan_id' => 'in.(' . implode(',', $lowonganIds) . ')',
+                ])->json();
+
+            $jumlahPelamar = is_array($lamaran)
+                ? collect($lamaran)->groupBy('lowongan_id')->map->count()->all()
+                : [];
+        }
+
+        $lowongan = collect($lowongan)->map(function ($item) use ($jumlahPelamar) {
+            $item['jumlah_pelamar'] = $jumlahPelamar[$item['lowongan_id'] ?? null] ?? 0;
+            return $item;
+        })->all();
+
+        $totalLowongan = count($lowongan);
+        $lowonganAktif = collect($lowongan)->where('status_loker', 'aktif')->count();
+        $lowonganTutup = collect($lowongan)->where('status_loker', 'tutup')->count();
+        $lowonganPerPageOptions = [10, 25, 50, 100];
+        $lowonganPerPage = (int) request('per_page', 10);
+        $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
+
+        $lastPage = max(1, (int) ceil($totalLowongan / $lowonganPerPage));
+        $currentPage = min(max(1, (int) request('page', 1)), $lastPage);
+        $items = array_slice($lowongan, ($currentPage - 1) * $lowonganPerPage, $lowonganPerPage);
+
+        $lowongan = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $totalLowongan,
+            $lowonganPerPage,
+            $currentPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        return view('admin.pages.lowongan.index', compact('lowongan', 'totalLowongan', 'lowonganAktif', 'lowonganTutup', 'lowonganPerPageOptions'));
+    }
+
+    public function showLowongan(Request $request, string $id)
+    {
+        $lowongan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'lowongan_id' => 'eq.' . $id,
+                'select'      => '*,jabatan(nama),jurusan(nama),tipe_pekerjaan(nama),sektor(nama),perusahaan(nama_perusahaan,email_perusahaan,kota,logo)',
+            ])->json();
+
+        if (empty($lowongan)) {
+            abort(404, 'Lowongan tidak ditemukan');
+        }
+
+        $data = $lowongan[0];
+
+        $lamaran = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lowongan_id' => 'eq.' . $id,
+                'select'      => 'lamaran_id,status_terakhir,created_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang)',
+                'order'       => 'created_at.desc',
+            ])->json();
+
+        $allLamaran = is_array($lamaran) ? $lamaran : [];
+        $totalPelamar = count($allLamaran);
+        $statusPelamar = [
+            'applied'   => collect($allLamaran)->where('status_terakhir', 'applied')->count(),
+            'reviewed'  => collect($allLamaran)->where('status_terakhir', 'reviewed')->count(),
+            'interview' => collect($allLamaran)->where('status_terakhir', 'interview')->count(),
+            'completed' => collect($allLamaran)->where('status_terakhir', 'completed')->count(),
+        ];
+
+        $pelamarPerPageOptions = [10, 25, 50, 100];
+        $pelamarPerPage = (int) $request->query('per_page', 10);
+        $pelamarPerPage = in_array($pelamarPerPage, $pelamarPerPageOptions, true) ? $pelamarPerPage : 10;
+
+        $lastPage = max(1, (int) ceil($totalPelamar / $pelamarPerPage));
+        $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
+        $items = array_slice($allLamaran, ($currentPage - 1) * $pelamarPerPage, $pelamarPerPage);
+
+        $lamaran = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $totalPelamar,
+            $pelamarPerPage,
+            $currentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return view('admin.pages.lowongan.show', compact('data', 'lamaran', 'totalPelamar', 'statusPelamar', 'pelamarPerPageOptions'));
     }
 
     public function auditLog()
