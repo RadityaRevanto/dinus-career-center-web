@@ -56,6 +56,14 @@ class ProfileController extends Controller
         $perusahaanId = session('user')['id'];
         $logo = null;
 
+        $perusahaan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/perusahaan', [
+                'perusahaan_id' => 'eq.' . $perusahaanId,
+                'select'        => 'status_verifikasi',
+            ])->json();
+
+        $statusVerifikasi = $perusahaan[0]['status_verifikasi'] ?? session('company_status');
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $file      = $request->file('logo');
@@ -93,11 +101,20 @@ class ProfileController extends Controller
             $payload['logo'] = $logo;
         }
 
+        if ($statusVerifikasi === 'rejected') {
+            $payload['status_verifikasi'] = 'pending';
+        }
+
         $res = Http::withHeaders($this->headers())
             ->patch($this->baseUrl . '/rest/v1/perusahaan?perusahaan_id=eq.' . $perusahaanId, $payload);
 
         if ($res->failed()) {
             return back()->with('error', 'Gagal memperbarui profil: ' . $res->body())->withInput();
+        }
+
+        if ($statusVerifikasi === 'rejected') {
+            session()->flush();
+            return redirect('/login')->with('success', 'Profil berhasil diperbarui dan dikirim ulang untuk review admin. Silakan tunggu verifikasi berikutnya.');
         }
 
         return redirect()->route('company.profile')->with('success', 'Profil berhasil diperbarui!');

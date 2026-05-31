@@ -16,11 +16,13 @@ class CompanyVerified extends Mailable
 
     public string $namaPerusahaan;
     public string $status;
+    public ?string $alasanPenolakan;
 
-    public function __construct(string $namaPerusahaan, string $status)
+    public function __construct(string $namaPerusahaan, string $status, ?string $alasanPenolakan = null)
     {
-        $this->namaPerusahaan = $namaPerusahaan;
-        $this->status         = $status;
+        $this->namaPerusahaan   = $namaPerusahaan;
+        $this->status           = $status;
+        $this->alasanPenolakan  = $alasanPenolakan;
     }
 
     /**
