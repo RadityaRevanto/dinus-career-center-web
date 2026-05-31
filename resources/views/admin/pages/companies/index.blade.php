@@ -5,13 +5,13 @@
     <!-- Flash Messages -->
     @if(session('success'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
-        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         {{ session('success') }}
     </div>
     @endif
     @if(session('error'))
     <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
-        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         {{ session('error') }}
     </div>
     @endif
@@ -25,10 +25,19 @@
     </div>
 
     @php
-        $totalPerusahaan = is_array($perusahaan) ? count($perusahaan) : 0;
-        $pendingCount    = is_array($perusahaan) ? collect($perusahaan)->where('status_verifikasi', 'pending')->count() : 0;
-        $acceptedCount   = is_array($perusahaan) ? collect($perusahaan)->where('status_verifikasi', 'accepted')->count() : 0;
-        $rejectedCount   = is_array($perusahaan) ? collect($perusahaan)->where('status_verifikasi', 'rejected')->count() : 0;
+        $allPerusahaan   = $allPerusahaan ?? $perusahaan;
+        $statusFilter    = $statusFilter ?? request('status', 'all');
+        $totalPerusahaan = is_array($allPerusahaan) ? count($allPerusahaan) : 0;
+        $pendingCount    = is_array($allPerusahaan) ? collect($allPerusahaan)->where('status_verifikasi', 'pending')->count() : 0;
+        $acceptedCount   = is_array($allPerusahaan) ? collect($allPerusahaan)->where('status_verifikasi', 'accepted')->count() : 0;
+        $rejectedCount   = is_array($allPerusahaan) ? collect($allPerusahaan)->where('status_verifikasi', 'rejected')->count() : 0;
+        $filteredCount   = $filteredTotal ?? (is_array($perusahaan) ? count($perusahaan) : $perusahaan->total());
+        $filterTabs = [
+            'all'      => ['label' => 'Semua', 'count' => $totalPerusahaan],
+            'pending'  => ['label' => 'Pending', 'count' => $pendingCount],
+            'accepted' => ['label' => 'Terverifikasi', 'count' => $acceptedCount],
+            'rejected' => ['label' => 'Ditolak', 'count' => $rejectedCount],
+        ];
     @endphp
 
     <!-- Stats Section -->
@@ -87,6 +96,27 @@
         </div>
     </div>
 
+    <!-- Review Filters -->
+    <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] p-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-sm font-bold text-gray-900">Antrian Review Perusahaan</h2>
+                <p class="text-xs text-gray-500 mt-1">Gunakan filter pending untuk memprioritaskan perusahaan yang perlu diverifikasi.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                @foreach($filterTabs as $key => $tab)
+                <a href="{{ $key === 'all' ? route('companies') : route('companies', ['status' => $key]) }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all duration-200 {{ $statusFilter === $key ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-100' }}">
+                    {{ $tab['label'] }}
+                    <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full {{ $statusFilter === $key ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600' }}">
+                        {{ $tab['count'] }}
+                    </span>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     <!-- Companies Table -->
     <div class="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_20px_-4px_rgba(6,81,237,0.05)] overflow-hidden">
         <div class="overflow-x-auto">
@@ -103,11 +133,11 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($perusahaan as $p)
-                    <tr class="hover:bg-indigo-50/30 transition-colors group">
+                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($p['status_verifikasi'] ?? '') === 'pending' ? 'bg-amber-50/30' : '' }}">
                         <!-- Perusahaan -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden group-hover:border-indigo-200 group-hover:shadow-indigo-100 transition-all duration-200">
+                                <div class="shrink-0 h-12 w-12 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden group-hover:border-indigo-200 group-hover:shadow-indigo-100 transition-all duration-200">
                                     @if(!empty($p['logo']))
                                         <img src="{{ $p['logo'] }}" class="w-full h-full object-cover" />
                                     @else
@@ -168,36 +198,9 @@
                         <!-- Aksi -->
                         <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end items-center gap-2">
-                                @if(($p['status_verifikasi'] ?? '') === 'accepted')
-                                    <a href="{{ route('companies.show', $p['perusahaan_id']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all duration-200">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        Lihat Detail
-                                    </a>
-                                @else
-                                    @if(($p['status_verifikasi'] ?? '') !== 'accepted')
-                                    <form method="POST" action="{{ route('admin.verify.company') }}">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $p['perusahaan_id'] }}">
-                                        <input type="hidden" name="status" value="accepted">
-                                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all duration-200">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                            Setuju
-                                        </button>
-                                    </form>
-                                    @endif
-
-                                    @if(($p['status_verifikasi'] ?? '') !== 'rejected')
-                                    <form method="POST" action="{{ route('admin.verify.company') }}">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $p['perusahaan_id'] }}">
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all duration-200">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            Tolak
-                                        </button>
-                                    </form>
-                                    @endif
-                                @endif
+                                <a href="{{ route('companies.show', $p['perusahaan_id']) }}" class="p-2.5 text-gray-400 {{ ($p['status_verifikasi'] ?? '') === 'pending' ? 'hover:text-amber-600 hover:bg-amber-50' : 'hover:text-indigo-600 hover:bg-indigo-50' }} rounded-xl transition-all duration-200" title="{{ ($p['status_verifikasi'] ?? '') === 'pending' ? 'Review Perusahaan' : 'Lihat Detail' }}">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -219,11 +222,13 @@
             </table>
         </div>
 
-        @if($totalPerusahaan > 0)
-        <!-- Footer Info -->
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <p class="text-sm text-gray-500 font-medium">Menampilkan <span class="text-gray-900 font-semibold">{{ $totalPerusahaan }}</span> perusahaan</p>
-        </div>
+        @if($filteredCount > 0)
+        @include('company.components.table-pagination', [
+            'id' => 'companies',
+            'paginator' => $perusahaan,
+            'rowsPerPageOptions' => $perPageOptions ?? [10, 25, 50, 100],
+            'label' => 'Companies table pagination',
+        ])
         @endif
     </div>
 </div>

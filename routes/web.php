@@ -30,25 +30,27 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
 });
 
 Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->group(function () {
-    Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
-    Route::get('/interviews/calendar', [InterviewController::class, 'calendar'])->name('interviews.calendar');
-
-    Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
-    Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
-    Route::post('/jobs', [LowonganController::class, 'store'])->name('jobs.store');
-    Route::get('/jobs/{id}', [LowonganController::class, 'show'])->name('jobs.show');
-    Route::get('/jobs/{id}/edit', [LowonganController::class, 'edit'])->name('jobs.edit');
-    Route::patch('/jobs/{id}', [LowonganController::class, 'update'])->name('jobs.update');
-    Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
-
-    Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
-    Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
-    Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
-    Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
-    Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
-
-    Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('notifications.latest');
-
     Route::get('/profile', [ProfileController::class, 'show'])->name('company.profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('company.profile.update');
+
+    Route::middleware('verified.company')->group(function () {
+        Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
+        Route::get('/interviews/calendar', [InterviewController::class, 'calendar'])->name('interviews.calendar');
+
+        Route::get('/jobs', [LowonganController::class, 'index'])->name('jobs');
+        Route::get('/jobs/create', [LowonganController::class, 'create'])->name('jobs.create');
+        Route::post('/jobs', [LowonganController::class, 'store'])->name('jobs.store');
+        Route::get('/jobs/{id}', [LowonganController::class, 'show'])->name('jobs.show');
+        Route::get('/jobs/{id}/edit', [LowonganController::class, 'edit'])->name('jobs.edit');
+        Route::patch('/jobs/{id}', [LowonganController::class, 'update'])->name('jobs.update');
+        Route::delete('/jobs/{id}', [LowonganController::class, 'destroy'])->name('jobs.destroy');
+
+        Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
+        Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
+        Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
+        Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
+        Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
+
+        Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('notifications.latest');
+    });
 });

@@ -50,6 +50,8 @@ class AuthController extends Controller
 
         $profile = $profiles[0];
 
+        $companyStatus = null;
+
         if ($profile['role'] === 'perusahaan') {
             $perusahaan = Http::withHeaders([
                 'apikey'        => $this->serviceRole,
@@ -60,27 +62,26 @@ class AuthController extends Controller
                 'select'        => 'status_verifikasi,nama_perusahaan',
             ])->json();
 
-            $status = $perusahaan[0]['status_verifikasi'] ?? 'pending';
+            $companyStatus = $perusahaan[0]['status_verifikasi'] ?? 'pending';
 
-            if ($status === 'pending') {
+            if ($companyStatus === 'pending') {
                 return back()->with('error', 'Akun perusahaan Anda sedang menunggu verifikasi admin');
-            }
-
-            if ($status === 'rejected') {
-                return back()->with('error', 'Akun perusahaan Anda ditolak. Hubungi admin untuk info lebih lanjut');
             }
         }
 
         session([
-            'access_token' => $data['access_token'],
-            'user'         => $data['user'],
-            'role'         => $profile['role'],
-            'full_name'    => $profile['full_name'],
+            'access_token'   => $data['access_token'],
+            'user'           => $data['user'],
+            'role'           => $profile['role'],
+            'full_name'      => $profile['full_name'],
+            'company_status' => $companyStatus,
         ]);
 
         return match ($profile['role']) {
             'admin'      => redirect()->route('dashboard'),
-            'perusahaan' => redirect()->route('overview'),
+            'perusahaan' => $companyStatus === 'rejected'
+                ? redirect()->route('company.profile')->with('error', 'Akun perusahaan Anda ditolak. Silakan perbaiki profil sesuai alasan penolakan di email, lalu simpan ulang untuk diajukan review.')
+                : redirect()->route('overview'),
             default      => redirect('/pelamar'),
         };
     }

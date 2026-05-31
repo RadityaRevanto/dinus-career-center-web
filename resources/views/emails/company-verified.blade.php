@@ -14,6 +14,9 @@
             color: {{ $status === 'accepted' ? '#065f46' : '#9f1239' }};
         }
         .btn { display: inline-block; margin-top: 24px; padding: 12px 28px; background: #2563eb; color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .reason-box { margin: 20px 0; padding: 16px 20px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; }
+        .reason-box strong { display: block; color: #9f1239; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .reason-box p { margin: 0; color: #881337; font-size: 14px; white-space: pre-line; }
         .footer { padding: 24px 40px; background: #f8fafc; text-align: center; color: #94a3b8; font-size: 12px; }
     </style>
 </head>
@@ -31,7 +34,13 @@
             <a href="{{ url('/login') }}" class="btn">Login Sekarang →</a>
             @else
             <p>Akun perusahaan Anda di <strong>Dinus Career Center</strong> <span class="badge">Ditolak</span></p>
-            <p>Silakan hubungi admin untuk informasi lebih lanjut mengenai alasan penolakan.</p>
+            @if(!empty($alasanPenolakan))
+            <div class="reason-box">
+                <strong>Alasan Penolakan</strong>
+                <p>{{ $alasanPenolakan }}</p>
+            </div>
+            @endif
+            <p>Silakan perbaiki data atau hubungi admin Dinus Career Center jika memerlukan bantuan lebih lanjut.</p>
             @endif
         </div>
         <div class="footer">

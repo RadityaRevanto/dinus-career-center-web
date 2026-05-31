@@ -33,9 +33,22 @@ class VerifiedCompany
 
         $data = $res->json()[0] ?? null;
 
-        if (!$data || $data['status_verifikasi'] !== 'accepted') {
-            return redirect('/login')->with('error', 'Akun belum diverifikasi admin');
+        if (!$data) {
+            session()->flush();
+            return redirect('/login')->with('error', 'Data perusahaan tidak ditemukan');
         }
+
+        if ($data['status_verifikasi'] === 'rejected') {
+            session(['company_status' => 'rejected']);
+            return redirect()->route('company.profile')->with('error', 'Akun perusahaan Anda ditolak. Anda hanya dapat mengakses profil untuk memperbaiki data dan mengajukan review ulang.');
+        }
+
+        if ($data['status_verifikasi'] !== 'accepted') {
+            session()->flush();
+            return redirect('/login')->with('error', 'Akun perusahaan Anda sedang menunggu verifikasi admin');
+        }
+
+        session(['company_status' => 'accepted']);
 
         return $next($request);
     }

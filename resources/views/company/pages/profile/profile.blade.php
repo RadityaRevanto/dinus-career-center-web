@@ -11,14 +11,26 @@
     <!-- Flash Messages -->
     @if(session('success'))
         <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
         <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             {{ session('error') }}
+        </div>
+    @endif
+
+    @if(($data['status_verifikasi'] ?? session('company_status')) === 'rejected')
+        <div class="p-5 bg-rose-50 border border-rose-200 rounded-2xl">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 shrink-0 text-rose-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                <div>
+                    <h3 class="text-sm font-semibold text-rose-800">Akun perusahaan ditolak</h3>
+                    <p class="text-sm text-rose-700 mt-1">Anda hanya dapat mengakses halaman profil. Silakan perbaiki data sesuai alasan penolakan yang dikirim melalui email, lalu klik <strong>Simpan Perubahan</strong> untuk mengajukan review ulang.</p>
+                </div>
+            </div>
         </div>
     @endif
 
@@ -172,11 +184,13 @@
 
         <!-- Submit -->
         <div class="flex items-center justify-end gap-3 pb-4">
+            @if(($data['status_verifikasi'] ?? session('company_status')) !== 'rejected')
             <a href="{{ route('overview') }}" class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition">
                 Batal
             </a>
+            @endif
             <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm hover:shadow transition">
-                Simpan Perubahan
+                {{ ($data['status_verifikasi'] ?? session('company_status')) === 'rejected' ? 'Simpan & Ajukan Review Ulang' : 'Simpan Perubahan' }}
             </button>
         </div>
     </form>
