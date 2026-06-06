@@ -66,66 +66,33 @@
         </nav>
     </div>
 
+@php
+    $userName = session('full_name') ?: 'Admin';
+    $userEmail = session('email') ?? data_get(session('user'), 'email', '');
+    $roleLabel = match (session('role')) {
+        'admin' => 'Superadmin',
+        default => ucfirst(session('role') ?? 'Admin'),
+    };
+    $loggedInAt = session('logged_in_at') ? \Carbon\Carbon::parse(session('logged_in_at')) : null;
+    $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($userName) . '&background=2563eb&color=fff';
+@endphp
+
 <!-- Bottom (refined) -->
-<!-- Bottom (refined profile dropdown) -->
 <div class="px-3 pb-4 pt-3 border-t border-gray-100 bg-gray-50/50">
-    
     <div class="relative group">
-        
-        <!-- Trigger -->
-        <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition">
-            
-            <!-- Avatar -->
-            <div class="relative">
-                <img 
-                    src="https://ui-avatars.com/api/?name=Admin&background=random" 
+        <div class="w-full flex items-center gap-3 px-3 py-2 rounded-xl">
+            <div class="relative shrink-0">
+                <img
+                    src="{{ $avatarUrl }}"
+                    alt="{{ $userName }}"
                     class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
                 />
             </div>
-
-            <!-- Info -->
-            <div class="flex flex-col text-left flex-1 overflow-hidden">
-                <span class="text-sm font-semibold text-gray-900 truncate">
-                    Admin Workspace
-                </span>
-                <span class="text-xs text-gray-400 tracking-wide">
-                    Pro Plan
-                </span>
-            </div>
-
-            <!-- Arrow -->
-            <svg class="w-4 h-4 text-gray-400 transition group-hover:rotate-180" 
-                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-
-        <!-- Dropdown -->
-        <div class="absolute bottom-full mb-2 w-full opacity-0 scale-95 pointer-events-none 
-                    group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto 
-                    transition-all duration-150">
-            
-            <div class="bg-white border border-gray-200 rounded-xl shadow-lg p-1">
-                
-                <form action="#" method="POST">
-                    @csrf
-                    <button type="submit"
-                        class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 
-                               hover:bg-red-50 rounded-lg transition">
-                        
-                        <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M17 16l4-4m0 0l-4-4m4 4H7"/>
-                        </svg>
-
-                        Logout
-                    </button>
-                </form>
-
+            <div class="flex flex-col text-left flex-1 min-w-0">
+                <span class="text-sm font-semibold text-gray-900 truncate">{{ $userName }}</span>
+              
             </div>
         </div>
-
     </div>
 </div>
 

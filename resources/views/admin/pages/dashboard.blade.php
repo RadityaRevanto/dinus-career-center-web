@@ -29,8 +29,10 @@
         $rejected  = collect($perusahaan)->where('status_verifikasi', 'rejected')->count();
         $pendings  = collect($perusahaan)->where('status_verifikasi', 'pending')->values();
 
-        $registrationMonths = collect(range(5, 0))->map(fn ($monthOffset) => now()->subMonths($monthOffset));
-        $registrationLabels = $registrationMonths->map(fn ($date) => $date->translatedFormat('M'))->values();
+        $registrationMonths = collect(range(5, 0))->map(
+            fn ($monthOffset) => now()->startOfMonth()->subMonths($monthOffset)
+        );
+        $registrationLabels = $registrationMonths->map(fn ($date) => $date->translatedFormat('M Y'))->values();
         $registeredMonthly = $registrationMonths->map(function ($date) use ($perusahaan) {
             return collect($perusahaan)->filter(function ($item) use ($date) {
                 return !empty($item['created_at'])

@@ -74,6 +74,8 @@ class AuthController extends Controller
             'user'           => $data['user'],
             'role'           => $profile['role'],
             'full_name'      => $profile['full_name'],
+            'email'          => $profile['email'] ?? ($data['user']['email'] ?? null),
+            'logged_in_at'   => now()->toIso8601String(),
             'company_status' => $companyStatus,
         ]);
 

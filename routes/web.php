@@ -20,12 +20,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
+    Route::get('/password', [AdminController::class, 'password'])->name('admin.password');
+    Route::post('/password', [AdminController::class, 'updatePassword'])->name('admin.password.update');
     Route::get('/companies', [AdminController::class, 'companies'])->name('companies');
     Route::get('/companies/{id}', [AdminController::class, 'showCompany'])->name('companies.show');
     Route::get('/lowongan', [AdminController::class, 'lowongan'])->name('lowongan.index');
     Route::get('/lowongan/{id}', [AdminController::class, 'showLowongan'])->name('lowongan.show');
     Route::get('/events', fn() => view('admin.pages.event.index'))->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
+    Route::get('/notifications/latest', [AdminController::class, 'notificationsLatest'])->name('admin.notifications.latest');
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
     Route::get('/audit-log', [AdminController::class, 'auditLog'])->name('audit-log.index');
 });

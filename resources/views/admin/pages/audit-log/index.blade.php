@@ -1,7 +1,6 @@
 @extends('admin.layouts.app')
 @section('content')
 <div class="space-y-8">
-
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -25,10 +24,6 @@
         </div>
     </div>
 
-    @php
-        $totalLog = is_array($logs) ? count($logs) : 0;
-    @endphp
-
     <!-- Stats Section -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div class="relative overflow-hidden bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1">
@@ -46,7 +41,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Hari Ini</p>
-                    <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ is_array($logs) ? collect($logs)->filter(fn($l) => \Carbon\Carbon::parse($l['created_at'])->isToday())->count() : 0 }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $todayLog ?? 0 }}</p>
                 </div>
                 <div class="flex items-center justify-center w-12 h-12 bg-emerald-50 rounded-2xl">
                     <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -57,7 +52,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Modul Aktif</p>
-                    <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ is_array($logs) ? collect($logs)->pluck('modul')->unique()->count() : 0 }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $activeModuleCount ?? 0 }}</p>
                 </div>
                 <div class="flex items-center justify-center w-12 h-12 bg-amber-50 rounded-2xl">
                     <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
@@ -111,7 +106,7 @@
                         <!-- Aktivitas -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-2xl {{ $aktivitasBg }} border border-gray-100 shadow-sm group-hover:shadow-indigo-100 transition-all duration-200">
+                                <div class="shrink-0 h-12 w-12 flex items-center justify-center rounded-2xl {{ $aktivitasBg }} border border-gray-100 shadow-sm group-hover:shadow-indigo-100 transition-all duration-200">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $aktivitasIcon !!}</svg>
                                 </div>
                                 <div class="ml-4">
@@ -180,13 +175,12 @@
                 </tbody>
             </table>
         </div>
-
-        @if($totalLog > 0)
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <p class="text-sm text-gray-500 font-medium">Menampilkan <span class="text-gray-900 font-semibold">{{ $totalLog }}</span> log</p>
-        </div>
-        @endif
+        @include('company.components.table-pagination', [
+            'paginator' => $logs,
+            'rowsPerPageOptions' => $auditLogPerPageOptions ?? [10, 25, 50, 100],
+            'label' => 'Audit log pagination',
+            'id' => 'audit-log',
+        ])
     </div>
-
 </div>
 @endsection
