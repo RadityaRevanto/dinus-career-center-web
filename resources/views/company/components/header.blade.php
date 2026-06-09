@@ -1,5 +1,37 @@
 <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6">
 
+    @php
+        $breadcrumbParent = null;
+        $breadcrumbCurrent = null;
+
+        if (request()->routeIs('overview')) {
+            $breadcrumbCurrent = 'Dashboard';
+        } elseif (request()->routeIs('jobs*')) {
+            $breadcrumbParent = ['label' => 'Lowongan', 'route' => route('jobs')];
+            $breadcrumbCurrent = match (true) {
+                request()->routeIs('jobs.create') => 'Tambah Lowongan',
+                request()->routeIs('jobs.edit') => 'Edit Lowongan',
+                request()->routeIs('jobs.show') => 'Detail Lowongan',
+                default => null,
+            };
+        } elseif (request()->routeIs('applicants*')) {
+            $breadcrumbParent = ['label' => 'Pelamar', 'route' => route('applicants')];
+            $breadcrumbCurrent = match (true) {
+                request()->routeIs('applicants.edit') => 'Detail Pelamar',
+                request()->routeIs('applicants.export') => 'Export Pelamar',
+                default => null,
+            };
+        } elseif (request()->routeIs('interviews.*')) {
+            $breadcrumbParent = ['label' => 'Jadwal Interview', 'route' => route('interviews.calendar')];
+            $breadcrumbCurrent = request()->routeIs('interviews.calendar') ? null : 'Detail Interview';
+        } elseif (request()->routeIs('company.profile*')) {
+            $breadcrumbParent = ['label' => 'Profil Perusahaan', 'route' => route('company.profile')];
+            $breadcrumbCurrent = request()->routeIs('company.profile') ? null : 'Edit Profil';
+        } else {
+            $breadcrumbCurrent = ucfirst(request()->segment(2) ?? 'Halaman');
+        }
+    @endphp
+
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-1.5 text-sm">
         <a href="{{ route('overview') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition">
@@ -7,22 +39,24 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
             </svg>
         </a>
-        <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
-        <span class="font-medium text-gray-800">
-            @if(request()->routeIs('overview'))
-                Dashboard
-            @elseif(request()->routeIs('jobs*'))
-                Lowongan
-            @elseif(request()->routeIs('applicants*'))
-                Pelamar
-            @elseif(request()->routeIs('company.profile*'))
-                Profil Perusahaan
-            @else
-                {{ ucfirst(request()->segment(2) ?? 'Halaman') }}
-            @endif
-        </span>
+
+        @if($breadcrumbParent)
+            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <a href="{{ $breadcrumbParent['route'] }}" class="{{ $breadcrumbCurrent ? 'text-gray-500 hover:text-blue-600' : 'font-medium text-gray-800' }} transition">
+                {{ $breadcrumbParent['label'] }}
+            </a>
+        @endif
+
+        @if($breadcrumbCurrent)
+            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="font-medium text-gray-800">
+                {{ $breadcrumbCurrent }}
+            </span>
+        @endif
     </nav>
 
     <!-- Right Section -->

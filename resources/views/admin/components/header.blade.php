@@ -1,5 +1,42 @@
 <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6">
 
+    @php
+        $breadcrumbParent = null;
+        $breadcrumbCurrent = null;
+
+        if (request()->routeIs('dashboard')) {
+            $breadcrumbCurrent = 'Dashboard';
+        } elseif (request()->routeIs('admin.profile')) {
+            $breadcrumbParent = ['label' => 'Pengaturan Admin', 'route' => route('admin.profile')];
+            $breadcrumbCurrent = 'Profil Admin';
+        } elseif (request()->routeIs('admin.password')) {
+            $breadcrumbParent = ['label' => 'Pengaturan Admin', 'route' => route('admin.profile')];
+            $breadcrumbCurrent = 'Ubah Password';
+        } elseif (request()->routeIs('companies*')) {
+            $breadcrumbParent = ['label' => 'Perusahaan', 'route' => route('companies')];
+            $breadcrumbCurrent = match (true) {
+                request()->routeIs('companies.show') => 'Detail Perusahaan',
+                default => null,
+            };
+        } elseif (request()->routeIs('lowongan.*')) {
+            $breadcrumbParent = ['label' => 'Lowongan', 'route' => route('lowongan.index')];
+            $breadcrumbCurrent = match (true) {
+                request()->routeIs('lowongan.show') => 'Detail Lowongan',
+                default => null,
+            };
+        } elseif (request()->routeIs('events*')) {
+            $breadcrumbParent = ['label' => 'Event', 'route' => route('events')];
+            $breadcrumbCurrent = match (true) {
+                request()->routeIs('events.create') => 'Tambah Event',
+                default => null,
+            };
+        } elseif (request()->routeIs('audit-log.*')) {
+            $breadcrumbParent = ['label' => 'Audit Log', 'route' => route('audit-log.index')];
+        } else {
+            $breadcrumbCurrent = ucfirst(request()->segment(2) ?? 'Halaman');
+        }
+    @endphp
+
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-1.5 text-sm">
         <a href="{{ route('dashboard') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition">
@@ -7,26 +44,24 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
             </svg>
         </a>
-        <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
-        <span class="font-medium text-gray-800">
-            @if(request()->routeIs('dashboard'))
-                Dashboard
-            @elseif(request()->routeIs('admin.profile'))
-                Profil Admin
-            @elseif(request()->routeIs('admin.password'))
-                Ubah Password
-            @elseif(request()->routeIs('companies*'))
-                Perusahaan
-            @elseif(request()->routeIs('job_listings*'))
-                Lowongan
-            @elseif(request()->routeIs('events*'))
-                Event
-            @else
-                {{ ucfirst(request()->segment(2) ?? 'Halaman') }}
-            @endif
-        </span>
+
+        @if($breadcrumbParent)
+            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <a href="{{ $breadcrumbParent['route'] }}" class="{{ $breadcrumbCurrent ? 'text-gray-500 hover:text-blue-600' : 'font-medium text-gray-800' }} transition">
+                {{ $breadcrumbParent['label'] }}
+            </a>
+        @endif
+
+        @if($breadcrumbCurrent)
+            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="font-medium text-gray-800">
+                {{ $breadcrumbCurrent }}
+            </span>
+        @endif
     </nav>
 
     <!-- Right Section -->

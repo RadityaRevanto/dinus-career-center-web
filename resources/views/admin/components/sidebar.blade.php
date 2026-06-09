@@ -31,7 +31,7 @@
 
             <a href="{{ route('companies') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('companies') 
+            {{ request()->routeIs('companies*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -40,7 +40,7 @@
 
             <a href="{{ route('lowongan.index') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('lowongan.index') 
+            {{ request()->routeIs('lowongan.*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -49,7 +49,7 @@
 
             <a href="{{ route('events') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('events') 
+            {{ request()->routeIs('events*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -57,7 +57,7 @@
             </a>
             <a href="{{ route('audit-log.index') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('audit-log.index') 
+            {{ request()->routeIs('audit-log.*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
