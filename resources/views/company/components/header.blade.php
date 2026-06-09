@@ -220,7 +220,7 @@
                 </div>
 
                 <div class="border-t border-gray-100 pt-1">
-                    <form action="#" method="POST">
+                    <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

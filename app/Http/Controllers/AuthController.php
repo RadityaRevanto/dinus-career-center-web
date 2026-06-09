@@ -29,8 +29,33 @@ class AuthController extends Controller
         ]);
 
         if ($res->failed()) {
-            $error = $res->json()['error_description'] ?? 'Login gagal';
-            return back()->with('error', $error);
+            $errorData = $res->json() ?? [];
+            $rawError = implode(' ', array_filter([
+                $errorData['error_description'] ?? null,
+                $errorData['msg'] ?? null,
+                $errorData['message'] ?? null,
+                $errorData['error'] ?? null,
+            ]));
+            $normalizedError = strtolower($rawError);
+            $errorMessage = $rawError ?: 'Login gagal. Silakan coba lagi.';
+
+            if (str_contains($normalizedError, 'invalid login credentials') || str_contains($normalizedError, 'invalid credentials')) {
+                $profileByEmail = Http::withHeaders([
+                    'apikey'        => $this->serviceRole,
+                    'Authorization' => 'Bearer ' . $this->serviceRole,
+                    'Content-Type'  => 'application/json',
+                ])->get($this->baseUrl . '/rest/v1/profiles', [
+                    'email'  => 'eq.' . $request->email,
+                    'select' => 'id,email',
+                    'limit'  => 1,
+                ])->json();
+
+                $errorMessage = empty($profileByEmail)
+                    ? 'Email tidak terdaftar. Silakan cek kembali email Anda atau daftar akun baru.'
+                    : 'Password salah. Silakan cek kembali kata sandi Anda.';
+            }
+
+            return back()->with('error', $errorMessage)->withInput($request->only('email'));
         }
 
         $data = $res->json();

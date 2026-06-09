@@ -149,7 +149,13 @@
                                     </template>
                                     <span x-text="interview.type"></span>
                                 </div>
-                                <template x-if="interview.link_zoom && interview.link_zoom !== '#'">
+                                <template x-if="interview.detail_url">
+                                    <a :href="interview.detail_url" @click.stop class="w-full py-2 bg-white hover:bg-blue-50 text-blue-700 border border-blue-100 hover:border-blue-200 rounded-lg text-xs font-bold flex justify-center items-center gap-2 transition-colors shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        Detail Pelamar
+                                    </a>
+                                </template>
+                                <template x-if="interview.link_zoom && interview.link_zoom !== '#' && !isPastInterview(interview)">
                                     <a :href="interview.link_zoom" target="_blank" @click.stop class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex justify-center items-center gap-2 transition-colors shadow-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                                         Gabung Zoom Meeting
@@ -192,14 +198,17 @@
             'name' => $e['nama_pelamar'],
             'role' => $e['posisi'],
             'time' => $e['jam'] . ' WIB',
+            'datetime' => $e['datetime_iso'],
             'type' => (!empty($e['link_zoom']) && $e['link_zoom'] !== '#') ? 'Online Meeting' : 'Wawancara Langsung',
             'color' => $colors[$colorIndex],
-            'link_zoom' => $e['link_zoom'] ?? '#'
+            'link_zoom' => $e['link_zoom'] ?? '#',
+            'detail_url' => !empty($e['lamaran_id']) ? route('applicants.edit', $e['lamaran_id']) : null,
         ];
     })->values()->all();
 @endphp
 
 @push('scripts')
+<script type="application/json" id="interview-events-data">@json($mappedEvents)</script>
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('interviewCalendar', () => ({
@@ -212,7 +221,7 @@
             days: ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'],
             
             // Data diambil dari Controller InterviewController ($events)
-            interviews: @json($mappedEvents),
+            interviews: JSON.parse(document.getElementById('interview-events-data')?.textContent || '[]'),
 
             initCalendar() {
                 // Set the selected date to today initially
@@ -311,6 +320,11 @@
             getSelectedDateInterviews() {
                 if(!this.selectedDate) return [];
                 return this.getInterviewsForDate(this.selectedDate);
+            },
+
+            isPastInterview(interview) {
+                if (!interview.datetime) return false;
+                return new Date(interview.datetime).getTime() < new Date().getTime();
             },
 
             formatSelectedDateForSidebar() {

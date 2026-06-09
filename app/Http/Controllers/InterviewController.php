@@ -86,6 +86,7 @@ class InterviewController extends Controller
 
                 $events[] = [
                     'notifikasi_id' => $n['notifikasi_id'],
+                    'lamaran_id'    => $n['lamaran']['lamaran_id'] ?? null,
                     'nama_pelamar'  => $n['pelamar']['nama_lengkap'] ?? 'Kandidat',
                     'email'         => $n['pelamar']['email'] ?? '',
                     'foto_profil'   => $n['pelamar']['foto_profil'] ?? 'https://ui-avatars.com/api/?name=' . urlencode($n['pelamar']['nama_lengkap'] ?? 'Kandidat') . '&background=e0e7ff&color=4f46e5&bold=true&size=128',

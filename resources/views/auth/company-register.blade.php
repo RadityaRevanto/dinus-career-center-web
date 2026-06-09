@@ -8,10 +8,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5] font-sans"
+<body class="min-h-screen flex items-center justify-center bg-[#e6ebf5]"
+    style="font-family: 'Poppins', sans-serif;"
     x-data="{ 
         step: 1, 
         registered: {{ session('success') ? 'true' : 'false' }},
@@ -38,9 +39,9 @@
             overflow-hidden flex">
 
         <!-- LEFT -->
-        <div class="hidden md:flex w-1/2 bg-slate-100 p-24 flex-col justify-between">
+        <div class="relative hidden md:flex w-1/2 overflow-hidden bg-slate-50 p-24 flex-col justify-between">
 
-            <div>
+            <div class="relative z-10">
                 <h1 class="text-4xl font-bold text-slate-800 leading-[1.2] tracking-tight">
                     <span class="text-blue-600">Udinus </span>Career<br>
                     Center
@@ -51,17 +52,31 @@
                 </p>
             </div>
 
-            <div class="flex justify-center">
-                <img src="https://cdn.dribbble.com/userupload/3870987/file/original-6b6f9c5d82d8bb2f9dbd3a8e63efb8b8.png"
-                    class="w-[500px]">
+            <div class="relative z-10 flex justify-center perspective-distant">
+                <div class="group relative w-[540px] max-w-full rounded-[36px] border border-white/70 bg-white/60 p-3 shadow-[0_30px_80px_-30px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-all duration-500 transform-3d transform-[rotateX(8deg)_rotateY(-12deg)] hover:transform-[rotateX(0deg)_rotateY(0deg)_translateY(-8px)]">
+                    <div class="absolute -right-8 -top-8 z-20 rounded-2xl border border-white/60 bg-white/75 px-4 py-3 shadow-xl shadow-slate-950/10 backdrop-blur-md">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-500">Campus</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-800">Dinus Career Hub</p>
+                    </div>
+                    <div class="absolute -left-7 bottom-12 z-20 rounded-2xl border border-white/60 bg-slate-950/70 px-4 py-3 text-white shadow-xl shadow-slate-950/20 backdrop-blur-md">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-300">Recruitment</p>
+                        <p class="mt-1 text-sm font-bold">Modern Platform</p>
+                    </div>
+                    <div class="relative overflow-hidden rounded-[28px] border border-white/80 bg-slate-900 shadow-2xl">
+                        <img src="/images/udinus.jpg"
+                            alt="Gedung Udinus"
+                            class="h-[360px] w-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-linear-to-tr from-slate-950/45 via-slate-900/5 to-white/20"></div>
+                        <div class="absolute -left-24 top-0 h-full w-24 rotate-12 bg-white/35 blur-xl transition-all duration-700 group-hover:left-full"></div>
+                        <div class="absolute left-5 top-5 rounded-full border border-white/40 bg-white/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-white backdrop-blur-md">
+                            Udinus
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-7 left-1/2 h-10 w-4/5 -translate-x-1/2 rounded-full bg-slate-950/20 blur-2xl"></div>
+                </div>
             </div>
 
-            <div class="flex items-center justify-between text-sm text-slate-500">
-                <span>Sudah punya akun?</span>
-                <a href="/login" class="text-blue-600 font-medium hover:underline">
-                    Login
-                </a>
-            </div>
+            <div></div>
         </div>
 
         <!-- RIGHT -->
@@ -118,7 +133,7 @@
                 <!-- Validation Error Message from Alpine -->
                 <div x-show="errorMessage" style="display: none;" class="mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200" x-transition>
                     <p class="text-amber-600 text-sm flex items-center gap-2">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         <span x-text="errorMessage"></span>
                     </p>
                 </div>
@@ -349,6 +364,13 @@
 
                     </div>
                 </form>
+
+                <p class="mt-6 text-center text-sm text-slate-500">
+                    Sudah punya akun?
+                    <a href="/login" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition">
+                        Login
+                    </a>
+                </p>
             </div>
 
             <!-- SUCCESS — sekarang dikontrol dari session Laravel -->
@@ -357,7 +379,7 @@
                 class="w-full max-w-lg px-10 py-14 text-center z-10">
 
                 <div
-                    class="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-6">
+                    class="mx-auto w-20 h-20 rounded-full bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-6">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                     </svg>
@@ -369,7 +391,7 @@
                 </p>
 
                 <a href="/login"
-                    class="mt-8 inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold text-sm hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-[1.02]">
+                    class="mt-8 inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold text-sm hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-[1.02]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />

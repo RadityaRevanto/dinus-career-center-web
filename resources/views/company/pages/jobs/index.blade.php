@@ -34,9 +34,15 @@
     </div>
 
     @php
+        $acceptedCounts = $acceptedCounts ?? [];
         $totalLowongan = is_array($lowongan) ? count($lowongan) : 0;
-        $lowonganAktif = is_array($lowongan) ? collect($lowongan)->where('status_loker', 'aktif')->count() : 0;
-        $lowonganTutup = is_array($lowongan) ? collect($lowongan)->where('status_loker', 'tutup')->count() : 0;
+        $isLowonganExpired = fn($item) => !empty($item['batas_akhir']) && \Carbon\Carbon::parse($item['batas_akhir'])->endOfDay()->isPast();
+        $isQuotaFull = fn($item) => \App\Support\LamaranHelper::isQuotaFull(
+            $acceptedCounts[$item['lowongan_id']] ?? 0,
+            (int) ($item['jumlah_person'] ?? 0)
+        );
+        $lowonganAktif = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => ($item['status_loker'] ?? '') === 'aktif' && !$isLowonganExpired($item) && !$isQuotaFull($item))->count() : 0;
+        $lowonganTutup = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => ($item['status_loker'] ?? '') === 'tutup' || $isLowonganExpired($item) || $isQuotaFull($item))->count() : 0;
     @endphp
 
     <!-- Stats Section -->
@@ -103,7 +109,15 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($lowongan as $item)
-                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($item['status_loker'] ?? '') == 'tutup' ? 'opacity-60' : '' }}">
+                    @php
+                        $batasAkhir = $item['batas_akhir'] ?? null;
+                        $isExpired = $batasAkhir && \Carbon\Carbon::parse($batasAkhir)->endOfDay()->isPast();
+                        $acceptedCount = $acceptedCounts[$item['lowongan_id']] ?? 0;
+                        $jumlahPerson = (int) ($item['jumlah_person'] ?? 0);
+                        $quotaFull = \App\Support\LamaranHelper::isQuotaFull($acceptedCount, $jumlahPerson);
+                        $isAktif = ($item['status_loker'] ?? '') === 'aktif' && !$isExpired && !$quotaFull;
+                    @endphp
+                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ !$isAktif ? 'opacity-60' : '' }}">
                         <!-- Posisi / Judul -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex items-center">
@@ -132,7 +146,7 @@
 
                         <!-- Status -->
                         <td class="px-6 py-5 whitespace-nowrap">
-                            @if(($item['status_loker'] ?? '') == 'aktif')
+                            @if($isAktif)
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Aktif
@@ -140,26 +154,27 @@
                             @else
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                Ditutup
+                                Non-aktif
                             </span>
                             @endif
                         </td>
 
                         <!-- Kuota -->
                         <td class="px-6 py-5 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                <span class="text-sm font-bold text-gray-900">{{ $item['jumlah_person'] ?? 0 }}</span>
-                                <span class="text-xs text-gray-400">orang</span>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="text-sm font-bold {{ $quotaFull ? 'text-amber-600' : 'text-gray-900' }}">{{ $acceptedCount }} / {{ $jumlahPerson }}</span>
+                                    <span class="text-xs text-gray-400">terisi</span>
+                                </div>
+                                @if($quotaFull)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100 w-fit">Kuota penuh</span>
+                                @endif
                             </div>
                         </td>
 
                         <!-- Batas Akhir -->
                         <td class="px-6 py-5 whitespace-nowrap">
-                            @php
-                                $batasAkhir = $item['batas_akhir'] ?? null;
-                                $isExpired = $batasAkhir && \Carbon\Carbon::parse($batasAkhir)->isPast();
-                            @endphp
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 {{ $isExpired ? 'text-rose-400' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 <span class="text-sm {{ $isExpired ? 'text-rose-600 font-semibold' : 'text-gray-700' }}">

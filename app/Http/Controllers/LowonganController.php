@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\LamaranHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -46,7 +47,11 @@ class LowonganController extends Controller
                 'order'         => 'created_at.desc',
             ])->json();
 
-        return view('company.pages.jobs.index', compact('lowongan'));
+        $lowongan = is_array($lowongan) ? $lowongan : [];
+        $lowonganIds = array_column($lowongan, 'lowongan_id');
+        $acceptedCounts = LamaranHelper::fetchAcceptedCounts($this->baseUrl, $this->headers(), $lowonganIds);
+
+        return view('company.pages.jobs.index', compact('lowongan', 'acceptedCounts'));
     }
 
     public function create()

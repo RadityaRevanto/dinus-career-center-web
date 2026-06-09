@@ -10,9 +10,11 @@ use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\NotificationController;
 
-Route::get('/', fn() => view('auth.login'));
-Route::get('/login', fn() => view('auth.login'))->name('login');
-Route::get('/company-register', fn() => view('auth.company-register'))->name('company.register');
+Route::middleware('redirect.if.authenticated')->group(function () {
+    Route::get('/', fn() => view('auth.login'));
+    Route::get('/login', fn() => view('auth.login'))->name('login');
+    Route::get('/company-register', fn() => view('auth.company-register'))->name('company.register');
+});
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register-company', [AuthController::class, 'registerCompany'])->name('register.company');
@@ -54,6 +56,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
         Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
         Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
         Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
+        Route::post('/applicants/{id}/interview-result-email', [LamaranController::class, 'sendInterviewResultEmail'])->name('applicants.interview-result-email');
         Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
 
         Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('notifications.latest');

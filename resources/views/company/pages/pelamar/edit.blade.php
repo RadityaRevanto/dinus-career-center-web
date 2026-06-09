@@ -14,6 +14,13 @@
         'completed' => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Completed'],
     ];
     $cfg = $statusConfig[$lamaran['status_terakhir']] ?? $statusConfig['applied'];
+    $statusFlow = ['applied', 'reviewed', 'interview', 'completed'];
+    $currentStatusIndex = array_search($lamaran['status_terakhir'], $statusFlow, true);
+    if ($currentStatusIndex === false) $currentStatusIndex = 0;
+    $allowedStatusOptions = [
+        $statusFlow[$currentStatusIndex],
+        $statusFlow[$currentStatusIndex + 1] ?? null,
+    ];
 @endphp
 
 <div class="space-y-8">
@@ -24,11 +31,16 @@
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Detail Kandidat</h1>
             <p class="text-sm text-gray-500 mt-2">Informasi lengkap pelamar dan evaluasi lamaran.</p>
         </div>
-        <div>
+        <div class="flex flex-wrap items-center gap-2">
             <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border {{ $cfg[0] }}">
                 <span class="w-2 h-2 rounded-full {{ $cfg[1] }} animate-pulse"></span>
                 {{ $cfg[2] }}
             </span>
+            @if(($lamaran['status_terakhir'] ?? '') === 'completed' && !empty($hasilInterview))
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border {{ $hasilInterview === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100' }}">
+                {{ $hasilInterview === 'accepted' ? 'Diterima' : 'Ditolak' }}
+            </span>
+            @endif
         </div>
     </div>
 
@@ -162,22 +174,22 @@
                         @endphp
                         <div class="flex gap-4 group transition-all duration-300 {{ !$isLast ? 'pb-6' : '' }}">
                             {{-- Dot + Line --}}
-                            <div class="relative flex flex-col items-center flex-shrink-0 w-8">
+                            <div class="relative flex flex-col items-center shrink-0 w-8">
                                 @if($isPast)
-                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all duration-300 group-hover:scale-110 z-10 animate-fade-in">
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all duration-300 group-hover:scale-110 z-10 animate-fade-in">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
                                 @elseif($isCurrent)
-                                <div class="w-8 h-8 rounded-full {{ $meta['bg'] }} {{ $meta['text'] }} flex items-center justify-center flex-shrink-0 ring-2 {{ $meta['ring'] }} ring-offset-2 z-10 transition-all duration-300 group-hover:scale-110">
+                                <div class="w-8 h-8 rounded-full {{ $meta['bg'] }} {{ $meta['text'] }} flex items-center justify-center shrink-0 ring-2 {{ $meta['ring'] }} ring-offset-2 z-10 transition-all duration-300 group-hover:scale-110">
                                     <span class="relative flex h-3.5 w-3.5">
                                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $meta['ping'] }} opacity-75"></span>
                                         <span class="relative inline-flex rounded-full h-3.5 w-3.5 {{ $meta['dot'] }}"></span>
                                     </span>
                                 </div>
                                 @else
-                                <div class="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center flex-shrink-0 z-10 transition-all duration-300 group-hover:border-gray-400 group-hover:scale-105">
+                                <div class="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center shrink-0 z-10 transition-all duration-300 group-hover:border-gray-400 group-hover:scale-105">
                                     <span class="w-2 h-2 rounded-full bg-gray-300 transition-colors group-hover:bg-gray-400"></span>
                                 </div>
                                 @endif
@@ -356,17 +368,20 @@
         <div class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
                 <p class="text-sm font-medium text-gray-700">Ubah status evaluasi kandidat ini.</p>
-                <p class="text-xs text-gray-400 mt-0.5">Pilih <span class="font-semibold text-indigo-600">Interview</span> untuk mengirim detail jadwal ke pelamar.</p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                    Alur status harus berurutan: <span class="font-semibold text-gray-600">Applied → Reviewed → Interview → Completed</span>.
+                    Pilih <span class="font-semibold text-indigo-600">Interview</span> untuk mengirim detail jadwal ke pelamar.
+                </p>
             </div>
             <div class="flex items-center gap-3">
                 <!-- Status Select -->
                 <div class="relative">
                     <select id="status" name="status"
                         class="block w-48 pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer">
-                        <option value="applied" {{ $lamaran['status_terakhir'] === 'applied' ? 'selected' : '' }}>Applied</option>
-                        <option value="reviewed" {{ $lamaran['status_terakhir'] === 'reviewed' ? 'selected' : '' }}>Reviewed</option>
-                        <option value="interview" {{ $lamaran['status_terakhir'] === 'interview' ? 'selected' : '' }}>Interview</option>
-                        <option value="completed" {{ $lamaran['status_terakhir'] === 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="applied" {{ $lamaran['status_terakhir'] === 'applied' ? 'selected' : '' }} @disabled(!in_array('applied', $allowedStatusOptions, true))>Applied</option>
+                        <option value="reviewed" {{ $lamaran['status_terakhir'] === 'reviewed' ? 'selected' : '' }} @disabled(!in_array('reviewed', $allowedStatusOptions, true))>Reviewed</option>
+                        <option value="interview" {{ $lamaran['status_terakhir'] === 'interview' ? 'selected' : '' }} @disabled(!in_array('interview', $allowedStatusOptions, true))>Interview</option>
+                        <option value="completed" {{ $lamaran['status_terakhir'] === 'completed' ? 'selected' : '' }} @disabled(!in_array('completed', $allowedStatusOptions, true))>Completed</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -386,13 +401,64 @@
             </div>
         </div>
 
+        @if($lamaran['status_terakhir'] === 'interview' && !($interviewResultEmail['sent'] ?? false))
+        <!-- Interview Result Email -->
+        <div id="interview-result-email-panel" class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-5"
+            data-quota-full="{{ ($quotaInfo['quotaFull'] ?? false) ? 'true' : 'false' }}">
+            <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">Kirim hasil interview ke pelamar</p>
+                    <p class="text-xs text-gray-400 mt-1">Gunakan tombol ini untuk mengirim email diterima atau ditolak ke {{ $pelamar['email'] ?? 'email pelamar' }}.</p>
+                    <p class="text-xs text-gray-500 mt-2">Kuota lowongan: <span class="font-semibold">{{ $quotaInfo['acceptedCount'] ?? 0 }} / {{ $quotaInfo['jumlahPerson'] ?? 0 }}</span> terisi</p>
+                    @if($quotaInfo['quotaFull'] ?? false)
+                    <p class="text-xs text-amber-600 font-medium mt-1">Kuota sudah penuh. Hanya email ditolak yang masih bisa dikirim.</p>
+                    @endif
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" data-result-email="accepted"
+                        @disabled($quotaInfo['quotaFull'] ?? false)
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm hover:shadow transition-all duration-200 {{ ($quotaInfo['quotaFull'] ?? false) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Email Diterima
+                    </button>
+                    <button type="button" data-result-email="rejected"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm hover:shadow transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Email Ditolak
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label for="interview_result_message" class="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Pesan Tambahan <span class="text-gray-400 font-normal">(opsional)</span>
+                </label>
+                <textarea id="interview_result_message" rows="3"
+                    class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white resize-none placeholder-gray-400 transition-all duration-200"
+                    placeholder="Tambahkan catatan singkat yang akan masuk ke email pelamar..."></textarea>
+                <p id="interview-result-feedback" class="hidden mt-3 text-sm font-medium"></p>
+            </div>
+        </div>
+        @elseif($lamaran['status_terakhir'] === 'interview')
+        <div class="bg-emerald-50 rounded-3xl border border-emerald-100 p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-emerald-900">Email hasil interview sudah dikirim</p>
+                    <p class="text-xs text-emerald-700 mt-0.5">Panel kirim email disembunyikan agar hasil interview tidak terkirim lebih dari satu kali.</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Interview Detail Panel -->
         <div id="interview-panel"
             style="max-height:0; overflow:hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0;"
             class="bg-white rounded-3xl border border-indigo-100 shadow-[0_4px_20px_-6px_rgba(99,102,241,0.2)]">
-            <div class="px-6 py-4 border-b border-indigo-50 bg-gradient-to-r from-indigo-50/70 to-violet-50/40">
+            <div class="px-6 py-4 border-b border-indigo-50 bg-linear-to-r from-indigo-50/70 to-violet-50/40">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
@@ -410,6 +476,7 @@
                         Tanggal &amp; Jam Interview <span class="text-rose-500">*</span>
                     </label>
                     <input type="datetime-local" id="interview_time" name="interview_time"
+                        value="{{ $interviewDetail['interview_time'] ?? '' }}"
                         class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200 cursor-pointer" />
                 </div>
                 <!-- Link Meeting -->
@@ -425,6 +492,7 @@
                         </div>
                         <input type="url" id="link_meet" name="link_meet"
                             class="block w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-200"
+                            value="{{ $interviewDetail['link_meet'] ?? '' }}"
                             placeholder="https://meet.google.com/..." />
                     </div>
                 </div>
@@ -435,8 +503,59 @@
                     </label>
                     <textarea id="pesan_tambahan" name="pesan_tambahan" rows="2"
                         class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white resize-none placeholder-gray-400 transition-all duration-200"
-                        placeholder="Misal: Mohon hadir 10 menit sebelum jadwal. Siapkan portofolio terbaru Anda."></textarea>
+                        placeholder="Misal: Mohon hadir 10 menit sebelum jadwal. Siapkan portofolio terbaru Anda.">{{ $interviewDetail['pesan_tambahan'] ?? '' }}</textarea>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="completed-email-required-modal"
+        data-current-status="{{ $lamaran['status_terakhir'] }}"
+        data-email-sent="{{ session('interview_result_email_sent.' . $lamaran['lamaran_id'], false) ? 'true' : 'false' }}"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl shadow-slate-950/20">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Email hasil interview belum dikirim</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-gray-500">
+                        Sebelum mengubah status ke <span class="font-semibold text-gray-700">Completed</span>, kirim email <span class="font-semibold text-emerald-600">Diterima</span> atau <span class="font-semibold text-rose-600">Ditolak</span> ke pelamar terlebih dahulu.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="close-completed-email-required-modal"
+                    class="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="interview-email-success-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl shadow-slate-950/20">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Email berhasil dikirim</h3>
+                    <p id="interview-email-success-message" class="mt-2 text-sm leading-relaxed text-gray-500">
+                        Email hasil interview berhasil dikirim ke pelamar.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="close-interview-email-success-modal"
+                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                    Selesai
+                </button>
             </div>
         </div>
     </div>
@@ -453,6 +572,46 @@ document.addEventListener('DOMContentLoaded', function () {
     const textEl         = document.getElementById('btn-save-text');
     const iconEl         = document.getElementById('btn-save-icon');
     const spinnerEl      = document.getElementById('btn-save-spinner');
+    const completedEmailRequiredModal = document.getElementById('completed-email-required-modal');
+    const closeCompletedEmailRequiredModal = document.getElementById('close-completed-email-required-modal');
+    const currentStatus  = completedEmailRequiredModal?.dataset.currentStatus || '';
+    let interviewResultEmailSent = completedEmailRequiredModal?.dataset.emailSent === 'true';
+    const interviewEmailSuccessModal = document.getElementById('interview-email-success-modal');
+    const closeInterviewEmailSuccessModal = document.getElementById('close-interview-email-success-modal');
+    const interviewEmailSuccessMessage = document.getElementById('interview-email-success-message');
+
+    function showCompletedEmailRequiredModal() {
+        completedEmailRequiredModal?.classList.remove('hidden');
+        completedEmailRequiredModal?.classList.add('flex');
+    }
+
+    function hideCompletedEmailRequiredModal() {
+        completedEmailRequiredModal?.classList.add('hidden');
+        completedEmailRequiredModal?.classList.remove('flex');
+    }
+
+    closeCompletedEmailRequiredModal?.addEventListener('click', hideCompletedEmailRequiredModal);
+    completedEmailRequiredModal?.addEventListener('click', function (event) {
+        if (event.target === completedEmailRequiredModal) hideCompletedEmailRequiredModal();
+    });
+
+    function showInterviewEmailSuccessModal(message) {
+        if (interviewEmailSuccessMessage && message) {
+            interviewEmailSuccessMessage.textContent = message;
+        }
+        interviewEmailSuccessModal?.classList.remove('hidden');
+        interviewEmailSuccessModal?.classList.add('flex');
+    }
+
+    function hideInterviewEmailSuccessModal() {
+        interviewEmailSuccessModal?.classList.add('hidden');
+        interviewEmailSuccessModal?.classList.remove('flex');
+    }
+
+    closeInterviewEmailSuccessModal?.addEventListener('click', hideInterviewEmailSuccessModal);
+    interviewEmailSuccessModal?.addEventListener('click', function (event) {
+        if (event.target === interviewEmailSuccessModal) hideInterviewEmailSuccessModal();
+    });
 
     // ── Show / Hide interview panel ──────────────────────────────────────────
     function toggleInterviewPanel() {
@@ -468,9 +627,73 @@ document.addEventListener('DOMContentLoaded', function () {
     statusSelect.addEventListener('change', toggleInterviewPanel);
     toggleInterviewPanel(); // run on load (if status already interview)
 
+    // ── Interview result email ───────────────────────────────────────────────
+    document.querySelectorAll('[data-result-email]').forEach(function (emailButton) {
+        emailButton.addEventListener('click', function () {
+            if (this.disabled) return;
+
+            const result = this.dataset.resultEmail;
+            const quotaFull = document.getElementById('interview-result-email-panel')?.dataset.quotaFull === 'true';
+
+            if (result === 'accepted' && quotaFull) {
+                alert('Kuota lowongan sudah penuh. Tidak bisa menerima kandidat lagi.');
+                return;
+            }
+            const message = document.getElementById('interview_result_message')?.value || '';
+            const feedback = document.getElementById('interview-result-feedback');
+            const defaultText = this.textContent.trim();
+            const confirmText = result === 'accepted'
+                ? 'Kirim email bahwa kandidat diterima?'
+                : 'Kirim email bahwa kandidat ditolak?';
+
+            if (!confirm(confirmText)) return;
+
+            this.disabled = true;
+            this.classList.add('opacity-75', 'cursor-not-allowed');
+            this.textContent = 'Mengirim...';
+            if (feedback) feedback.classList.add('hidden');
+
+            fetch(`/company/applicants/{{ $lamaran['lamaran_id'] }}/interview-result-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ result, message }),
+            })
+            .then(res => {
+                if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Gagal mengirim email'); });
+                return res.json();
+            })
+            .then(data => {
+                interviewResultEmailSent = true;
+                if (feedback) feedback.classList.add('hidden');
+                document.getElementById('interview-result-email-panel')?.classList.add('hidden');
+                showInterviewEmailSuccessModal(data.message || 'Email hasil interview berhasil dikirim ke pelamar.');
+            })
+            .catch(err => {
+                if (feedback) {
+                    feedback.textContent = err.message || 'Gagal mengirim email.';
+                    feedback.className = 'mt-3 text-sm font-medium text-rose-600';
+                }
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.classList.remove('opacity-75', 'cursor-not-allowed');
+                this.textContent = defaultText;
+            });
+        });
+    });
+
     // ── Save button ──────────────────────────────────────────────────────────
     btn.addEventListener('click', function () {
         const status = statusSelect.value;
+
+        if (currentStatus === 'interview' && status === 'completed' && !interviewResultEmailSent) {
+            showCompletedEmailRequiredModal();
+            return;
+        }
 
         // Validate interview fields
         if (status === 'interview') {
