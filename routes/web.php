@@ -13,10 +13,14 @@ use App\Http\Controllers\NotificationController;
 Route::middleware('redirect.if.authenticated')->group(function () {
     Route::get('/', fn() => view('auth.login'));
     Route::get('/login', fn() => view('auth.login'))->name('login');
+    Route::get('/forgot-password', fn() => view('auth.forgot-password'))->name('password.request');
+    Route::get('/reset-password', fn() => view('auth.reset-password'))->name('password.reset');
     Route::get('/company-register', fn() => view('auth.company-register'))->name('company.register');
 });
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/forgot-password', [AuthController::class, 'sendPasswordResetLink'])->name('password.email');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 Route::post('/register-company', [AuthController::class, 'registerCompany'])->name('register.company');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

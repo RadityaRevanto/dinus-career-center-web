@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -111,6 +113,119 @@ class AuthController extends Controller
                 : redirect()->route('overview'),
             default      => redirect('/pelamar'),
         };
+    }
+
+    public function sendPasswordResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $profile = Http::withHeaders([
+            'apikey'        => $this->serviceRole,
+            'Authorization' => 'Bearer ' . $this->serviceRole,
+            'Content-Type'  => 'application/json',
+        ])->get($this->baseUrl . '/rest/v1/profiles', [
+            'email'  => 'eq.' . $request->email,
+            'select' => 'id,email,full_name',
+            'limit'  => 1,
+        ])->json();
+
+        if (empty($profile)) {
+            return back()
+                ->with('error', 'Email tidak terdaftar. Silakan cek kembali email Anda atau daftar akun baru.')
+                ->withInput($request->only('email'));
+        }
+
+        $redirectTo = route('password.reset');
+
+        $res = Http::withHeaders([
+            'apikey'        => $this->serviceRole,
+            'Authorization' => 'Bearer ' . $this->serviceRole,
+            'Content-Type'  => 'application/json',
+        ])->post($this->baseUrl . '/auth/v1/admin/generate_link', [
+            'type'         => 'recovery',
+            'email'        => $request->email,
+            'redirect_to'  => $redirectTo,
+        ]);
+
+        if ($res->failed()) {
+            $errorData = $res->json() ?? [];
+            Log::warning('Supabase generate recovery link failed', [
+                'status' => $res->status(),
+                'error'  => $errorData ?: $res->body(),
+            ]);
+
+            return back()
+                ->with('error', 'Gagal membuat link reset password. Silakan coba beberapa saat lagi.')
+                ->withInput($request->only('email'));
+        }
+
+        $data = $res->json() ?? [];
+        $resetLink = $data['action_link']
+            ?? ($data['properties']['action_link'] ?? null);
+
+        if (empty($resetLink)) {
+            Log::error('Supabase recovery link missing action_link', ['response' => $data]);
+
+            return back()
+                ->with('error', 'Gagal membuat link reset password. Silakan coba beberapa saat lagi.')
+                ->withInput($request->only('email'));
+        }
+
+        $userName = $profile[0]['full_name'] ?? 'Pengguna';
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name', 'Dinus Career Center');
+
+        try {
+            Mail::send('emails.password-reset', [
+                'userName'  => $userName,
+                'resetLink' => $resetLink,
+            ], function ($message) use ($request, $fromAddress, $fromName, $userName) {
+                $message->from($fromAddress, $fromName)
+                    ->to($request->email, $userName)
+                    ->subject('Reset Password - Dinus Career Center');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email reset password', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()
+                ->with('error', 'Gagal mengirim email reset password. Pastikan konfigurasi SMTP di file .env sudah benar.')
+                ->withInput($request->only('email'));
+        }
+
+        return back()->with('success', 'Link reset password sudah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'access_token' => 'required|string',
+            'password'     => 'required|min:8|confirmed',
+        ]);
+
+        $res = Http::withHeaders([
+            'apikey'        => $this->apiKey,
+            'Authorization' => 'Bearer ' . $request->access_token,
+            'Content-Type'  => 'application/json',
+        ])->put($this->baseUrl . '/auth/v1/user', [
+            'password' => $request->password,
+        ]);
+
+        if ($res->failed()) {
+            $errorData = $res->json() ?? [];
+            Log::warning('Supabase reset password failed', [
+                'status' => $res->status(),
+                'error'  => $errorData ?: $res->body(),
+            ]);
+
+            return back()->with('error', 'Gagal mengubah password. Link mungkin sudah kedaluwarsa, silakan minta link baru.');
+        }
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah. Silakan login dengan password baru.');
     }
 
 public function registerCompany(Request $request)
