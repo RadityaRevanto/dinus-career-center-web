@@ -182,7 +182,7 @@
         <!-- Action Buttons -->
         <div class="lg:col-span-12 flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
             <a href="{{ route('jobs') }}" class="px-6 py-3 text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl shadow-sm transition-all duration-200">Batal</a>
-            <button type="submit" class="group inline-flex items-center px-8 py-3 text-sm font-bold text-white bg-amber-500 rounded-xl shadow-md hover:bg-amber-600 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+            <button type="submit" class="group inline-flex items-center px-8 py-3 text-sm font-bold text-white bg-indigo-600 rounded-xl shadow-md hover:bg-amber-600 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                 <span>Simpan Perubahan</span>
             </button>
         </div>

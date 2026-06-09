@@ -28,7 +28,7 @@
             </a>
             <a href="{{ route('jobs') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('jobs') 
+            {{ request()->routeIs('jobs*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -36,7 +36,7 @@
             </a>
             <a href="{{ route('applicants') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('applicants') 
+            {{ request()->routeIs('applicants*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -44,7 +44,7 @@
             </a>
             <a href="{{ route('interviews.calendar') }}"
             class="relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-            {{ request()->routeIs('interviews.calendar') 
+            {{ request()->routeIs('interviews.*') 
                     ? 'bg-blue-50 text-blue-600 font-medium before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-blue-600' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }}">
                 <!-- icon -->
@@ -75,8 +75,6 @@
                     Pro Plan
                 </span>
             </div>
-
-
         </button>
 
         <!-- Dropdown -->
