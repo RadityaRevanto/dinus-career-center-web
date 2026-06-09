@@ -63,11 +63,41 @@
                     <td>{{ $lowongan['judul'] ?? '-' }}</td>
                     <td>{{ $statusLabels[$l['status_terakhir'] ?? ''] ?? ($l['status_terakhir'] ?? '-') }}</td>
                     <td>{{ !empty($l['created_at']) ? \Carbon\Carbon::parse($l['created_at'])->format('d/m/Y H:i') : '-' }}</td>
-                    <td>{{ !empty($berkas['cv']) ? 'Ada' : 'Tidak Ada' }}</td>
-                    <td>{{ !empty($berkas['portofolio']) ? 'Ada' : 'Tidak Ada' }}</td>
-                    <td>{{ !empty($berkas['surat_lamaran']) ? 'Ada' : 'Tidak Ada' }}</td>
-                    <td>{{ !empty($berkas['transkip_nilai']) ? 'Ada' : 'Tidak Ada' }}</td>
-                    <td>{{ !empty($berkas['pas_foto']) ? 'Ada' : 'Tidak Ada' }}</td>
+                    <td>
+                        @if(!empty($berkas['cv']))
+                            <a href="{{ $berkas['cv'] }}">Buka CV</a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if(!empty($berkas['portofolio']))
+                            <a href="{{ $berkas['portofolio'] }}">Buka Portofolio</a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if(!empty($berkas['surat_lamaran']))
+                            <a href="{{ $berkas['surat_lamaran'] }}">Buka Surat Lamaran</a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if(!empty($berkas['transkip_nilai']))
+                            <a href="{{ $berkas['transkip_nilai'] }}">Buka Transkrip Nilai</a>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if(!empty($berkas['pas_foto']))
+                            <a href="{{ $berkas['pas_foto'] }}">Buka Pas Foto</a>
+                        @else
+                            -
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>

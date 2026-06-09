@@ -18,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'auth.supabase' => \App\Http\Middleware\SupabaseAuth::class,
-            'role'          => \App\Http\Middleware\RoleMiddleware::class,
-            'verified.company'=> \App\Http\Middleware\VerifiedCompany::class,
+            'auth.supabase'              => \App\Http\Middleware\SupabaseAuth::class,
+            'role'                       => \App\Http\Middleware\RoleMiddleware::class,
+            'verified.company'           => \App\Http\Middleware\VerifiedCompany::class,
+            'redirect.if.authenticated'  => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

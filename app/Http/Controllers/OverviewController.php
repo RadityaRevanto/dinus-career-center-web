@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\LamaranHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class OverviewController extends Controller
@@ -34,27 +36,27 @@ class OverviewController extends Controller
         $lowonganResponse = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lowongan', [
                 'perusahaan_id' => 'eq.' . $perusahaanId,
-                'select'        => 'lowongan_id,judul,status_loker,batas_akhir,created_at',
+                'select'        => 'lowongan_id,judul,status_loker,batas_akhir,created_at,jumlah_person',
             ]);
         
         $lowongan = $lowonganResponse->json();
         $lowongan = is_array($lowongan) ? $lowongan : [];
         if (isset($lowongan['message']) || isset($lowongan['code'])) {
-            \Log::error('Supabase lowongan query failed on overview', ['response' => $lowongan]);
+            Log::error('Supabase lowongan query failed on overview', ['response' => $lowongan]);
             $lowongan = [];
         }
 
         // 2. Fetch all lamaran for this company (via lowongan relation)
         $lamaranResponse = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
-                'select' => 'lamaran_id,status_terakhir,created_at,lowongan_id,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id)',
+                'select' => 'lamaran_id,status_terakhir,hasil_interview,created_at,lowongan_id,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id)',
                 'order'  => 'created_at.desc',
             ]);
 
         $allLamaran = $lamaranResponse->json();
         $allLamaran = is_array($allLamaran) ? $allLamaran : [];
         if (isset($allLamaran['message']) || isset($allLamaran['code'])) {
-            \Log::error('Supabase lamaran query failed on overview', ['response' => $allLamaran]);
+            Log::error('Supabase lamaran query failed on overview', ['response' => $allLamaran]);
             $allLamaran = [];
         }
 
@@ -64,18 +66,25 @@ class OverviewController extends Controller
         $lamaran = array_values($lamaran);
 
         // --- Calculate Stats ---
-        $lowonganAktif = array_filter($lowongan, fn($j) => ($j['status_loker'] ?? '') === 'aktif');
+        $isLowonganExpired = fn($job) => !empty($job['batas_akhir']) && Carbon::parse($job['batas_akhir'])->endOfDay()->isPast();
+        $lowonganIds = array_column($lowongan, 'lowongan_id');
+        $acceptedCounts = LamaranHelper::fetchAcceptedCounts($this->baseUrl, $this->headers(), $lowonganIds);
+        $isQuotaFull = fn($job) => LamaranHelper::isQuotaFull(
+            $acceptedCounts[$job['lowongan_id']] ?? 0,
+            (int) ($job['jumlah_person'] ?? 0)
+        );
+        $lowonganAktif = array_filter($lowongan, fn($j) => ($j['status_loker'] ?? '') === 'aktif' && !$isLowonganExpired($j) && !$isQuotaFull($j));
         $countLowonganAktif = count($lowonganAktif);
         $countTotalPelamar = count($lamaran);
         $countDiproses = count(array_filter($lamaran, fn($l) => in_array($l['status_terakhir'], ['reviewed', 'interview'])));
-        $countDiterima = count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'completed'));
+        $countDiterima = count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'accepted'));
 
         // --- Status Chart Data ---
         $chartStatusData = [
             'review' => count(array_filter($lamaran, fn($l) => in_array($l['status_terakhir'], ['applied', 'reviewed']))),
             'interview' => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'interview')),
-            'diterima' => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'completed')),
-            'ditolak' => 0, // In current system, rejected defaults to 0
+            'diterima' => count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'accepted')),
+            'ditolak' => count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'rejected')),
         ];
 
         // --- Trend Chart Data (Last 6 Months) ---
@@ -104,7 +113,7 @@ class OverviewController extends Controller
             $key = $date->format('Y-m');
             if (isset($monthlyCounts[$key])) {
                 $monthlyCounts[$key]['pelamar']++;
-                if (($l['status_terakhir'] ?? '') === 'completed') {
+                if (($l['hasil_interview'] ?? null) === 'accepted') {
                     $monthlyCounts[$key]['diterima']++;
                 }
             }

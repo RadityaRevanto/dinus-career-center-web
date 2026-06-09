@@ -6,15 +6,18 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CompanyVerified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
     private $baseUrl;
+    private $apiKey;
     private $serviceRole;
 
     public function __construct()
     {
         $this->baseUrl     = config('services.supabase.url');
+        $this->apiKey      = config('services.supabase.key');
         $this->serviceRole = config('services.supabase.service_role');
     }
 
@@ -47,6 +50,27 @@ class AdminController extends Controller
             ])->json();
 
         $allPerusahaan = is_array($allPerusahaan) ? $allPerusahaan : [];
+
+        $perusahaanIds = collect($allPerusahaan)->pluck('perusahaan_id')->filter()->values()->all();
+        $jumlahLowongan = [];
+
+        if (! empty($perusahaanIds)) {
+            $lowongan = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/rest/v1/lowongan', [
+                    'select'        => 'perusahaan_id',
+                    'perusahaan_id' => 'in.(' . implode(',', $perusahaanIds) . ')',
+                ])->json();
+
+            $jumlahLowongan = is_array($lowongan)
+                ? collect($lowongan)->groupBy('perusahaan_id')->map->count()->all()
+                : [];
+        }
+
+        $allPerusahaan = collect($allPerusahaan)->map(function ($item) use ($jumlahLowongan) {
+            $item['jumlah_lowongan'] = $jumlahLowongan[$item['perusahaan_id'] ?? null] ?? 0;
+            return $item;
+        })->all();
+
         $statusFilter = $request->query('status', 'all');
         $allowedFilters = ['pending', 'accepted', 'rejected'];
 
@@ -231,16 +255,230 @@ class AdminController extends Controller
         return view('admin.pages.lowongan.show', compact('data', 'lamaran', 'totalPelamar', 'statusPelamar', 'pelamarPerPageOptions'));
     }
 
-    public function auditLog()
+    public function auditLog(Request $request)
     {
-        $logs = Http::withHeaders($this->headers())
+        $allLogs = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/audit_log', [
                 'select' => '*',
                 'order'  => 'created_at.desc',
                 'limit'  => 200,
             ])->json();
 
-        return view('admin.pages.audit-log.index', compact('logs'));
+        $allLogs = is_array($allLogs)
+            ? array_values(array_filter($allLogs, 'is_array'))
+            : [];
+
+        $totalLog = count($allLogs);
+        $todayLog = collect($allLogs)->filter(function ($log) {
+            return ! empty($log['created_at'])
+                && Carbon::parse($log['created_at'])->isToday();
+        })->count();
+        $activeModuleCount = collect($allLogs)->pluck('modul')->filter()->unique()->count();
+
+        $auditLogPerPageOptions = [10, 25, 50, 100];
+        $auditLogPerPage = (int) $request->query('per_page', 10);
+        $auditLogPerPage = in_array($auditLogPerPage, $auditLogPerPageOptions, true) ? $auditLogPerPage : 10;
+
+        $lastPage = max(1, (int) ceil($totalLog / $auditLogPerPage));
+        $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
+        $items = array_slice($allLogs, ($currentPage - 1) * $auditLogPerPage, $auditLogPerPage);
+
+        $logs = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $totalLog,
+            $auditLogPerPage,
+            $currentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return view('admin.pages.audit-log.index', compact(
+            'logs',
+            'totalLog',
+            'todayLog',
+            'activeModuleCount',
+            'auditLogPerPageOptions'
+        ));
+    }
+
+    public function profile()
+    {
+        return view('admin.pages.profile');
+    }
+
+    public function password()
+    {
+        return view('admin.pages.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed|different:current_password',
+        ], [
+            'password.different' => 'Password baru harus berbeda dari password saat ini.',
+        ]);
+
+        $email = session('email') ?? data_get(session('user'), 'email');
+
+        if (! $email) {
+            return back()->with('error', 'Email admin tidak ditemukan di session. Silakan login ulang.');
+        }
+
+        $verify = Http::withHeaders([
+            'apikey'       => $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/auth/v1/token?grant_type=password', [
+            'email'    => $email,
+            'password' => $request->current_password,
+        ]);
+
+        if ($verify->failed()) {
+            return back()->with('error', 'Password saat ini tidak sesuai.')->withInput();
+        }
+
+        $accessToken = $verify->json('access_token') ?? session('access_token');
+
+        $update = Http::withHeaders([
+            'apikey'        => $this->apiKey,
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Content-Type'  => 'application/json',
+        ])->put($this->baseUrl . '/auth/v1/user', [
+            'password' => $request->password,
+        ]);
+
+        if ($update->failed()) {
+            return back()->with('error', 'Gagal mengubah password: ' . $update->body());
+        }
+
+        session()->flush();
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah. Silakan login kembali.');
+    }
+
+    public function notificationsLatest()
+    {
+        $notifications = [];
+        $unreadCount = 0;
+
+        $pendingCompanies = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/perusahaan', [
+                'status_verifikasi' => 'eq.pending',
+                'select'            => '*',
+                'order'             => 'created_at.desc',
+                'limit'             => 10,
+            ])->json();
+
+        $pendingCompanies = is_array($pendingCompanies)
+            ? array_values(array_filter($pendingCompanies, 'is_array'))
+            : [];
+
+        foreach ($pendingCompanies as $company) {
+            $createdAt = Carbon::parse($company['created_at'] ?? now())->timezone('Asia/Jakarta');
+            $updatedAt = ! empty($company['updated_at'])
+                ? Carbon::parse($company['updated_at'])->timezone('Asia/Jakarta')
+                : null;
+            $isResubmission = $updatedAt && $updatedAt->greaterThan($createdAt->copy()->addMinutes(1));
+            $notificationTime = $isResubmission ? $updatedAt : $createdAt;
+            $isNew = $notificationTime->isAfter(Carbon::now('Asia/Jakarta')->subDays(7));
+
+            if ($isNew) {
+                $unreadCount++;
+            }
+
+            $notifications[] = [
+                'id'         => ($isResubmission ? 'company-resubmit-' : 'company-') . ($company['perusahaan_id'] ?? uniqid()),
+                'type'       => 'company',
+                'judul'      => $isResubmission ? 'Perusahaan Mengajukan Review Ulang' : 'Perusahaan Menunggu Verifikasi',
+                'pesan'      => $isResubmission
+                    ? ($company['nama_perusahaan'] ?? 'Perusahaan') . ' sudah memperbarui profil dan mengajukan review ulang.'
+                    : ($company['nama_perusahaan'] ?? 'Perusahaan baru') . ' perlu direview oleh admin.',
+                'meta'       => $company['kota'] ?? $company['email_perusahaan'] ?? 'Perusahaan',
+                'waktu'      => $notificationTime->diffForHumans(),
+                'created_at' => $notificationTime->toIso8601String(),
+                'url'        => ! empty($company['perusahaan_id']) ? route('companies.show', $company['perusahaan_id']) : route('companies', ['status' => 'pending']),
+                'is_new'     => $isNew,
+            ];
+        }
+
+        $newJobs = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'select' => 'lowongan_id,judul,status_loker,created_at,perusahaan(nama_perusahaan)',
+                'order'  => 'created_at.desc',
+                'limit'  => 10,
+            ])->json();
+
+        $newJobs = is_array($newJobs)
+            ? array_values(array_filter($newJobs, 'is_array'))
+            : [];
+
+        foreach ($newJobs as $job) {
+            $createdAt = Carbon::parse($job['created_at'] ?? now())->timezone('Asia/Jakarta');
+            $isNew = $createdAt->isAfter(Carbon::now('Asia/Jakarta')->subDays(7));
+            $companyName = $job['perusahaan']['nama_perusahaan'] ?? 'Perusahaan';
+            $jobTitle = $job['judul'] ?? 'Lowongan';
+
+            if ($isNew) {
+                $unreadCount++;
+            }
+
+            $notifications[] = [
+                'id'         => 'job-' . ($job['lowongan_id'] ?? uniqid()),
+                'type'       => 'job',
+                'judul'      => 'Lowongan Baru Dipublikasikan',
+                'pesan'      => "{$companyName} membuat lowongan {$jobTitle}.",
+                'meta'       => ucfirst($job['status_loker'] ?? 'lowongan'),
+                'waktu'      => $createdAt->diffForHumans(),
+                'created_at' => $createdAt->toIso8601String(),
+                'url'        => ! empty($job['lowongan_id']) ? route('lowongan.show', $job['lowongan_id']) : route('lowongan.index'),
+                'is_new'     => $isNew,
+            ];
+        }
+
+        $applications = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'status_terakhir' => 'eq.applied',
+                'select'          => 'lamaran_id,status_terakhir,created_at,lowongan_id,pelamar:pelamar_id(nama_lengkap),lowongan:lowongan_id(judul)',
+                'order'           => 'created_at.desc',
+                'limit'           => 10,
+            ])->json();
+
+        $applications = is_array($applications)
+            ? array_values(array_filter($applications, 'is_array'))
+            : [];
+
+        foreach ($applications as $application) {
+            $createdAt = Carbon::parse($application['created_at'] ?? now())->timezone('Asia/Jakarta');
+            $isNew = $createdAt->isAfter(Carbon::now('Asia/Jakarta')->subDays(7));
+            $pelamarName = $application['pelamar']['nama_lengkap'] ?? 'Pelamar';
+            $jobTitle = $application['lowongan']['judul'] ?? 'lowongan';
+
+            if ($isNew) {
+                $unreadCount++;
+            }
+
+            $notifications[] = [
+                'id'         => 'application-' . ($application['lamaran_id'] ?? uniqid()),
+                'type'       => 'application',
+                'judul'      => 'Lamaran Baru Masuk',
+                'pesan'      => "{$pelamarName} melamar untuk posisi {$jobTitle}.",
+                'meta'       => $jobTitle,
+                'waktu'      => $createdAt->diffForHumans(),
+                'created_at' => $createdAt->toIso8601String(),
+                'url'        => ! empty($application['lowongan_id']) ? route('lowongan.show', $application['lowongan_id']) : route('lowongan.index'),
+                'is_new'     => $isNew,
+            ];
+        }
+
+        usort($notifications, fn ($a, $b) => strcmp($b['created_at'], $a['created_at']));
+
+        return response()->json([
+            'notifications' => array_slice($notifications, 0, 15),
+            'unread_count'  => $unreadCount,
+        ]);
     }
 
     public function verifyCompany(Request $request)

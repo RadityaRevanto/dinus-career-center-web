@@ -191,10 +191,17 @@
                                 ];
                                 $cfg = $statusConfig[$l['status_terakhir']] ?? $statusConfig['applied'];
                             @endphp
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-sm {{ $cfg[0] }}">
-                                <span class="w-1.5 h-1.5 rounded-full {{ $cfg[1] }}"></span>
-                                {{ $cfg[2] }}
-                            </span>
+                            <div class="flex flex-col gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-sm {{ $cfg[0] }} w-fit">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $cfg[1] }}"></span>
+                                    {{ $cfg[2] }}
+                                </span>
+                                @if(($l['status_terakhir'] ?? '') === 'completed' && !empty($l['hasil_interview']))
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold w-fit {{ $l['hasil_interview'] === 'accepted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
+                                    {{ $l['hasil_interview'] === 'accepted' ? 'Diterima' : 'Ditolak' }}
+                                </span>
+                                @endif
+                            </div>
                         </td>
 
                         <!-- Actions -->

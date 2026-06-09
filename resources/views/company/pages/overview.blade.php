@@ -240,14 +240,14 @@
                 <div class="space-y-3">
                     @forelse($activeJobs as $job)
                         <a href="{{ route('jobs.show', $job['lowongan_id']) }}" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50/80 hover:bg-gray-100/80 transition group">
-                            <div class="w-10 h-10 rounded-lg {{ $job['bg'] }} flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg {{ $job['bg'] }} flex items-center justify-center shrink-0">
                                 {!! $job['icon'] !!}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-base font-semibold text-gray-900 truncate group-hover:text-blue-600 transition">{{ $job['judul'] }}</p>
                                 <p class="text-sm text-gray-500">{{ $job['pelamar_count'] }} pelamar • Ditutup {{ $job['deadline'] }}</p>
                             </div>
-                            <span class="flex-shrink-0 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="shrink-0 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                         </a>
                     @empty
                         <div class="text-center py-6 text-sm text-gray-500">Belum ada lowongan aktif</div>
@@ -261,98 +261,114 @@
 @endsection
 
 @push('scripts')
+<script type="application/json" id="overview-chart-data">
+{
+    "labels": @json($chartLabels),
+    "pelamar": @json($chartDataPelamar),
+    "diterima": @json($chartDataDiterima),
+    "status": [
+        @json($chartStatusData['review']),
+        @json($chartStatusData['interview']),
+        @json($chartStatusData['diterima']),
+        @json($chartStatusData['ditolak'])
+    ]
+}
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const chartData = JSON.parse(document.getElementById('overview-chart-data')?.textContent || '{}');
+
     // Tren Pelamar - Line Chart
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-    new Chart(trendCtx, {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($chartLabels) !!},
-            datasets: [
-                {
-                    label: 'Pelamar Masuk',
-                    data: {!! json_encode($chartDataPelamar) !!},
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.08)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#3b82f6',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                },
-                {
-                    label: 'Selesai',
-                    data: {!! json_encode($chartDataDiterima) !!},
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16,185,129,0.06)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#10b981',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { size: 11, family: 'Montserrat' }, color: '#9ca3af' }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: { font: { size: 11, family: 'Montserrat' }, color: '#9ca3af', stepSize: 10 }
-                }
+    const trendCanvas = document.getElementById('trendChart');
+    if (trendCanvas) {
+        const trendCtx = trendCanvas.getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels || [],
+                datasets: [
+                    {
+                        label: 'Pelamar Masuk',
+                        data: chartData.pelamar || [],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59,130,246,0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#3b82f6',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Selesai',
+                        data: chartData.diterima || [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.06)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#10b981',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6,
+                    }
+                ]
             },
-            interaction: { intersect: false, mode: 'index' },
-        }
-    });
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11, family: 'Montserrat' }, color: '#9ca3af' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: { font: { size: 11, family: 'Montserrat' }, color: '#9ca3af', stepSize: 10 }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' },
+            }
+        });
+    }
 
     // Status Pelamar - Doughnut Chart
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Review', 'Interview', 'Selesai / Completed', 'Ditolak'],
-            datasets: [{
-                data: [
-                    {{ $chartStatusData['review'] }}, 
-                    {{ $chartStatusData['interview'] }}, 
-                    {{ $chartStatusData['diterima'] }}, 
-                    {{ $chartStatusData['ditolak'] }}
-                ],
-                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
-                borderWidth: 0,
-                hoverOffset: 8,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '68%',
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1f2937',
-                    titleFont: { family: 'Montserrat', size: 12 },
-                    bodyFont: { family: 'Montserrat', size: 11 },
-                    padding: 10,
-                    cornerRadius: 8,
+    const statusCanvas = document.getElementById('statusChart');
+    if (statusCanvas) {
+        const statusCtx = statusCanvas.getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Review', 'Interview', 'Selesai / Completed', 'Ditolak'],
+                datasets: [{
+                    data: chartData.status || [],
+                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleFont: { family: 'Montserrat', size: 12 },
+                        bodyFont: { family: 'Montserrat', size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Client-side search in "Lamaran Terbaru"
     const searchInput = document.querySelector('input[placeholder="Cari pelamar..."]');
