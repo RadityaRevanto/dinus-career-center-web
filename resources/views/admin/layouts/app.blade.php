@@ -31,4 +31,5 @@
 </body>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @yield('scripts')
+@stack('scripts')
 </html>
