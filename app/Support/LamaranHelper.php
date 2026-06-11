@@ -56,6 +56,39 @@ class LamaranHelper
         return $jumlahPerson > 0 && $acceptedCount >= $jumlahPerson;
     }
 
+    public static function isLowonganExpired(?string $batasAkhir): bool
+    {
+        if (empty($batasAkhir)) {
+            return false;
+        }
+
+        return \Carbon\Carbon::parse($batasAkhir)->endOfDay()->isPast();
+    }
+
+    /**
+     * @return array{is_active: bool, label: string, tone: string}
+     */
+    public static function resolveLowonganStatus(array $lowongan, int $acceptedCount = 0): array
+    {
+        $statusLoker = $lowongan['status_loker'] ?? '';
+        $expired = self::isLowonganExpired($lowongan['batas_akhir'] ?? null);
+        $quotaFull = self::isQuotaFull($acceptedCount, (int) ($lowongan['jumlah_person'] ?? 0));
+
+        if ($statusLoker !== 'aktif') {
+            return ['is_active' => false, 'label' => 'Ditutup', 'tone' => 'closed'];
+        }
+
+        if ($expired) {
+            return ['is_active' => false, 'label' => 'Kedaluwarsa', 'tone' => 'expired'];
+        }
+
+        if ($quotaFull) {
+            return ['is_active' => false, 'label' => 'Kuota penuh', 'tone' => 'quota'];
+        }
+
+        return ['is_active' => true, 'label' => 'Aktif', 'tone' => 'active'];
+    }
+
     /**
      * @param array<int|string> $lowonganIds
      * @return array<int|string, int>

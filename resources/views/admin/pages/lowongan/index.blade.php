@@ -13,7 +13,7 @@
     @php
         $totalLowongan = $totalLowongan ?? (is_array($lowongan) ? count($lowongan) : $lowongan->total());
         $lowonganAktif = $lowonganAktif ?? (is_array($lowongan) ? collect($lowongan)->where('status_loker', 'aktif')->count() : 0);
-        $lowonganTutup = $lowonganTutup ?? (is_array($lowongan) ? collect($lowongan)->where('status_loker', 'tutup')->count() : 0);
+        $lowonganTutup = $lowonganTutup ?? (is_array($lowongan) ? collect($lowongan)->where('status_loker', 'tidak')->count() : 0);
     @endphp
 
     <!-- Stats Section -->
@@ -98,7 +98,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($lowongan as $item)
-                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($item['status_loker'] ?? '') == 'tutup' ? 'opacity-60' : '' }}">
+                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($item['status_loker'] ?? '') == 'tidak' ? 'opacity-60' : '' }}">
                         <!-- Job Title -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex items-center">

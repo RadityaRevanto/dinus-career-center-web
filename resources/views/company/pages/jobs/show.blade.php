@@ -10,13 +10,22 @@
                 <p class="text-sm text-gray-500 mt-2">Informasi lengkap mengenai lowongan ini.</p>
             </div>
         <div class="flex items-center gap-3">
-            @if(($lowongan['status_loker'] ?? '') == 'aktif')
+            @php $status = $lowonganStatus ?? \App\Support\LamaranHelper::resolveLowonganStatus($lowongan); @endphp
+            @if($status['tone'] === 'active')
             <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Aktif
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>{{ $status['label'] }}
+            </span>
+            @elseif($status['tone'] === 'expired')
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>{{ $status['label'] }}
+            </span>
+            @elseif($status['tone'] === 'quota')
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{ $status['label'] }}
             </span>
             @else
             <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>Ditutup
+                <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>{{ $status['label'] }}
             </span>
             @endif
         </div>
@@ -130,7 +139,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Batas Akhir</label>
                             @php
                                 $batasAkhir = $lowongan['batas_akhir'] ?? null;
-                                $isExpired  = $batasAkhir && \Carbon\Carbon::parse($batasAkhir)->isPast();
+                                $isExpired  = \App\Support\LamaranHelper::isLowonganExpired($batasAkhir);
                             @endphp
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -166,17 +175,10 @@
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div class="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 font-medium">
-                                    @if(($lowongan['status_loker'] ?? '') == 'aktif')
-                                        <span class="inline-flex items-center gap-1.5">
-                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                            Aktif
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5">
-                                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                                            Ditutup
-                                        </span>
-                                    @endif
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full {{ $status['tone'] === 'active' ? 'bg-emerald-500 animate-pulse' : ($status['tone'] === 'expired' ? 'bg-rose-500' : ($status['tone'] === 'quota' ? 'bg-amber-500' : 'bg-gray-400')) }}"></span>
+                                        {{ $status['label'] }}
+                                    </span>
                                 </div>
                             </div>
                         </div>

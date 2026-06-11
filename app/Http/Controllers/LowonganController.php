@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Support\LamaranHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class LowonganController extends Controller
 {
@@ -36,6 +37,29 @@ class LowonganController extends Controller
         return compact('jabatan', 'jurusan', 'tipePekerjaan', 'sektor');
     }
 
+    private function syncExpiredLowonganStatus(array $lowongan, string $perusahaanId): array
+    {
+        foreach ($lowongan as $index => $item) {
+            if (($item['status_loker'] ?? '') !== 'aktif') {
+                continue;
+            }
+
+            if (!LamaranHelper::isLowonganExpired($item['batas_akhir'] ?? null)) {
+                continue;
+            }
+
+            Http::withHeaders($this->headers())
+                ->patch($this->baseUrl . '/rest/v1/lowongan?lowongan_id=eq.' . $item['lowongan_id'] . '&perusahaan_id=eq.' . $perusahaanId, [
+                    'status_loker' => 'tidak',
+                    'updated_at'   => Carbon::now()->toIso8601String(),
+                ]);
+
+            $lowongan[$index]['status_loker'] = 'tidak';
+        }
+
+        return $lowongan;
+    }
+
     public function index()
     {
         $perusahaanId = session('user')['id'];
@@ -48,6 +72,7 @@ class LowonganController extends Controller
             ])->json();
 
         $lowongan = is_array($lowongan) ? $lowongan : [];
+        $lowongan = $this->syncExpiredLowonganStatus($lowongan, $perusahaanId);
         $lowonganIds = array_column($lowongan, 'lowongan_id');
         $acceptedCounts = LamaranHelper::fetchAcceptedCounts($this->baseUrl, $this->headers(), $lowonganIds);
 
@@ -70,6 +95,7 @@ class LowonganController extends Controller
             'sektor_id'         => 'required',
             'batas_akhir'       => 'required|date',
             'jumlah_person'     => 'required|integer|min:1',
+            'status_loker'      => 'required|in:aktif,tidak',
         ]);
 
         $perusahaanId = session('user')['id'];
@@ -112,8 +138,15 @@ class LowonganController extends Controller
             abort(403, 'Akses ditolak');
         }
 
+        $lowongan = $this->syncExpiredLowonganStatus($lowongan, $perusahaanId)[0];
+        $acceptedCount = LamaranHelper::countAcceptedForLowongan($this->baseUrl, $this->headers(), $id);
+        $lowonganStatus = LamaranHelper::resolveLowonganStatus($lowongan, $acceptedCount);
+
         $masterData = $this->getMasterData();
-        return view('company.pages.jobs.edit', array_merge(['lowongan' => $lowongan[0]], $masterData));
+        return view('company.pages.jobs.edit', array_merge([
+            'lowongan' => $lowongan,
+            'lowonganStatus' => $lowonganStatus,
+        ], $masterData));
     }
 
     public function show(string $id)
@@ -131,6 +164,8 @@ class LowonganController extends Controller
             abort(403, 'Akses ditolak');
         }
 
+        $lowongan = $this->syncExpiredLowonganStatus($lowongan, $perusahaanId)[0];
+
         $lamaran = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lowongan_id' => 'eq.' . $id,
@@ -140,9 +175,13 @@ class LowonganController extends Controller
 
         $lamaran = is_array($lamaran) ? $lamaran : [];
 
+        $acceptedCount = LamaranHelper::countAcceptedForLowongan($this->baseUrl, $this->headers(), $id);
+        $lowonganStatus = LamaranHelper::resolveLowonganStatus($lowongan, $acceptedCount);
+
         return view('company.pages.jobs.show', [
-            'lowongan' => $lowongan[0],
+            'lowongan' => $lowongan,
             'lamaran'  => $lamaran,
+            'lowonganStatus' => $lowonganStatus,
         ]);
     }
 
@@ -176,7 +215,7 @@ class LowonganController extends Controller
             ]);
 
         if ($res->failed()) {
-            return back()->with('error', 'Gagal update lowongan')->withInput();
+            return back()->with('error', 'Gagal update lowongan: ' . $res->body())->withInput();
         }
 
         return redirect()->route('jobs')->with('success', 'Lowongan berhasil diupdate!');

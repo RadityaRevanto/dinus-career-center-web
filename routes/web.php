@@ -33,8 +33,11 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
     Route::get('/companies/{id}', [AdminController::class, 'showCompany'])->name('companies.show');
     Route::get('/lowongan', [AdminController::class, 'lowongan'])->name('lowongan.index');
     Route::get('/lowongan/{id}', [AdminController::class, 'showLowongan'])->name('lowongan.show');
-    Route::get('/events', fn() => view('admin.pages.event.index'))->name('events');
+    Route::get('/events', [AdminController::class, 'events'])->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
+    Route::post('/events', [AdminController::class, 'storeEvent'])->name('events.store');
+    Route::get('/events/{id}/edit', [AdminController::class, 'editEvent'])->name('events.edit');
+    Route::patch('/events/{id}', [AdminController::class, 'updateEvent'])->name('events.update');
     Route::get('/notifications/latest', [AdminController::class, 'notificationsLatest'])->name('admin.notifications.latest');
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
     Route::get('/audit-log', [AdminController::class, 'auditLog'])->name('audit-log.index');

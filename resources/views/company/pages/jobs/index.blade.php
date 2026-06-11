@@ -36,13 +36,12 @@
     @php
         $acceptedCounts = $acceptedCounts ?? [];
         $totalLowongan = is_array($lowongan) ? count($lowongan) : 0;
-        $isLowonganExpired = fn($item) => !empty($item['batas_akhir']) && \Carbon\Carbon::parse($item['batas_akhir'])->endOfDay()->isPast();
-        $isQuotaFull = fn($item) => \App\Support\LamaranHelper::isQuotaFull(
-            $acceptedCounts[$item['lowongan_id']] ?? 0,
-            (int) ($item['jumlah_person'] ?? 0)
+        $resolveStatus = fn($item) => \App\Support\LamaranHelper::resolveLowonganStatus(
+            $item,
+            $acceptedCounts[$item['lowongan_id']] ?? 0
         );
-        $lowonganAktif = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => ($item['status_loker'] ?? '') === 'aktif' && !$isLowonganExpired($item) && !$isQuotaFull($item))->count() : 0;
-        $lowonganTutup = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => ($item['status_loker'] ?? '') === 'tutup' || $isLowonganExpired($item) || $isQuotaFull($item))->count() : 0;
+        $lowonganAktif = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => $resolveStatus($item)['is_active'])->count() : 0;
+        $lowonganTutup = is_array($lowongan) ? collect($lowongan)->filter(fn($item) => !$resolveStatus($item)['is_active'])->count() : 0;
     @endphp
 
     <!-- Stats Section -->
@@ -111,13 +110,13 @@
                     @forelse($lowongan as $item)
                     @php
                         $batasAkhir = $item['batas_akhir'] ?? null;
-                        $isExpired = $batasAkhir && \Carbon\Carbon::parse($batasAkhir)->endOfDay()->isPast();
                         $acceptedCount = $acceptedCounts[$item['lowongan_id']] ?? 0;
                         $jumlahPerson = (int) ($item['jumlah_person'] ?? 0);
+                        $status = \App\Support\LamaranHelper::resolveLowonganStatus($item, $acceptedCount);
+                        $isExpired = \App\Support\LamaranHelper::isLowonganExpired($batasAkhir);
                         $quotaFull = \App\Support\LamaranHelper::isQuotaFull($acceptedCount, $jumlahPerson);
-                        $isAktif = ($item['status_loker'] ?? '') === 'aktif' && !$isExpired && !$quotaFull;
                     @endphp
-                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ !$isAktif ? 'opacity-60' : '' }}">
+                    <tr class="hover:bg-indigo-50/30 transition-colors group {{ !$status['is_active'] ? 'opacity-60' : '' }}">
                         <!-- Posisi / Judul -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex items-center">
@@ -146,15 +145,25 @@
 
                         <!-- Status -->
                         <td class="px-6 py-5 whitespace-nowrap">
-                            @if($isAktif)
+                            @if($status['tone'] === 'active')
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Aktif
+                                {{ $status['label'] }}
+                            </span>
+                            @elseif($status['tone'] === 'expired')
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                {{ $status['label'] }}
+                            </span>
+                            @elseif($status['tone'] === 'quota')
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                {{ $status['label'] }}
                             </span>
                             @else
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                Non-aktif
+                                {{ $status['label'] }}
                             </span>
                             @endif
                         </td>

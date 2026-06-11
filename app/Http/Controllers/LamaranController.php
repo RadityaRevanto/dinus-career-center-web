@@ -455,7 +455,7 @@ class LamaranController extends Controller
         if ($request->result === 'accepted' && LamaranHelper::isQuotaFull($acceptedCount + 1, $jumlahPerson)) {
             Http::withHeaders($this->headers())
                 ->patch($this->baseUrl . '/rest/v1/lowongan?lowongan_id=eq.' . $lowonganId, [
-                    'status_loker' => 'tutup',
+                    'status_loker' => 'tidak',
                 ]);
         }
 

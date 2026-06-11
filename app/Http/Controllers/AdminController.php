@@ -126,7 +126,7 @@ class AdminController extends Controller
 
         $totalLowongan = count($allLowongan);
         $lowonganAktif = collect($allLowongan)->where('status_loker', 'aktif')->count();
-        $lowonganTutup = collect($allLowongan)->where('status_loker', 'tutup')->count();
+        $lowonganTutup = collect($allLowongan)->where('status_loker', 'tidak')->count();
         $lowonganPerPageOptions = [10, 25, 50, 100];
         $lowonganPerPage = (int) $request->query('per_page', 10);
         $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
@@ -180,7 +180,7 @@ class AdminController extends Controller
 
         $totalLowongan = count($lowongan);
         $lowonganAktif = collect($lowongan)->where('status_loker', 'aktif')->count();
-        $lowonganTutup = collect($lowongan)->where('status_loker', 'tutup')->count();
+        $lowonganTutup = collect($lowongan)->where('status_loker', 'tidak')->count();
         $lowonganPerPageOptions = [10, 25, 50, 100];
         $lowonganPerPage = (int) request('per_page', 10);
         $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
@@ -253,6 +253,358 @@ class AdminController extends Controller
         );
 
         return view('admin.pages.lowongan.show', compact('data', 'lamaran', 'totalPelamar', 'statusPelamar', 'pelamarPerPageOptions'));
+    }
+
+    public function events(Request $request)
+    {
+        $allEvents = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/events', [
+                'select' => '*',
+                'order'  => 'event_date.desc,start_time.desc',
+            ])->json();
+
+        $allEvents = is_array($allEvents) ? array_values(array_filter($allEvents, 'is_array')) : [];
+        $totalEvents = count($allEvents);
+        $activeEvents = collect($allEvents)->where('status', 'published')->count();
+        $inactiveEvents = collect($allEvents)->where('status', '!=', 'published')->count();
+
+        $eventPerPageOptions = [10, 25, 50, 100];
+        $eventPerPage = (int) $request->query('per_page', 10);
+        $eventPerPage = in_array($eventPerPage, $eventPerPageOptions, true) ? $eventPerPage : 10;
+
+        $lastPage = max(1, (int) ceil($totalEvents / $eventPerPage));
+        $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
+        $items = array_slice($allEvents, ($currentPage - 1) * $eventPerPage, $eventPerPage);
+
+        $events = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $totalEvents,
+            $eventPerPage,
+            $currentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return view('admin.pages.event.index', compact(
+            'events',
+            'totalEvents',
+            'activeEvents',
+            'inactiveEvents',
+            'eventPerPageOptions'
+        ));
+    }
+
+    public function storeEvent(Request $request)
+    {
+        $validated = $request->validate([
+            'title'             => 'required|string|max:255',
+            'slug'              => 'nullable|string|max:255',
+            'description'       => 'nullable|string',
+            'image'             => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'event_date'        => 'required|date',
+            'start_time'        => 'required|date_format:H:i',
+            'end_time'          => 'nullable|date_format:H:i|after:start_time',
+            'location_name'     => 'nullable|string|max:255',
+            'address'           => 'nullable|string',
+            'benefits'          => 'nullable|string',
+            'speakers'          => 'nullable|array',
+            'speakers.*.speaker_name' => 'nullable|string|max:255',
+            'speakers.*.speaker_title' => 'nullable|string|max:255',
+            'speakers.*.speaker_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'category'          => 'nullable|string|max:100',
+            'organizer'         => 'nullable|string|max:255',
+            'max_participants'  => 'nullable|integer|min:0',
+            'registration_link' => 'nullable|url|max:1000',
+            'status'            => 'required|in:draft,published,closed,cancelled',
+        ]);
+
+        $imageUrl = null;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = 'banners/event-' . time() . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileBytes = file_get_contents($file->getRealPath());
+
+            $uploadRes = Http::withHeaders([
+                'apikey'        => $this->serviceRole,
+                'Authorization' => 'Bearer ' . $this->serviceRole,
+                'Content-Type'  => $file->getMimeType(),
+                'x-upsert'      => 'true',
+            ])->withBody($fileBytes, $file->getMimeType())
+              ->post($this->baseUrl . '/storage/v1/object/event-images/' . $fileName);
+
+            if ($uploadRes->failed()) {
+                return back()
+                    ->with('error', 'Gagal upload gambar event: ' . $uploadRes->body())
+                    ->withInput();
+            }
+
+            $imageUrl = $this->baseUrl . '/storage/v1/object/public/event-images/' . $fileName;
+        }
+
+        $payload = [
+            'title'             => $validated['title'],
+            'slug'              => $validated['slug'] ?? null,
+            'description'       => $validated['description'] ?? null,
+            'image_url'         => $imageUrl,
+            'event_date'        => $validated['event_date'],
+            'start_time'        => $validated['start_time'],
+            'end_time'          => $validated['end_time'] ?? null,
+            'location_name'     => $validated['location_name'] ?? null,
+            'address'           => $validated['address'] ?? null,
+            'benefits'          => $validated['benefits'] ?? null,
+            'category'          => $validated['category'] ?? null,
+            'organizer'         => $validated['organizer'] ?? null,
+            'max_participants'  => (int) ($validated['max_participants'] ?? 0),
+            'registration_link' => $validated['registration_link'] ?? null,
+            'status'            => $validated['status'],
+        ];
+
+        $res = Http::withHeaders(array_merge($this->headers(), [
+                'Prefer' => 'return=representation',
+            ]))
+            ->post($this->baseUrl . '/rest/v1/events', $payload);
+
+        if ($res->failed()) {
+            return back()
+                ->with('error', 'Gagal membuat event: ' . $res->body())
+                ->withInput();
+        }
+
+        $createdEvent = $res->json();
+        $eventId = $createdEvent[0]['id'] ?? null;
+
+        if ($eventId && !empty($validated['speakers'])) {
+            $speakerRows = [];
+
+            foreach ($validated['speakers'] as $index => $speaker) {
+                $speakerName = $speaker['speaker_name'] ?? null;
+                $speakerTitle = $speaker['speaker_title'] ?? null;
+                $speakerImageUrl = null;
+                $speakerFile = $request->file("speakers.$index.speaker_image");
+
+                if ($speakerFile) {
+                    $fileName = 'speakers/speaker-' . time() . '-' . uniqid() . '.' . $speakerFile->getClientOriginalExtension();
+                    $fileBytes = file_get_contents($speakerFile->getRealPath());
+
+                    $uploadRes = Http::withHeaders([
+                        'apikey'        => $this->serviceRole,
+                        'Authorization' => 'Bearer ' . $this->serviceRole,
+                        'Content-Type'  => $speakerFile->getMimeType(),
+                        'x-upsert'      => 'true',
+                    ])->withBody($fileBytes, $speakerFile->getMimeType())
+                      ->post($this->baseUrl . '/storage/v1/object/event-images/' . $fileName);
+
+                    if ($uploadRes->failed()) {
+                        return redirect()->route('events')
+                            ->with('error', 'Event dibuat, tetapi upload foto speaker gagal: ' . $uploadRes->body());
+                    }
+
+                    $speakerImageUrl = $this->baseUrl . '/storage/v1/object/public/event-images/' . $fileName;
+                }
+
+                if (empty(trim($speakerName ?? ''))) {
+                    continue;
+                }
+
+                $speakerRows[] = [
+                    'event_id' => $eventId,
+                    'nama'     => $speakerName,
+                    'jabatan'  => $speakerTitle,
+                    'foto'     => $speakerImageUrl,
+                    'urutan'   => count($speakerRows) + 1,
+                ];
+            }
+
+            if (!empty($speakerRows)) {
+                $speakerRes = Http::withHeaders($this->headers())
+                    ->post($this->baseUrl . '/rest/v1/event_speakers', $speakerRows);
+
+                if ($speakerRes->failed()) {
+                    return redirect()->route('events')
+                        ->with('error', 'Event dibuat, tetapi data speaker gagal disimpan: ' . $speakerRes->body());
+                }
+            }
+        }
+
+        return redirect()->route('events')->with('success', 'Event berhasil dibuat.');
+    }
+
+    public function editEvent(string $id)
+    {
+        $event = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/events', [
+                'id'     => 'eq.' . $id,
+                'select' => '*',
+                'limit'  => 1,
+            ])->json();
+
+        if (empty($event) || !is_array($event)) {
+            abort(404, 'Event tidak ditemukan');
+        }
+
+        $speakers = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/event_speakers', [
+                'event_id' => 'eq.' . $id,
+                'select'   => '*',
+                'order'    => 'urutan.asc',
+            ])->json();
+
+        $speakers = is_array($speakers) ? array_values(array_filter($speakers, 'is_array')) : [];
+
+        return view('admin.pages.event.edit', [
+            'event' => $event[0],
+            'speakers' => $speakers,
+        ]);
+    }
+
+    public function updateEvent(Request $request, string $id)
+    {
+        $existing = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/events', [
+                'id'     => 'eq.' . $id,
+                'select' => '*',
+                'limit'  => 1,
+            ])->json();
+
+        if (empty($existing) || !is_array($existing)) {
+            abort(404, 'Event tidak ditemukan');
+        }
+
+        $event = $existing[0];
+
+        $validated = $request->validate([
+            'title'             => 'required|string|max:255',
+            'slug'              => 'nullable|string|max:255',
+            'description'       => 'nullable|string',
+            'image'             => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'event_date'        => 'required|date',
+            'start_time'        => 'required|date_format:H:i',
+            'end_time'          => 'nullable|date_format:H:i|after:start_time',
+            'location_name'     => 'nullable|string|max:255',
+            'address'           => 'nullable|string',
+            'benefits'          => 'nullable|string',
+            'speakers'          => 'nullable|array',
+            'speakers.*.speaker_name' => 'nullable|string|max:255',
+            'speakers.*.speaker_title' => 'nullable|string|max:255',
+            'speakers.*.speaker_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'speakers.*.existing_speaker_image' => 'nullable|string|max:1000',
+            'category'          => 'nullable|string|max:100',
+            'organizer'         => 'nullable|string|max:255',
+            'max_participants'  => 'nullable|integer|min:0',
+            'registration_link' => 'nullable|url|max:1000',
+            'status'            => 'required|in:draft,published,closed,cancelled',
+        ]);
+
+        $imageUrl = $event['image_url'] ?? null;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = 'banners/event-' . time() . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileBytes = file_get_contents($file->getRealPath());
+
+            $uploadRes = Http::withHeaders([
+                'apikey'        => $this->serviceRole,
+                'Authorization' => 'Bearer ' . $this->serviceRole,
+                'Content-Type'  => $file->getMimeType(),
+                'x-upsert'      => 'true',
+            ])->withBody($fileBytes, $file->getMimeType())
+              ->post($this->baseUrl . '/storage/v1/object/event-images/' . $fileName);
+
+            if ($uploadRes->failed()) {
+                return back()
+                    ->with('error', 'Gagal upload gambar event: ' . $uploadRes->body())
+                    ->withInput();
+            }
+
+            $imageUrl = $this->baseUrl . '/storage/v1/object/public/event-images/' . $fileName;
+        }
+
+        $payload = [
+            'title'             => $validated['title'],
+            'slug'              => $validated['slug'] ?? null,
+            'description'       => $validated['description'] ?? null,
+            'image_url'         => $imageUrl,
+            'event_date'        => $validated['event_date'],
+            'start_time'        => $validated['start_time'],
+            'end_time'          => $validated['end_time'] ?? null,
+            'location_name'     => $validated['location_name'] ?? null,
+            'address'           => $validated['address'] ?? null,
+            'benefits'          => $validated['benefits'] ?? null,
+            'category'          => $validated['category'] ?? null,
+            'organizer'         => $validated['organizer'] ?? null,
+            'max_participants'  => (int) ($validated['max_participants'] ?? 0),
+            'registration_link' => $validated['registration_link'] ?? null,
+            'status'            => $validated['status'],
+            'updated_at'        => now()->toIso8601String(),
+        ];
+
+        $res = Http::withHeaders($this->headers())
+            ->patch($this->baseUrl . '/rest/v1/events?id=eq.' . $id, $payload);
+
+        if ($res->failed()) {
+            return back()
+                ->with('error', 'Gagal update event: ' . $res->body())
+                ->withInput();
+        }
+
+        Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/event_speakers?event_id=eq.' . $id);
+
+        $speakerRows = [];
+
+        foreach (($validated['speakers'] ?? []) as $index => $speaker) {
+            $speakerName = $speaker['speaker_name'] ?? null;
+            $speakerTitle = $speaker['speaker_title'] ?? null;
+            $speakerImageUrl = $speaker['existing_speaker_image'] ?? null;
+            $speakerFile = $request->file("speakers.$index.speaker_image");
+
+            if ($speakerFile) {
+                $fileName = 'speakers/speaker-' . time() . '-' . uniqid() . '.' . $speakerFile->getClientOriginalExtension();
+                $fileBytes = file_get_contents($speakerFile->getRealPath());
+
+                $uploadRes = Http::withHeaders([
+                    'apikey'        => $this->serviceRole,
+                    'Authorization' => 'Bearer ' . $this->serviceRole,
+                    'Content-Type'  => $speakerFile->getMimeType(),
+                    'x-upsert'      => 'true',
+                ])->withBody($fileBytes, $speakerFile->getMimeType())
+                  ->post($this->baseUrl . '/storage/v1/object/event-images/' . $fileName);
+
+                if ($uploadRes->failed()) {
+                    return redirect()->route('events')
+                        ->with('error', 'Event diupdate, tetapi upload foto speaker gagal: ' . $uploadRes->body());
+                }
+
+                $speakerImageUrl = $this->baseUrl . '/storage/v1/object/public/event-images/' . $fileName;
+            }
+
+            if (empty(trim($speakerName ?? ''))) {
+                continue;
+            }
+
+            $speakerRows[] = [
+                'event_id' => $id,
+                'nama'     => $speakerName,
+                'jabatan'  => $speakerTitle,
+                'foto'     => $speakerImageUrl,
+                'urutan'   => count($speakerRows) + 1,
+            ];
+        }
+
+        if (!empty($speakerRows)) {
+            $speakerRes = Http::withHeaders($this->headers())
+                ->post($this->baseUrl . '/rest/v1/event_speakers', $speakerRows);
+
+            if ($speakerRes->failed()) {
+                return redirect()->route('events')
+                    ->with('error', 'Event diupdate, tetapi data speaker gagal disimpan: ' . $speakerRes->body());
+            }
+        }
+
+        return redirect()->route('events')->with('success', 'Event berhasil diupdate.');
     }
 
     public function auditLog(Request $request)

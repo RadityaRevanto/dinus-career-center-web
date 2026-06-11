@@ -28,6 +28,7 @@
             $breadcrumbParent = ['label' => 'Event', 'route' => route('events')];
             $breadcrumbCurrent = match (true) {
                 request()->routeIs('events.create') => 'Tambah Event',
+                request()->routeIs('events.edit') => 'Edit Event',
                 default => null,
             };
         } elseif (request()->routeIs('audit-log.*')) {
