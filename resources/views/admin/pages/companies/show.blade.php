@@ -198,7 +198,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 bg-white">
                         @forelse($lowongan as $item)
-                        <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($item['status_loker'] ?? '') == 'tutup' ? 'opacity-60' : '' }}">
+                        <tr class="hover:bg-indigo-50/30 transition-colors group {{ ($item['status_loker'] ?? '') == 'tidak' ? 'opacity-60' : '' }}">
                             <td class="px-6 py-5 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="shrink-0 h-12 w-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-sm group-hover:border-indigo-200 group-hover:shadow-indigo-100 transition-all duration-200">

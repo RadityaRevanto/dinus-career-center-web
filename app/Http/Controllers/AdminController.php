@@ -126,7 +126,7 @@ class AdminController extends Controller
 
         $totalLowongan = count($allLowongan);
         $lowonganAktif = collect($allLowongan)->where('status_loker', 'aktif')->count();
-        $lowonganTutup = collect($allLowongan)->where('status_loker', 'tutup')->count();
+        $lowonganTutup = collect($allLowongan)->where('status_loker', 'tidak')->count();
         $lowonganPerPageOptions = [10, 25, 50, 100];
         $lowonganPerPage = (int) $request->query('per_page', 10);
         $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
@@ -180,7 +180,7 @@ class AdminController extends Controller
 
         $totalLowongan = count($lowongan);
         $lowonganAktif = collect($lowongan)->where('status_loker', 'aktif')->count();
-        $lowonganTutup = collect($lowongan)->where('status_loker', 'tutup')->count();
+        $lowonganTutup = collect($lowongan)->where('status_loker', 'tidak')->count();
         $lowonganPerPageOptions = [10, 25, 50, 100];
         $lowonganPerPage = (int) request('per_page', 10);
         $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
