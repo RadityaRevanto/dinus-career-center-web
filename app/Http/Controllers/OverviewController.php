@@ -49,7 +49,7 @@ class OverviewController extends Controller
         // 2. Fetch all lamaran for this company (via lowongan relation)
         $lamaranResponse = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
-                'select' => 'lamaran_id,status_terakhir,hasil_interview,created_at,lowongan_id,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id)',
+                'select' => 'lamaran_id,status_terakhir,created_at,lowongan_id,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id)',
                 'order'  => 'created_at.desc',
             ]);
 
@@ -77,14 +77,14 @@ class OverviewController extends Controller
         $countLowonganAktif = count($lowonganAktif);
         $countTotalPelamar = count($lamaran);
         $countDiproses = count(array_filter($lamaran, fn($l) => in_array($l['status_terakhir'], ['reviewed', 'interview'])));
-        $countDiterima = count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'accepted'));
+        $countDiterima = count(array_filter($lamaran, fn($l) => ($l['status_terakhir'] ?? null) === 'accepted'));
 
         // --- Status Chart Data ---
         $chartStatusData = [
             'review' => count(array_filter($lamaran, fn($l) => in_array($l['status_terakhir'], ['applied', 'reviewed']))),
             'interview' => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'interview')),
-            'diterima' => count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'accepted')),
-            'ditolak' => count(array_filter($lamaran, fn($l) => ($l['hasil_interview'] ?? null) === 'rejected')),
+            'diterima' => count(array_filter($lamaran, fn($l) => ($l['status_terakhir'] ?? null) === 'accepted')),
+            'ditolak' => count(array_filter($lamaran, fn($l) => ($l['status_terakhir'] ?? null) === 'rejected')),
         ];
 
         // --- Trend Chart Data (Last 6 Months) ---
@@ -113,7 +113,7 @@ class OverviewController extends Controller
             $key = $date->format('Y-m');
             if (isset($monthlyCounts[$key])) {
                 $monthlyCounts[$key]['pelamar']++;
-                if (($l['hasil_interview'] ?? null) === 'accepted') {
+                if (($l['status_terakhir'] ?? null) === 'accepted') {
                     $monthlyCounts[$key]['diterima']++;
                 }
             }

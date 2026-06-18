@@ -94,10 +94,20 @@ class NotificationController extends Controller
                     $pesan = "Interview dijadwalkan untuk {$nama} — {$posisi}";
                     $icon = 'interview';
                     break;
+                case 'accepted':
+                    $judul = 'Kandidat Diterima';
+                    $pesan = "{$nama} diterima untuk posisi \"{$posisi}\"";
+                    $icon = 'accepted';
+                    break;
+                case 'rejected':
+                    $judul = 'Kandidat Ditolak';
+                    $pesan = "Lamaran {$nama} untuk \"{$posisi}\" ditolak";
+                    $icon = 'rejected';
+                    break;
                 case 'completed':
                     $judul = 'Proses Selesai';
                     $pesan = "Proses rekrutmen {$nama} untuk \"{$posisi}\" selesai";
-                    $icon = 'completed';
+                    $icon = 'accepted';
                     break;
                 default:
                     $judul = 'Update Lamaran';

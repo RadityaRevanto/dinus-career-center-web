@@ -61,9 +61,9 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Selesai</p>
+                    <p class="text-sm font-medium text-gray-500">Diterima</p>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <p class="text-2xl font-extrabold text-gray-900">{{ $stats['completed'] }}</p>
+                        <p class="text-2xl font-extrabold text-gray-900">{{ $stats['accepted'] }}</p>
                     </div>
                 </div>
             </div>
@@ -187,7 +187,8 @@
                                     'applied'   => ['bg-amber-50 text-amber-700 border-amber-100', 'bg-amber-500', 'Applied'],
                                     'reviewed'  => ['bg-sky-50 text-sky-700 border-sky-100', 'bg-sky-500', 'Reviewed'],
                                     'interview' => ['bg-blue-50 text-blue-700 border-blue-100', 'bg-blue-500', 'Interview'],
-                                    'completed' => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Completed'],
+                                    'accepted'  => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Diterima'],
+                                    'rejected'  => ['bg-rose-50 text-rose-700 border-rose-100', 'bg-rose-500', 'Ditolak'],
                                 ];
                                 $cfg = $statusConfig[$l['status_terakhir']] ?? $statusConfig['applied'];
                             @endphp
@@ -196,11 +197,6 @@
                                     <span class="w-1.5 h-1.5 rounded-full {{ $cfg[1] }}"></span>
                                     {{ $cfg[2] }}
                                 </span>
-                                @if(($l['status_terakhir'] ?? '') === 'completed' && !empty($l['hasil_interview']))
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold w-fit {{ $l['hasil_interview'] === 'accepted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
-                                    {{ $l['hasil_interview'] === 'accepted' ? 'Diterima' : 'Ditolak' }}
-                                </span>
-                                @endif
                             </div>
                         </td>
 

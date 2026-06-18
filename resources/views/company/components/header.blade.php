@@ -126,7 +126,8 @@
                                                   'bg-blue-500': notif.icon === 'applied',
                                                   'bg-sky-500': notif.icon === 'reviewed',
                                                   'bg-amber-500': notif.icon === 'interview',
-                                                  'bg-emerald-500': notif.icon === 'completed'
+                                                  'bg-emerald-500': notif.icon === 'accepted' || notif.icon === 'completed',
+                                                  'bg-rose-500': notif.icon === 'rejected'
                                               }">
                                             <!-- Applied Icon -->
                                             <svg x-show="notif.icon === 'applied'" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -141,9 +142,13 @@
                                             <svg x-show="notif.icon === 'interview'" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                             </svg>
-                                            <!-- Completed Icon -->
-                                            <svg x-show="notif.icon === 'completed'" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <!-- Accepted Icon -->
+                                            <svg x-show="notif.icon === 'accepted' || notif.icon === 'completed'" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            <!-- Rejected Icon -->
+                                            <svg x-show="notif.icon === 'rejected'" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </span>
                                     </div>
@@ -157,9 +162,10 @@
                                                     'bg-blue-100 text-blue-700': notif.icon === 'applied',
                                                     'bg-sky-100 text-sky-700': notif.icon === 'reviewed',
                                                     'bg-amber-100 text-amber-700': notif.icon === 'interview',
-                                                    'bg-emerald-100 text-emerald-700': notif.icon === 'completed'
+                                                    'bg-emerald-100 text-emerald-700': notif.icon === 'accepted' || notif.icon === 'completed',
+                                                    'bg-rose-100 text-rose-700': notif.icon === 'rejected'
                                                 }"
-                                                x-text="notif.icon === 'applied' ? 'Baru' : notif.icon === 'reviewed' ? 'Review' : notif.icon === 'interview' ? 'Interview' : 'Selesai'">
+                                                x-text="notif.icon === 'applied' ? 'Baru' : notif.icon === 'reviewed' ? 'Review' : notif.icon === 'interview' ? 'Interview' : notif.icon === 'rejected' ? 'Ditolak' : 'Diterima'">
                                             </span>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-0.5 line-clamp-2" x-text="notif.pesan"></p>

@@ -51,7 +51,8 @@
                         'applied' => 'Applied',
                         'reviewed' => 'Reviewed',
                         'interview' => 'Interview',
-                        'completed' => 'Completed',
+                        'accepted' => 'Diterima',
+                        'rejected' => 'Ditolak',
                     ];
                 @endphp
                 <tr>

@@ -30,7 +30,7 @@ class LamaranHelper
     }
 
     /**
-     * @param array<int, array{lowongan_id?: string|int, hasil_interview?: string|null}> $rows
+     * @param array<int, array{lowongan_id?: string|int, status_terakhir?: string|null}> $rows
      * @return array<int|string, int>
      */
     public static function countAcceptedByLowongan(array $rows): array
@@ -38,7 +38,7 @@ class LamaranHelper
         $counts = [];
 
         foreach ($rows as $row) {
-            if (($row['hasil_interview'] ?? null) !== 'accepted') {
+            if (($row['status_terakhir'] ?? null) !== LamaranStatus::ACCEPTED) {
                 continue;
             }
 
@@ -49,6 +49,45 @@ class LamaranHelper
         }
 
         return $counts;
+    }
+
+    public static function parseReviewResultFromPesan(?string $pesan): ?string
+    {
+        return self::parseInterviewResultFromPesan($pesan);
+    }
+
+    public static function hasReviewResultEmailSent(string $baseUrl, array $headers, string $lamaranId): bool
+    {
+        $response = Http::withHeaders($headers)
+            ->get($baseUrl . '/rest/v1/notifikasi', [
+                'lamaran_id' => 'eq.' . $lamaranId,
+                'tipe'       => 'eq.review_result',
+                'select'     => 'notifikasi_id',
+                'limit'      => 1,
+            ]);
+
+        $rows = $response->json();
+
+        return is_array($rows) && !isset($rows['code']) && !empty($rows);
+    }
+
+    public static function getReviewResult(string $baseUrl, array $headers, string $lamaranId): ?string
+    {
+        $response = Http::withHeaders($headers)
+            ->get($baseUrl . '/rest/v1/notifikasi', [
+                'lamaran_id' => 'eq.' . $lamaranId,
+                'tipe'       => 'eq.review_result',
+                'select'     => 'pesan',
+                'order'      => 'created_at.desc',
+                'limit'      => 1,
+            ]);
+
+        $rows = $response->json();
+        if (!is_array($rows) || isset($rows['code']) || empty($rows[0])) {
+            return null;
+        }
+
+        return self::parseReviewResultFromPesan($rows[0]['pesan'] ?? null);
     }
 
     public static function isQuotaFull(int $acceptedCount, int $jumlahPerson): bool
@@ -104,9 +143,9 @@ class LamaranHelper
 
         $response = Http::withHeaders($headers)
             ->get($baseUrl . '/rest/v1/lamaran', [
-                'lowongan_id'       => $filter,
-                'hasil_interview'   => 'eq.accepted',
-                'select'            => 'lowongan_id',
+                'lowongan_id'     => $filter,
+                'status_terakhir' => 'eq.' . LamaranStatus::ACCEPTED,
+                'select'          => 'lowongan_id,status_terakhir',
             ]);
 
         $rows = $response->json();
@@ -115,58 +154,7 @@ class LamaranHelper
             return self::countAcceptedByLowongan($rows);
         }
 
-        return self::fetchAcceptedCountsFromNotifikasi($baseUrl, $headers, $lowonganIds);
-    }
-
-    /**
-     * @param array<int|string> $lowonganIds
-     * @return array<int|string, int>
-     */
-    private static function fetchAcceptedCountsFromNotifikasi(string $baseUrl, array $headers, array $lowonganIds): array
-    {
-        $filter = 'in.(' . implode(',', $lowonganIds) . ')';
-
-        $lamaranRows = Http::withHeaders($headers)
-            ->get($baseUrl . '/rest/v1/lamaran', [
-                'lowongan_id' => $filter,
-                'select'      => 'lamaran_id,lowongan_id',
-            ])->json();
-
-        if (!is_array($lamaranRows) || isset($lamaranRows['code']) || empty($lamaranRows)) {
-            return [];
-        }
-
-        $lamaranToLowongan = [];
-        foreach ($lamaranRows as $row) {
-            $lamaranToLowongan[$row['lamaran_id']] = $row['lowongan_id'];
-        }
-
-        $lamaranFilter = 'in.(' . implode(',', array_keys($lamaranToLowongan)) . ')';
-
-        $notifikasi = Http::withHeaders($headers)
-            ->get($baseUrl . '/rest/v1/notifikasi', [
-                'lamaran_id' => $lamaranFilter,
-                'tipe'       => 'eq.interview_result',
-                'select'     => 'lamaran_id,pesan',
-            ])->json();
-
-        if (!is_array($notifikasi) || isset($notifikasi['code'])) {
-            return [];
-        }
-
-        $counts = [];
-        foreach ($notifikasi as $notif) {
-            if (self::parseInterviewResultFromPesan($notif['pesan'] ?? '') !== 'accepted') {
-                continue;
-            }
-
-            $lowonganId = $lamaranToLowongan[$notif['lamaran_id']] ?? null;
-            if ($lowonganId !== null) {
-                $counts[$lowonganId] = ($counts[$lowonganId] ?? 0) + 1;
-            }
-        }
-
-        return $counts;
+        return [];
     }
 
     public static function countAcceptedForLowongan(string $baseUrl, array $headers, string $lowonganId): int

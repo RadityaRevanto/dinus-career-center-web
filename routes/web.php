@@ -63,6 +63,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
         Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
         Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
         Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
+        Route::post('/applicants/{id}/review-result-email', [LamaranController::class, 'sendReviewResultEmail'])->name('applicants.review-result-email');
         Route::post('/applicants/{id}/interview-result-email', [LamaranController::class, 'sendInterviewResultEmail'])->name('applicants.interview-result-email');
         Route::get('/applicants/{id}/berkas/{tipe}', [LamaranController::class, 'downloadBerkas'])->name('applicants.berkas')->where('tipe', 'cv|portofolio|surat_lamaran|transkip_nilai|pas_foto');
 
