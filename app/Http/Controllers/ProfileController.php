@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Http;
 class ProfileController extends Controller
 {
     private $baseUrl;
+    private $apiKey;
     private $serviceRole;
 
     public function __construct()
     {
         $this->baseUrl     = config('services.supabase.url');
+        $this->apiKey      = config('services.supabase.key');
         $this->serviceRole = config('services.supabase.service_role');
     }
 
@@ -118,5 +120,56 @@ class ProfileController extends Controller
         }
 
         return redirect()->route('company.profile')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function password()
+    {
+        return view('company.pages.profile.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed|different:current_password',
+        ], [
+            'password.different' => 'Password baru harus berbeda dari password saat ini.',
+        ]);
+
+        $email = session('email') ?? data_get(session('user'), 'email');
+
+        if (! $email) {
+            return back()->with('error', 'Email akun tidak ditemukan di session. Silakan login ulang.');
+        }
+
+        $verify = Http::withHeaders([
+            'apikey'       => $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/auth/v1/token?grant_type=password', [
+            'email'    => $email,
+            'password' => $request->current_password,
+        ]);
+
+        if ($verify->failed()) {
+            return back()->with('error', 'Password saat ini tidak sesuai.')->withInput();
+        }
+
+        $accessToken = $verify->json('access_token') ?? session('access_token');
+
+        $update = Http::withHeaders([
+            'apikey'        => $this->apiKey,
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Content-Type'  => 'application/json',
+        ])->put($this->baseUrl . '/auth/v1/user', [
+            'password' => $request->password,
+        ]);
+
+        if ($update->failed()) {
+            return back()->with('error', 'Gagal mengubah password: ' . $update->body());
+        }
+
+        session()->flush();
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah. Silakan login kembali.');
     }
 }

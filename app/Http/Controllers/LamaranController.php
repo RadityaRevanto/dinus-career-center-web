@@ -52,19 +52,60 @@ class LamaranController extends Controller
         return array_values($lamaran);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $perusahaanId = session('user')['id'];
-        $lamaran = $this->getCompanyLamaran($perusahaanId);
+        $allLamaran = $this->getCompanyLamaran($perusahaanId);
 
         $stats = [
-            'total'     => count($lamaran),
-            'applied'   => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'applied')),
-            'reviewed'  => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === 'reviewed')),
-            'interview' => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::INTERVIEW)),
-            'accepted'  => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::ACCEPTED)),
-            'rejected'  => count(array_filter($lamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::REJECTED)),
+            'total'     => count($allLamaran),
+            'applied'   => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === 'applied')),
+            'reviewed'  => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === 'reviewed')),
+            'interview' => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::INTERVIEW)),
+            'accepted'  => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::ACCEPTED)),
+            'rejected'  => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::REJECTED)),
         ];
+
+        $search = trim((string) $request->query('search', ''));
+        $statusFilter = trim((string) $request->query('status', ''));
+        $lamaranFiltered = $allLamaran;
+
+        if ($search !== '') {
+            $needle = strtolower($search);
+            $lamaranFiltered = array_values(array_filter($lamaranFiltered, function ($l) use ($needle) {
+                $nama  = strtolower($l['pelamar']['nama_lengkap'] ?? '');
+                $email = strtolower($l['pelamar']['email'] ?? '');
+
+                return str_contains($nama, $needle) || str_contains($email, $needle);
+            }));
+        }
+
+        if ($statusFilter !== '' && in_array($statusFilter, LamaranStatus::ALL, true)) {
+            $lamaranFiltered = array_values(array_filter(
+                $lamaranFiltered,
+                fn($l) => ($l['status_terakhir'] ?? '') === $statusFilter
+            ));
+        }
+
+        $perPageOptions = [10, 25, 50, 100];
+        $perPage = (int) $request->query('per_page', 25);
+        $perPage = in_array($perPage, $perPageOptions, true) ? $perPage : 25;
+
+        $total = count($lamaranFiltered);
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
+        $items = array_slice($lamaranFiltered, ($currentPage - 1) * $perPage, $perPage);
+
+        $lamaran = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         $lowongan = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lowongan', [
@@ -74,9 +115,12 @@ class LamaranController extends Controller
             ])->json();
 
         return view('company.pages.pelamar.index', [
-            'lamaran' => $lamaran,
-            'stats'   => $stats,
-            'lowongan' => $lowongan,
+            'lamaran'        => $lamaran,
+            'stats'          => $stats,
+            'lowongan'       => $lowongan,
+            'search'         => $search,
+            'statusFilter'   => $statusFilter,
+            'perPageOptions' => $perPageOptions,
         ]);
     }
 
@@ -102,7 +146,7 @@ class LamaranController extends Controller
         $response = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lamaran_id' => 'eq.' . $lamaranId,
-                'select'     => 'lamaran_id,status_terakhir,created_at,updated_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id,jumlah_person),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
+                'select'     => 'lamaran_id,status_terakhir,catatan,created_at,updated_at,pelamar:pelamar_id(pelamar_id,nama_lengkap,email,foto_profil,nim,bidang),lowongan:lowongan_id(lowongan_id,judul,perusahaan_id,jumlah_person),berkas:berkas_lamaran_id(cv,portofolio,surat_lamaran,transkip_nilai,pas_foto)',
             ])->json();
 
         if (empty($response) || !is_array($response)) {
@@ -224,6 +268,39 @@ class LamaranController extends Controller
                 'jumlahPerson'  => $jumlahPerson,
                 'quotaFull'     => LamaranHelper::isQuotaFull($acceptedCount, $jumlahPerson),
             ],
+        ]);
+    }
+
+    public function updateNotes(Request $request, string $lamaranId)
+    {
+        $request->validate([
+            'catatan' => 'nullable|string|max:2000',
+        ]);
+
+        $perusahaanId = session('user')['id'];
+
+        $lamaran = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lamaran_id' => 'eq.' . $lamaranId,
+                'select'     => 'lamaran_id,lowongan:lowongan_id(perusahaan_id)',
+            ])->json();
+
+        if (empty($lamaran) || ($lamaran[0]['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
+            return response()->json(['error' => 'Akses ditolak'], 403);
+        }
+
+        $res = Http::withHeaders($this->headers())
+            ->patch($this->baseUrl . '/rest/v1/lamaran?lamaran_id=eq.' . $lamaranId, [
+                'catatan' => $request->input('catatan') ?: null,
+            ]);
+
+        if ($res->failed()) {
+            return response()->json(['error' => 'Gagal menyimpan catatan HR'], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Catatan HR berhasil disimpan.',
         ]);
     }
 

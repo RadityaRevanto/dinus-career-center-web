@@ -125,18 +125,38 @@
         <!-- LEFT: Lamaran Terbaru -->
         <div class="col-span-12 xl:col-span-8">
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div class="flex items-center justify-between p-5 border-b border-gray-100">
-                    <h5 class="text-lg font-bold text-gray-900">Lamaran Terbaru</h5>
-                    <div class="relative">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" placeholder="Cari pelamar..."
-                            class="pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 outline-none transition w-48">
-                    </div>
+                <div class="flex flex-col gap-4 p-5 border-b border-gray-100 sm:flex-row sm:items-end sm:justify-between">
+                    <h5 class="text-lg font-bold text-gray-900 shrink-0">Lamaran Terbaru</h5>
+                    <form method="GET" action="{{ route('overview') }}" class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full sm:w-auto sm:justify-end">
+                        @if(request()->filled('per_page'))
+                            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                        @endif
+                        <div class="relative flex-1 sm:flex-none sm:w-44">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <input type="text" name="nama" value="{{ $namaFilter ?? '' }}" placeholder="Cari nama..."
+                                class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 outline-none transition">
+                        </div>
+                        <div class="relative flex-1 sm:flex-none sm:w-44">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <input type="text" name="posisi" value="{{ $posisiFilter ?? '' }}" placeholder="Cari posisi..."
+                                class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 outline-none transition">
+                        </div>
+                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                            Filter
+                        </button>
+                        @if(($namaFilter ?? '') !== '' || ($posisiFilter ?? '') !== '')
+                        <a href="{{ route('overview', request()->only('per_page')) }}" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                            Reset
+                        </a>
+                        @endif
+                    </form>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table id="overview-lamaran-table" class="w-full">
                         <thead>
                             <tr class="bg-gray-50/80">
                                 <th class="text-left text-sm font-semibold text-gray-500 uppercase tracking-wider py-3.5 px-5">Pelamar</th>
@@ -180,14 +200,27 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-8 text-center text-base text-gray-500">Belum ada lamaran masuk</td>
+                                    <td colspan="4" class="py-8 text-center text-base text-gray-500">
+                                        @if(($namaFilter ?? '') !== '' || ($posisiFilter ?? '') !== '')
+                                            Tidak ada lamaran yang cocok dengan filter.
+                                        @else
+                                            Belum ada lamaran masuk
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
-                    <p class="text-sm text-gray-500">Menampilkan {{ count($lamaranTerbaru) }} dari {{ $countTotalPelamar }} pelamar</p>
+                @if($lamaranTerbaru->total() > 0)
+                @include('company.components.table-pagination', [
+                    'id' => 'overview-lamaran',
+                    'paginator' => $lamaranTerbaru,
+                    'rowsPerPageOptions' => $lamaranPerPageOptions ?? [5, 10, 25, 50],
+                    'label' => 'Lamaran terbaru pagination',
+                ])
+                @endif
+                <div class="px-5 py-4 border-t border-gray-100 flex justify-end">
                     <a href="{{ route('applicants') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition">Lihat Semua →</a>
                 </div>
             </div>
@@ -368,21 +401,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
-        });
-    }
-
-    // Client-side search in "Lamaran Terbaru"
-    const searchInput = document.querySelector('input[placeholder="Cari pelamar..."]');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('table tbody tr');
-            rows.forEach(row => {
-                // Don't filter empty row state
-                if (row.querySelector('td[colspan]')) return;
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
         });
     }
 });
