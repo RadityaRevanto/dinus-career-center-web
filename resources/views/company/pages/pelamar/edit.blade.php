@@ -393,10 +393,30 @@
                     <h3 class="text-sm font-semibold text-gray-900">Catatan HR</h3>
                     <p class="text-xs text-gray-400 mt-0.5">Catatan internal mengenai kandidat ini.</p>
                 </div>
-                <div class="p-6">
+                <div class="p-6 space-y-4">
+                    @php $hasSavedNotes = trim((string) ($lamaran['catatan'] ?? '')) !== ''; @endphp
                     <textarea id="notes" name="notes" rows="4"
-                        class="block w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-gray-50/50 hover:bg-white focus:bg-white resize-y placeholder-gray-400 transition-all duration-200"
-                        placeholder="Tulis catatan mengenai kandidat ini..."></textarea>
+                        @if($hasSavedNotes) readonly @endif
+                        class="block w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-y placeholder-gray-400 transition-all duration-200 {{ $hasSavedNotes ? 'bg-gray-100 text-gray-700 cursor-pointer' : 'bg-gray-50/50 hover:bg-white focus:bg-white cursor-text' }}"
+                        placeholder="Tulis catatan mengenai kandidat ini...">{{ old('notes', $lamaran['catatan'] ?? '') }}</textarea>
+                    <div class="flex items-center justify-between gap-3">
+                        <p id="notes-feedback" class="text-sm font-medium hidden"></p>
+                        <button type="button" id="btn-save-notes" data-mode="{{ $hasSavedNotes ? 'edit' : 'save' }}"
+                            class="ml-auto inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white {{ $hasSavedNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-indigo-600 hover:bg-indigo-700' }} rounded-xl shadow-sm transition-all duration-200">
+                            <svg id="btn-notes-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                @if($hasSavedNotes)
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                @else
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                @endif
+                            </svg>
+                            <svg id="btn-notes-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span id="btn-notes-text">{{ $hasSavedNotes ? 'Edit Catatan' : 'Simpan Catatan' }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -875,8 +895,120 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ── Save HR notes ────────────────────────────────────────────────────────
+    const btnNotes = document.getElementById('btn-save-notes');
+    const notesEl = document.getElementById('notes');
+    const notesFeedback = document.getElementById('notes-feedback');
+    const notesTextEl = document.getElementById('btn-notes-text');
+    const notesIconEl = document.getElementById('btn-notes-icon');
+    const notesSpinnerEl = document.getElementById('btn-notes-spinner');
+
+    const saveNotesIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
+    const editNotesIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>';
+
+    function setNotesViewMode() {
+        if (!btnNotes || !notesEl) return;
+
+        btnNotes.dataset.mode = 'edit';
+        notesEl.setAttribute('readonly', 'readonly');
+        notesEl.setAttribute('tabindex', '0');
+        notesEl.classList.remove('bg-gray-50/50', 'hover:bg-white', 'focus:bg-white', 'cursor-text');
+        notesEl.classList.add('bg-gray-100', 'text-gray-700', 'cursor-pointer');
+        notesTextEl.textContent = 'Edit Catatan';
+        notesIconEl.innerHTML = editNotesIcon;
+        btnNotes.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'bg-emerald-600');
+        btnNotes.classList.add('bg-amber-600', 'hover:bg-amber-700');
+        btnNotes.disabled = false;
+        btnNotes.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+
+    function setNotesEditMode() {
+        if (!btnNotes || !notesEl) return;
+
+        btnNotes.dataset.mode = 'save';
+        notesEl.removeAttribute('readonly');
+        notesEl.classList.remove('bg-gray-100', 'text-gray-700', 'cursor-pointer');
+        notesEl.classList.add('bg-gray-50/50', 'hover:bg-white', 'focus:bg-white', 'cursor-text');
+        notesTextEl.textContent = 'Simpan Catatan';
+        notesIconEl.innerHTML = saveNotesIcon;
+        notesIconEl.classList.remove('hidden');
+        btnNotes.classList.remove('bg-amber-600', 'hover:bg-amber-700', 'bg-emerald-600');
+        btnNotes.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        btnNotes.disabled = false;
+        btnNotes.classList.remove('opacity-75', 'cursor-not-allowed');
+        notesEl.focus();
+    }
+
+    notesEl?.addEventListener('click', function () {
+        if (btnNotes?.dataset.mode === 'edit') {
+            setNotesEditMode();
+            notesFeedback?.classList.add('hidden');
+        }
+    });
+
+    notesEl?.addEventListener('focus', function () {
+        if (btnNotes?.dataset.mode === 'edit') {
+            setNotesEditMode();
+            notesFeedback?.classList.add('hidden');
+        }
+    });
+
+    btnNotes?.addEventListener('click', function () {
+        if (btnNotes.dataset.mode === 'edit') {
+            setNotesEditMode();
+            notesFeedback?.classList.add('hidden');
+            return;
+        }
+
+        btnNotes.disabled = true;
+        btnNotes.classList.add('opacity-75', 'cursor-not-allowed');
+        notesTextEl.textContent = 'Menyimpan...';
+        notesIconEl.classList.add('hidden');
+        notesSpinnerEl.classList.remove('hidden');
+        notesFeedback?.classList.add('hidden');
+
+        fetch(`/company/applicants/{{ $lamaran['lamaran_id'] }}/notes`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ catatan: notesEl.value }),
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Gagal menyimpan catatan'); });
+            return res.json();
+        })
+        .then(data => {
+            notesSpinnerEl.classList.add('hidden');
+            notesIconEl.classList.remove('hidden');
+            if (notesFeedback) {
+                notesFeedback.textContent = data.message || 'Catatan HR berhasil disimpan.';
+                notesFeedback.className = 'text-sm font-medium text-emerald-600';
+                notesFeedback.classList.remove('hidden');
+            }
+            setNotesViewMode();
+        })
+        .catch(err => {
+            notesTextEl.textContent = 'Gagal';
+            notesSpinnerEl.classList.add('hidden');
+            notesIconEl.classList.remove('hidden');
+            if (notesFeedback) {
+                notesFeedback.textContent = err.message || 'Gagal menyimpan catatan.';
+                notesFeedback.className = 'text-sm font-medium text-rose-600';
+                notesFeedback.classList.remove('hidden');
+            }
+            setTimeout(() => {
+                notesTextEl.textContent = 'Simpan Catatan';
+                btnNotes.disabled = false;
+                btnNotes.classList.remove('opacity-75', 'cursor-not-allowed');
+            }, 2500);
+        });
+    });
+
     // ── Save button ──────────────────────────────────────────────────────────
-    btn.addEventListener('click', function () {
+    btn?.addEventListener('click', function () {
         const status = statusSelect.value;
 
         if (currentStatus === 'reviewed' && status === 'interview' && !reviewResultEmailSent) {

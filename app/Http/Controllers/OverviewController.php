@@ -28,7 +28,7 @@ class OverviewController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $perusahaanId = session('user')['id'];
 
@@ -125,8 +125,49 @@ class OverviewController extends Controller
             $chartDataDiterima[] = $monthlyCounts[$key]['diterima'];
         }
 
-        // --- Lamaran Terbaru (Limit 5) ---
-        $lamaranTerbaru = array_slice($lamaran, 0, 5);
+        // --- Lamaran Terbaru (filter + paginated) ---
+        $namaFilter = trim((string) $request->query('nama', ''));
+        $posisiFilter = trim((string) $request->query('posisi', ''));
+
+        $lamaranForTable = $lamaran;
+
+        if ($namaFilter !== '') {
+            $needle = strtolower($namaFilter);
+            $lamaranForTable = array_values(array_filter($lamaranForTable, function ($l) use ($needle) {
+                $nama = strtolower($l['pelamar']['nama_lengkap'] ?? '');
+
+                return str_contains($nama, $needle);
+            }));
+        }
+
+        if ($posisiFilter !== '') {
+            $needle = strtolower($posisiFilter);
+            $lamaranForTable = array_values(array_filter($lamaranForTable, function ($l) use ($needle) {
+                $judul = strtolower($l['lowongan']['judul'] ?? '');
+
+                return str_contains($judul, $needle);
+            }));
+        }
+
+        $lamaranPerPageOptions = [5, 10, 25, 50];
+        $lamaranPerPage = (int) $request->query('per_page', 5);
+        $lamaranPerPage = in_array($lamaranPerPage, $lamaranPerPageOptions, true) ? $lamaranPerPage : 5;
+
+        $totalLamaranTerbaru = count($lamaranForTable);
+        $lastPage = max(1, (int) ceil($totalLamaranTerbaru / $lamaranPerPage));
+        $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
+        $lamaranItems = array_slice($lamaranForTable, ($currentPage - 1) * $lamaranPerPage, $lamaranPerPage);
+
+        $lamaranTerbaru = new \Illuminate\Pagination\LengthAwarePaginator(
+            $lamaranItems,
+            $totalLamaranTerbaru,
+            $lamaranPerPage,
+            $currentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         // --- Schedule / Jadwal Interview (Khusus Hari Ini) ---
         $notifikasiResponse = Http::withHeaders($this->headers())
@@ -219,6 +260,9 @@ class OverviewController extends Controller
             'chartDataPelamar',
             'chartDataDiterima',
             'lamaranTerbaru',
+            'lamaranPerPageOptions',
+            'namaFilter',
+            'posisiFilter',
             'interviews',
             'activeJobs'
         ));

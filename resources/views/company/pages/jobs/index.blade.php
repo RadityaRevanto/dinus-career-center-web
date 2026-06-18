@@ -249,7 +249,7 @@
         @include('company.components.table-pagination', [
             'id' => 'jobs',
             'totalRows' => $totalLowongan,
-            'rowsPerPage' => 50,
+            'rowsPerPage' => 10,
             'currentPage' => 1,
             'label' => 'Jobs table pagination',
         ])

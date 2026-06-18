@@ -74,38 +74,46 @@
     <div class="bg-white border border-gray-100 rounded-3xl overflow-hidden">
         
         <!-- Toolbar (Search & Filters) -->
-        <div class="p-6 sm:px-8 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/30">
+        <form method="GET" action="{{ route('applicants') }}" class="p-6 sm:px-8 border-b border-gray-100 flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center bg-gray-50/30">
             <!-- Search -->
-            <div class="relative w-full sm:max-w-md">
+            <div class="relative w-full lg:max-w-md">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 shadow-sm" placeholder="Cari nama pelamar atau email...">
+                <input type="text" name="search" value="{{ $search ?? '' }}"
+                    class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                    placeholder="Cari nama pelamar atau email...">
             </div>
 
             <!-- Filters -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <div class="relative w-full sm:w-40">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                @if(request()->filled('per_page'))
+                    <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                @endif
+                <div class="relative w-full sm:w-44">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                     </div>
-                    <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
-                        <option value="">Semua Status</option>
-                        <option value="pending">Applied</option>
-                        <option value="review">Reviewed</option>
-                        <option value="interview">Interview</option>
-                        <option value="hired">Completed</option>
+                    <select name="status" onchange="this.form.submit()"
+                        class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
+                        <option value="" @selected(($statusFilter ?? '') === '')>Semua Status</option>
+                        <option value="applied" @selected(($statusFilter ?? '') === 'applied')>Applied</option>
+                        <option value="reviewed" @selected(($statusFilter ?? '') === 'reviewed')>Reviewed</option>
+                        <option value="interview" @selected(($statusFilter ?? '') === 'interview')>Interview</option>
+                        <option value="accepted" @selected(($statusFilter ?? '') === 'accepted')>Diterima</option>
+                        <option value="rejected" @selected(($statusFilter ?? '') === 'rejected')>Ditolak</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
-                <a href="{{ route('applicants.export') }}" class="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2">
+                
+                <a href="{{ route('applicants.export') }}" class="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Ekspor Data
                 </a>
             </div>
-        </div>
+        </form>
 
         <!-- Table -->
         <div class="overflow-x-auto">
@@ -216,7 +224,11 @@
                     <tr>
                         <td colspan="5" class="px-8 py-16 text-center text-gray-400">
                             <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Belum ada pelamar yang masuk
+                            @if(($search ?? '') !== '' || ($statusFilter ?? '') !== '')
+                                Tidak ada pelamar yang cocok dengan filter.
+                            @else
+                                Belum ada pelamar yang masuk
+                            @endif
                         </td>
                     </tr>
                     @endforelse
@@ -224,12 +236,14 @@
             </table>
         </div>
         
+        @if($lamaran->total() > 0)
         @include('company.components.table-pagination', [
             'id' => 'applicants',
-            'totalRows' => count($lamaran),
-            'rowsPerPage' => 50,
-            'currentPage' => 1,
+            'paginator' => $lamaran,
+            'rowsPerPageOptions' => $perPageOptions ?? [10, 25, 50, 100],
+            'label' => 'Applicants table pagination',
         ])
+        @endif
     </div>
 </div>
 @endsection
