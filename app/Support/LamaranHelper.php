@@ -129,6 +129,52 @@ class LamaranHelper
     }
 
     /**
+     * @param array<int, array{lowongan_id?: string|int}> $rows
+     * @return array<int|string, int>
+     */
+    public static function countPelamarByLowongan(array $rows): array
+    {
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $lowonganId = $row['lowongan_id'] ?? null;
+            if ($lowonganId !== null) {
+                $counts[$lowonganId] = ($counts[$lowonganId] ?? 0) + 1;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param array<int|string> $lowonganIds
+     * @return array<int|string, int>
+     */
+    public static function fetchPelamarCounts(string $baseUrl, array $headers, array $lowonganIds): array
+    {
+        $lowonganIds = array_values(array_filter($lowonganIds));
+        if (empty($lowonganIds)) {
+            return [];
+        }
+
+        $filter = 'in.(' . implode(',', $lowonganIds) . ')';
+
+        $response = Http::withHeaders($headers)
+            ->get($baseUrl . '/rest/v1/lamaran', [
+                'lowongan_id' => $filter,
+                'select'      => 'lowongan_id',
+            ]);
+
+        $rows = $response->json();
+
+        if (is_array($rows) && !isset($rows['code'])) {
+            return self::countPelamarByLowongan($rows);
+        }
+
+        return [];
+    }
+
+    /**
      * @param array<int|string> $lowonganIds
      * @return array<int|string, int>
      */

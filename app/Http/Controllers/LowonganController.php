@@ -75,8 +75,9 @@ class LowonganController extends Controller
         $lowongan = $this->syncExpiredLowonganStatus($lowongan, $perusahaanId);
         $lowonganIds = array_column($lowongan, 'lowongan_id');
         $acceptedCounts = LamaranHelper::fetchAcceptedCounts($this->baseUrl, $this->headers(), $lowonganIds);
+        $pelamarCounts = LamaranHelper::fetchPelamarCounts($this->baseUrl, $this->headers(), $lowonganIds);
 
-        return view('company.pages.jobs.index', compact('lowongan', 'acceptedCounts'));
+        return view('company.pages.jobs.index', compact('lowongan', 'acceptedCounts', 'pelamarCounts'));
     }
 
     public function create()
