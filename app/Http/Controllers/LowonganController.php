@@ -95,7 +95,6 @@ class LowonganController extends Controller
             'sektor_id'         => 'required',
             'batas_akhir'       => 'required|date',
             'jumlah_person'     => 'required|integer|min:1',
-            'status_loker'      => 'required|in:aktif,tidak',
         ]);
 
         $perusahaanId = session('user')['id'];
@@ -195,6 +194,7 @@ class LowonganController extends Controller
             'sektor_id'         => 'required',
             'batas_akhir'       => 'required|date',
             'jumlah_person'     => 'required|integer|min:1',
+            'status_loker'      => 'required|in:aktif,tidak',
         ]);
 
         $perusahaanId = session('user')['id'];

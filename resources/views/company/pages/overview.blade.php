@@ -155,7 +155,8 @@
                                         'applied'   => ['bg-amber-50 text-amber-700', 'bg-amber-500', 'Review'],
                                         'reviewed'  => ['bg-sky-50 text-sky-700', 'bg-sky-500', 'Reviewed'],
                                         'interview' => ['bg-blue-50 text-blue-700', 'bg-blue-500', 'Interview'],
-                                        'completed' => ['bg-emerald-50 text-emerald-700', 'bg-emerald-500', 'Completed'],
+                                        'accepted' => ['bg-emerald-50 text-emerald-700', 'bg-emerald-500', 'Diterima'],
+                                        'rejected' => ['bg-rose-50 text-rose-700', 'bg-rose-500', 'Ditolak'],
                                     ];
                                     $cfg = $statusConfig[$item['status_terakhir']] ?? $statusConfig['applied'];
                                 @endphp

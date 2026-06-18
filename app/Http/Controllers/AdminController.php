@@ -230,7 +230,8 @@ class AdminController extends Controller
             'applied'   => collect($allLamaran)->where('status_terakhir', 'applied')->count(),
             'reviewed'  => collect($allLamaran)->where('status_terakhir', 'reviewed')->count(),
             'interview' => collect($allLamaran)->where('status_terakhir', 'interview')->count(),
-            'completed' => collect($allLamaran)->where('status_terakhir', 'completed')->count(),
+            'accepted' => collect($allLamaran)->where('status_terakhir', 'accepted')->count(),
+            'rejected' => collect($allLamaran)->where('status_terakhir', 'rejected')->count(),
         ];
 
         $pelamarPerPageOptions = [10, 25, 50, 100];

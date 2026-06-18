@@ -1,6 +1,8 @@
 @extends('company.layouts.app')
 @section('content')
 @php
+    use App\Support\LamaranStatus;
+
     $pelamar  = $lamaran['pelamar'];
     $berkas   = $lamaran['berkas'];
     $lowongan = $lamaran['lowongan'];
@@ -8,19 +10,24 @@
         ?? 'https://ui-avatars.com/api/?name=' . urlencode($pelamar['nama_lengkap']) . '&background=e0e7ff&color=4f46e5&bold=true&size=128';
 
     $statusConfig = [
-        'applied'   => ['bg-amber-50 text-amber-700 border-amber-100', 'bg-amber-500', 'Applied'],
-        'reviewed'  => ['bg-sky-50 text-sky-700 border-sky-100', 'bg-sky-500', 'Reviewed'],
-        'interview' => ['bg-blue-50 text-blue-700 border-blue-100', 'bg-blue-500', 'Interview'],
-        'completed' => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Completed'],
+        LamaranStatus::APPLIED   => ['bg-amber-50 text-amber-700 border-amber-100', 'bg-amber-500', 'Applied'],
+        LamaranStatus::REVIEWED  => ['bg-sky-50 text-sky-700 border-sky-100', 'bg-sky-500', 'Reviewed'],
+        LamaranStatus::INTERVIEW => ['bg-blue-50 text-blue-700 border-blue-100', 'bg-blue-500', 'Interview'],
+        LamaranStatus::ACCEPTED  => ['bg-emerald-50 text-emerald-700 border-emerald-100', 'bg-emerald-500', 'Diterima'],
+        LamaranStatus::REJECTED  => ['bg-rose-50 text-rose-700 border-rose-100', 'bg-rose-500', 'Ditolak'],
     ];
-    $cfg = $statusConfig[$lamaran['status_terakhir']] ?? $statusConfig['applied'];
-    $statusFlow = ['applied', 'reviewed', 'interview', 'completed'];
+    $cfg = $statusConfig[$lamaran['status_terakhir']] ?? $statusConfig[LamaranStatus::APPLIED];
+    $statusFlow = LamaranStatus::FLOW;
     $currentStatusIndex = array_search($lamaran['status_terakhir'], $statusFlow, true);
-    if ($currentStatusIndex === false) $currentStatusIndex = 0;
-    $allowedStatusOptions = [
-        $statusFlow[$currentStatusIndex],
-        $statusFlow[$currentStatusIndex + 1] ?? null,
-    ];
+    if ($currentStatusIndex === false) {
+        $currentStatusIndex = LamaranStatus::isTerminal($lamaran['status_terakhir']) ? count($statusFlow) : 0;
+    }
+    $allowedStatusOptions = LamaranStatus::isTerminal($lamaran['status_terakhir'])
+        ? [$lamaran['status_terakhir']]
+        : array_filter([
+            $statusFlow[$currentStatusIndex] ?? null,
+            $statusFlow[$currentStatusIndex + 1] ?? null,
+        ]);
 @endphp
 
 <div class="space-y-8">
@@ -36,11 +43,6 @@
                 <span class="w-2 h-2 rounded-full {{ $cfg[1] }} animate-pulse"></span>
                 {{ $cfg[2] }}
             </span>
-            @if(($lamaran['status_terakhir'] ?? '') === 'completed' && !empty($hasilInterview))
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border {{ $hasilInterview === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100' }}">
-                {{ $hasilInterview === 'accepted' ? 'Diterima' : 'Ditolak' }}
-            </span>
-            @endif
         </div>
     </div>
 
@@ -90,9 +92,10 @@
 
                 <!-- Timeline Status -->
                 @php
-                    $statusSteps = ['applied', 'reviewed', 'interview', 'completed'];
-                    $currentIndex = array_search($lamaran['status_terakhir'], $statusSteps);
-                    if ($currentIndex === false) $currentIndex = 0;
+                    $statusSteps = ['applied', 'reviewed', 'interview', 'final'];
+                    $currentIndex = LamaranStatus::timelineIndex($lamaran['status_terakhir']);
+                    $finalAccepted = ($lamaran['status_terakhir'] ?? '') === LamaranStatus::ACCEPTED;
+                    $finalRejected = ($lamaran['status_terakhir'] ?? '') === LamaranStatus::REJECTED;
 
                     $stepMeta = [
                         'applied'   => [
@@ -131,17 +134,19 @@
                             'ping'         => 'bg-blue-400',
                             'ring'         => 'ring-blue-500/20',
                         ],
-                        'completed' => [
-                            'label'        => 'Completed',
-                            'desc'         => 'Seluruh rangkaian proses selesai',
-                            'bg'           => 'bg-emerald-50',
-                            'text'         => 'text-emerald-700',
-                            'border'       => 'border-emerald-100',
-                            'bgLight'      => 'bg-emerald-50/30',
-                            'borderLight'  => 'border-emerald-100/60',
-                            'dot'          => 'bg-emerald-500',
-                            'ping'         => 'bg-emerald-400',
-                            'ring'         => 'ring-emerald-500/20',
+                        'final' => [
+                            'label'        => $finalAccepted ? 'Diterima' : ($finalRejected ? 'Ditolak' : 'Hasil Akhir'),
+                            'desc'         => $finalAccepted
+                                ? 'Pelamar dinyatakan diterima'
+                                : ($finalRejected ? 'Pelamar dinyatakan ditolak' : 'Menunggu keputusan akhir'),
+                            'bg'           => $finalAccepted ? 'bg-emerald-50' : ($finalRejected ? 'bg-rose-50' : 'bg-gray-50'),
+                            'text'         => $finalAccepted ? 'text-emerald-700' : ($finalRejected ? 'text-rose-700' : 'text-gray-500'),
+                            'border'       => $finalAccepted ? 'border-emerald-100' : ($finalRejected ? 'border-rose-100' : 'border-gray-100'),
+                            'bgLight'      => $finalAccepted ? 'bg-emerald-50/30' : ($finalRejected ? 'bg-rose-50/30' : 'bg-gray-50/30'),
+                            'borderLight'  => $finalAccepted ? 'border-emerald-100/60' : ($finalRejected ? 'border-rose-100/60' : 'border-gray-100/60'),
+                            'dot'          => $finalAccepted ? 'bg-emerald-500' : ($finalRejected ? 'bg-rose-500' : 'bg-gray-300'),
+                            'ping'         => $finalAccepted ? 'bg-emerald-400' : ($finalRejected ? 'bg-rose-400' : 'bg-gray-300'),
+                            'ring'         => $finalAccepted ? 'ring-emerald-500/20' : ($finalRejected ? 'ring-rose-500/20' : 'ring-gray-300/20'),
                         ],
                     ];
                 @endphp
@@ -225,6 +230,41 @@
                                 <p class="text-xs mt-1 leading-relaxed {{ $isFuture ? 'text-gray-400/80' : 'text-gray-500' }}">
                                     {{ $meta['desc'] }}
                                 </p>
+
+                                @if($step === 'reviewed' && !$isFuture)
+                                @php
+                                    $pelamarOutcome = $hasilReview
+                                        ?? ($reviewResultEmail['result'] ?? null);
+
+                                    $diterimaActive = $pelamarOutcome === 'accepted';
+                                    $ditolakActive  = $pelamarOutcome === 'rejected';
+                                    $outcomePending = !$pelamarOutcome && $currentIndex === 1;
+                                @endphp
+                                <div class="mt-3 flex flex-wrap items-center gap-2">
+                                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mr-1">Hasil:</span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all
+                                        {{ $diterimaActive
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm'
+                                            : ($outcomePending ? 'bg-white text-gray-500 border-gray-200' : 'bg-gray-50 text-gray-400 border-gray-100') }}">
+                                        @if($diterimaActive)
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                        @endif
+                                        Diterima
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all
+                                        {{ $ditolakActive
+                                            ? 'bg-rose-50 text-rose-700 border-rose-200 shadow-sm'
+                                            : ($outcomePending ? 'bg-white text-gray-500 border-gray-200' : 'bg-gray-50 text-gray-400 border-gray-100') }}">
+                                        @if($ditolakActive)
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        @endif
+                                        Ditolak
+                                    </span>
+                                    @if($outcomePending)
+                                    <span class="text-[10px] text-gray-400 italic">Menunggu keputusan HR</span>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -369,8 +409,8 @@
             <div>
                 <p class="text-sm font-medium text-gray-700">Ubah status evaluasi kandidat ini.</p>
                 <p class="text-xs text-gray-400 mt-0.5">
-                    Alur status harus berurutan: <span class="font-semibold text-gray-600">Applied → Reviewed → Interview → Completed</span>.
-                    Pilih <span class="font-semibold text-indigo-600">Interview</span> untuk mengirim detail jadwal ke pelamar.
+                    Alur status harus berurutan: <span class="font-semibold text-gray-600">Applied → Reviewed → Interview</span>.
+                    Hasil <span class="font-semibold text-emerald-600">Diterima</span> / <span class="font-semibold text-rose-600">Ditolak</span> ditentukan lewat email pada tahap Reviewed dan Interview.
                 </p>
             </div>
             <div class="flex items-center gap-3">
@@ -381,7 +421,6 @@
                         <option value="applied" {{ $lamaran['status_terakhir'] === 'applied' ? 'selected' : '' }} @disabled(!in_array('applied', $allowedStatusOptions, true))>Applied</option>
                         <option value="reviewed" {{ $lamaran['status_terakhir'] === 'reviewed' ? 'selected' : '' }} @disabled(!in_array('reviewed', $allowedStatusOptions, true))>Reviewed</option>
                         <option value="interview" {{ $lamaran['status_terakhir'] === 'interview' ? 'selected' : '' }} @disabled(!in_array('interview', $allowedStatusOptions, true))>Interview</option>
-                        <option value="completed" {{ $lamaran['status_terakhir'] === 'completed' ? 'selected' : '' }} @disabled(!in_array('completed', $allowedStatusOptions, true))>Completed</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -400,6 +439,57 @@
                 </button>
             </div>
         </div>
+
+        @if($lamaran['status_terakhir'] === 'reviewed' && !($reviewResultEmail['sent'] ?? false))
+        <!-- Review Result Email -->
+        <div id="review-result-email-panel" class="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-5">
+            <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">Kirim hasil review ke pelamar</p>
+                    <p class="text-xs text-gray-400 mt-1">Gunakan tombol ini untuk mengirim email diterima atau ditolak ke {{ $pelamar['email'] ?? 'email pelamar' }} setelah dokumen direview.</p>
+                    <p class="text-xs text-gray-500 mt-2">Jika <span class="font-semibold text-emerald-600">diterima</span>, pelamar bisa dilanjutkan ke tahap interview. Jika <span class="font-semibold text-rose-600">ditolak</span>, proses lamaran otomatis selesai.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" data-review-result-email="accepted"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm hover:shadow transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Email Diterima
+                    </button>
+                    <button type="button" data-review-result-email="rejected"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm hover:shadow transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Email Ditolak
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label for="review_result_message" class="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Pesan Tambahan <span class="text-gray-400 font-normal">(opsional)</span>
+                </label>
+                <textarea id="review_result_message" rows="3"
+                    class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white resize-none placeholder-gray-400 transition-all duration-200"
+                    placeholder="Tambahkan catatan singkat yang akan masuk ke email pelamar..."></textarea>
+                <p id="review-result-feedback" class="hidden mt-3 text-sm font-medium"></p>
+            </div>
+        </div>
+        @elseif($lamaran['status_terakhir'] === 'reviewed')
+        <div class="bg-emerald-50 rounded-3xl border border-emerald-100 p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-emerald-900">Email hasil review sudah dikirim</p>
+                    <p class="text-xs text-emerald-700 mt-0.5">
+                        Hasil: <span class="font-semibold">{{ ($reviewResultEmail['result'] ?? '') === 'accepted' ? 'Diterima' : 'Ditolak' }}</span>.
+                        @if(($reviewResultEmail['result'] ?? '') === 'accepted')
+                        Anda bisa melanjutkan pelamar ke tahap interview.
+                        @endif
+                    </p>
+                </div>
+            </div>
+        </div>
+        @endif
 
         @if($lamaran['status_terakhir'] === 'interview' && !($interviewResultEmail['sent'] ?? false))
         <!-- Interview Result Email -->
@@ -512,6 +602,7 @@
     <div id="completed-email-required-modal"
         data-current-status="{{ $lamaran['status_terakhir'] }}"
         data-email-sent="{{ session('interview_result_email_sent.' . $lamaran['lamaran_id'], false) ? 'true' : 'false' }}"
+        data-review-email-sent="{{ session('review_result_email_sent.' . $lamaran['lamaran_id'], false) || ($reviewResultEmail['sent'] ?? false) ? 'true' : 'false' }}"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm">
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl shadow-slate-950/20">
             <div class="flex items-start gap-4">
@@ -529,6 +620,31 @@
             </div>
             <div class="mt-6 flex justify-end">
                 <button type="button" id="close-completed-email-required-modal"
+                    class="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="review-email-required-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl shadow-slate-950/20">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Email hasil review belum dikirim</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-gray-500">
+                        Sebelum mengubah status ke <span class="font-semibold text-gray-700">Interview</span>, kirim email <span class="font-semibold text-emerald-600">Diterima</span> atau <span class="font-semibold text-rose-600">Ditolak</span> ke pelamar terlebih dahulu.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="close-review-email-required-modal"
                     class="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800">
                     Mengerti
                 </button>
@@ -574,8 +690,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const spinnerEl      = document.getElementById('btn-save-spinner');
     const completedEmailRequiredModal = document.getElementById('completed-email-required-modal');
     const closeCompletedEmailRequiredModal = document.getElementById('close-completed-email-required-modal');
+    const reviewEmailRequiredModal = document.getElementById('review-email-required-modal');
+    const closeReviewEmailRequiredModal = document.getElementById('close-review-email-required-modal');
     const currentStatus  = completedEmailRequiredModal?.dataset.currentStatus || '';
     let interviewResultEmailSent = completedEmailRequiredModal?.dataset.emailSent === 'true';
+    let reviewResultEmailSent = completedEmailRequiredModal?.dataset.reviewEmailSent === 'true';
     const interviewEmailSuccessModal = document.getElementById('interview-email-success-modal');
     const closeInterviewEmailSuccessModal = document.getElementById('close-interview-email-success-modal');
     const interviewEmailSuccessMessage = document.getElementById('interview-email-success-message');
@@ -590,9 +709,23 @@ document.addEventListener('DOMContentLoaded', function () {
         completedEmailRequiredModal?.classList.remove('flex');
     }
 
+    function showReviewEmailRequiredModal() {
+        reviewEmailRequiredModal?.classList.remove('hidden');
+        reviewEmailRequiredModal?.classList.add('flex');
+    }
+
+    function hideReviewEmailRequiredModal() {
+        reviewEmailRequiredModal?.classList.add('hidden');
+        reviewEmailRequiredModal?.classList.remove('flex');
+    }
+
     closeCompletedEmailRequiredModal?.addEventListener('click', hideCompletedEmailRequiredModal);
+    closeReviewEmailRequiredModal?.addEventListener('click', hideReviewEmailRequiredModal);
     completedEmailRequiredModal?.addEventListener('click', function (event) {
         if (event.target === completedEmailRequiredModal) hideCompletedEmailRequiredModal();
+    });
+    reviewEmailRequiredModal?.addEventListener('click', function (event) {
+        if (event.target === reviewEmailRequiredModal) hideReviewEmailRequiredModal();
     });
 
     function showInterviewEmailSuccessModal(message) {
@@ -626,6 +759,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
     statusSelect.addEventListener('change', toggleInterviewPanel);
     toggleInterviewPanel(); // run on load (if status already interview)
+
+    // ── Review result email ──────────────────────────────────────────────────
+    document.querySelectorAll('[data-review-result-email]').forEach(function (emailButton) {
+        emailButton.addEventListener('click', function () {
+            if (this.disabled) return;
+
+            const result = this.dataset.reviewResultEmail;
+            const message = document.getElementById('review_result_message')?.value || '';
+            const feedback = document.getElementById('review-result-feedback');
+            const defaultText = this.textContent.trim();
+            const confirmText = result === 'accepted'
+                ? 'Kirim email bahwa kandidat diterima pada tahap review?'
+                : 'Kirim email bahwa kandidat ditolak pada tahap review? Proses lamaran akan diselesaikan.';
+
+            if (!confirm(confirmText)) return;
+
+            this.disabled = true;
+            this.classList.add('opacity-75', 'cursor-not-allowed');
+            this.textContent = 'Mengirim...';
+            if (feedback) feedback.classList.add('hidden');
+
+            fetch(`/company/applicants/{{ $lamaran['lamaran_id'] }}/review-result-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ result, message }),
+            })
+            .then(res => {
+                if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Gagal mengirim email'); });
+                return res.json();
+            })
+            .then(data => {
+                reviewResultEmailSent = true;
+                if (feedback) feedback.classList.add('hidden');
+                document.getElementById('review-result-email-panel')?.classList.add('hidden');
+                showInterviewEmailSuccessModal(data.message || 'Email hasil review berhasil dikirim ke pelamar.');
+                setTimeout(() => location.reload(), 1200);
+            })
+            .catch(err => {
+                if (feedback) {
+                    feedback.textContent = err.message || 'Gagal mengirim email.';
+                    feedback.className = 'mt-3 text-sm font-medium text-rose-600';
+                    feedback.classList.remove('hidden');
+                }
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.classList.remove('opacity-75', 'cursor-not-allowed');
+                this.textContent = defaultText;
+            });
+        });
+    });
 
     // ── Interview result email ───────────────────────────────────────────────
     document.querySelectorAll('[data-result-email]').forEach(function (emailButton) {
@@ -671,6 +859,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (feedback) feedback.classList.add('hidden');
                 document.getElementById('interview-result-email-panel')?.classList.add('hidden');
                 showInterviewEmailSuccessModal(data.message || 'Email hasil interview berhasil dikirim ke pelamar.');
+                setTimeout(() => location.reload(), 1200);
             })
             .catch(err => {
                 if (feedback) {
@@ -690,8 +879,13 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function () {
         const status = statusSelect.value;
 
-        if (currentStatus === 'interview' && status === 'completed' && !interviewResultEmailSent) {
-            showCompletedEmailRequiredModal();
+        if (currentStatus === 'reviewed' && status === 'interview' && !reviewResultEmailSent) {
+            showReviewEmailRequiredModal();
+            return;
+        }
+
+        if (['accepted', 'rejected'].includes(currentStatus)) {
+            alert('Status lamaran sudah final.');
             return;
         }
 
