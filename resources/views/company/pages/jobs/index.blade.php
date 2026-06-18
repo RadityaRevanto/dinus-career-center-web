@@ -35,6 +35,7 @@
 
     @php
         $acceptedCounts = $acceptedCounts ?? [];
+        $pelamarCounts = $pelamarCounts ?? [];
         $totalLowongan = is_array($lowongan) ? count($lowongan) : 0;
         $resolveStatus = fn($item) => \App\Support\LamaranHelper::resolveLowonganStatus(
             $item,
@@ -101,6 +102,7 @@
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Posisi / Judul</th>
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tipe & Sektor</th>
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pelamar</th>
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kuota</th>
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Batas Akhir</th>
                         <th scope="col" class="px-6 py-5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -111,6 +113,7 @@
                     @php
                         $batasAkhir = $item['batas_akhir'] ?? null;
                         $acceptedCount = $acceptedCounts[$item['lowongan_id']] ?? 0;
+                        $pelamarCount = $pelamarCounts[$item['lowongan_id']] ?? 0;
                         $jumlahPerson = (int) ($item['jumlah_person'] ?? 0);
                         $status = \App\Support\LamaranHelper::resolveLowonganStatus($item, $acceptedCount);
                         $isExpired = \App\Support\LamaranHelper::isLowonganExpired($batasAkhir);
@@ -168,6 +171,15 @@
                             @endif
                         </td>
 
+                        <!-- Pelamar -->
+                        <td class="px-6 py-5 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                <span class="text-sm font-bold text-gray-900">{{ $pelamarCount }}</span>
+                                <span class="text-xs text-gray-400">pelamar</span>
+                            </div>
+                        </td>
+
                         <!-- Kuota -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex flex-col gap-1">
@@ -214,7 +226,7 @@
                     @empty
                     <!-- Empty State -->
                     <tr>
-                        <td colspan="6" class="px-6 py-16 text-center">
+                        <td colspan="7" class="px-6 py-16 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-4">
                                     <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
