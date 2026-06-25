@@ -66,35 +66,14 @@ class LamaranController extends Controller
             'rejected'  => count(array_filter($allLamaran, fn($l) => $l['status_terakhir'] === LamaranStatus::REJECTED)),
         ];
 
-        $search = trim((string) $request->query('search', ''));
-        $statusFilter = trim((string) $request->query('status', ''));
-        $lamaranFiltered = $allLamaran;
-
-        if ($search !== '') {
-            $needle = strtolower($search);
-            $lamaranFiltered = array_values(array_filter($lamaranFiltered, function ($l) use ($needle) {
-                $nama  = strtolower($l['pelamar']['nama_lengkap'] ?? '');
-                $email = strtolower($l['pelamar']['email'] ?? '');
-
-                return str_contains($nama, $needle) || str_contains($email, $needle);
-            }));
-        }
-
-        if ($statusFilter !== '' && in_array($statusFilter, LamaranStatus::ALL, true)) {
-            $lamaranFiltered = array_values(array_filter(
-                $lamaranFiltered,
-                fn($l) => ($l['status_terakhir'] ?? '') === $statusFilter
-            ));
-        }
-
         $perPageOptions = [10, 25, 50, 100];
         $perPage = (int) $request->query('per_page', 25);
         $perPage = in_array($perPage, $perPageOptions, true) ? $perPage : 25;
 
-        $total = count($lamaranFiltered);
+        $total = count($allLamaran);
         $lastPage = max(1, (int) ceil($total / $perPage));
         $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
-        $items = array_slice($lamaranFiltered, ($currentPage - 1) * $perPage, $perPage);
+        $items = array_slice($allLamaran, ($currentPage - 1) * $perPage, $perPage);
 
         $lamaran = new \Illuminate\Pagination\LengthAwarePaginator(
             $items,
@@ -116,10 +95,9 @@ class LamaranController extends Controller
 
         return view('company.pages.pelamar.index', [
             'lamaran'        => $lamaran,
+            'allLamaran'     => $allLamaran,
             'stats'          => $stats,
             'lowongan'       => $lowongan,
-            'search'         => $search,
-            'statusFilter'   => $statusFilter,
             'perPageOptions' => $perPageOptions,
         ]);
     }

@@ -127,33 +127,16 @@
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 <div class="flex flex-col gap-4 p-5 border-b border-gray-100 sm:flex-row sm:items-end sm:justify-between">
                     <h5 class="text-lg font-bold text-gray-900 shrink-0">Lamaran Terbaru</h5>
-                    <form method="GET" action="{{ route('overview') }}" class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full sm:w-auto sm:justify-end">
-                        @if(request()->filled('per_page'))
-                            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
-                        @endif
-                        <div class="relative flex-1 sm:flex-none sm:w-44">
+                    <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full sm:w-auto sm:justify-end">
+                        <div class="relative flex-1 sm:flex-none sm:w-64">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
-                            <input type="text" name="nama" value="{{ $namaFilter ?? '' }}" placeholder="Cari nama..."
+                            <input type="text" id="overview-lamaran-search" placeholder="Cari nama atau posisi..."
                                 class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 outline-none transition">
                         </div>
-                        <div class="relative flex-1 sm:flex-none sm:w-44">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            <input type="text" name="posisi" value="{{ $posisiFilter ?? '' }}" placeholder="Cari posisi..."
-                                class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 outline-none transition">
-                        </div>
-                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                            Filter
-                        </button>
-                        @if(($namaFilter ?? '') !== '' || ($posisiFilter ?? '') !== '')
-                        <a href="{{ route('overview', request()->only('per_page')) }}" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                            Reset
-                        </a>
-                        @endif
-                    </form>
+                        <span id="overview-lamaran-search-count" class="hidden text-xs text-gray-500 shrink-0"></span>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table id="overview-lamaran-table" class="w-full">
@@ -201,11 +184,7 @@
                             @empty
                                 <tr>
                                     <td colspan="4" class="py-8 text-center text-base text-gray-500">
-                                        @if(($namaFilter ?? '') !== '' || ($posisiFilter ?? '') !== '')
-                                            Tidak ada lamaran yang cocok dengan filter.
-                                        @else
-                                            Belum ada lamaran masuk
-                                        @endif
+                                        Belum ada lamaran masuk
                                     </td>
                                 </tr>
                             @endforelse
@@ -295,6 +274,7 @@
 @endsection
 
 @push('scripts')
+<script type="application/json" id="overview-lamaran-data">{!! json_encode($allLamaranTerbaru ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
 <script type="application/json" id="overview-chart-data">
 {
     "labels": @json($chartLabels),
@@ -401,6 +381,247 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
+        });
+    }
+
+    // Lamaran Terbaru — client-side search
+    const allLamaran = JSON.parse(document.getElementById('overview-lamaran-data')?.textContent || '[]');
+    const lamaranTbody = document.querySelector('#overview-lamaran-table tbody');
+    const lamaranSearchInput = document.getElementById('overview-lamaran-search');
+    const lamaranSearchCount = document.getElementById('overview-lamaran-search-count');
+    const lamaranPaginationNav = document.querySelector('nav[aria-label="Lamaran terbaru pagination"]');
+    const lamaranRowsPerPageSelect = document.getElementById('rows-per-page-overview-lamaran');
+    const lamaranCurrentPageInput = document.getElementById('current-page-overview-lamaran');
+    const lamaranRowsInfoSpan = lamaranPaginationNav?.querySelector(':scope > div:first-child > span:last-child');
+    const lamaranTotalPagesSpan = lamaranPaginationNav?.querySelector(':scope > div:last-child > span.whitespace-nowrap');
+    const initialLamaranTbodyHtml = lamaranTbody ? lamaranTbody.innerHTML : '';
+    const initialLamaranRowsInfo = lamaranRowsInfoSpan?.textContent ?? '';
+    const initialLamaranCurrentPage = lamaranCurrentPageInput?.value ?? '1';
+    const initialLamaranTotalPages = lamaranTotalPagesSpan?.textContent ?? '';
+    let lamaranClientPage = 1;
+    let lamaranClientModeActive = false;
+
+    const lamaranStatusConfig = {
+        applied: ['bg-amber-50 text-amber-700', 'bg-amber-500', 'Review'],
+        reviewed: ['bg-sky-50 text-sky-700', 'bg-sky-500', 'Reviewed'],
+        interview: ['bg-blue-50 text-blue-700', 'bg-blue-500', 'Interview'],
+        accepted: ['bg-emerald-50 text-emerald-700', 'bg-emerald-500', 'Diterima'],
+        rejected: ['bg-rose-50 text-rose-700', 'bg-rose-500', 'Ditolak'],
+    };
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatLamaranDate(value) {
+        if (!value) return '-';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '-';
+        return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function lamaranAvatarUrl(pelamar) {
+        if (pelamar?.foto_profil) return pelamar.foto_profil;
+        const name = encodeURIComponent(pelamar?.nama_lengkap ?? 'User');
+        return `https://ui-avatars.com/api/?name=${name}&background=e0e7ff&color=4f46e5&bold=true&size=128`;
+    }
+
+    function renderLamaranRow(item) {
+        const pelamar = item.pelamar ?? {};
+        const status = item.status_terakhir ?? 'applied';
+        const cfg = lamaranStatusConfig[status] ?? lamaranStatusConfig.applied;
+        const avatar = lamaranAvatarUrl(pelamar);
+        const nama = pelamar.nama_lengkap ?? '-';
+        const email = pelamar.email ?? '-';
+        const posisi = item.lowongan?.judul ?? 'N/A';
+
+        return `
+            <tr class="hover:bg-blue-50/30 transition">
+                <td class="py-4 px-5">
+                    <div class="flex items-center gap-3">
+                        <img src="${escapeHtml(avatar)}" class="w-9 h-9 rounded-full object-cover" alt="">
+                        <div>
+                            <p class="text-base font-semibold text-gray-900">${escapeHtml(nama)}</p>
+                            <p class="text-sm text-gray-500">${escapeHtml(email)}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-4 px-5 text-sm text-gray-600">${escapeHtml(posisi)}</td>
+                <td class="py-4 px-5 text-sm text-gray-500">${escapeHtml(formatLamaranDate(item.created_at))}</td>
+                <td class="py-4 px-5">
+                    <span class="inline-flex items-center gap-1.5 text-sm font-semibold ${cfg[0]} px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full ${cfg[1]}"></span>${escapeHtml(cfg[2])}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }
+
+    function renderLamaranEmptyFiltered() {
+        return `
+            <tr>
+                <td colspan="4" class="py-8 text-center text-base text-gray-500">
+                    Tidak ada lamaran yang cocok dengan pencarian.
+                </td>
+            </tr>
+        `;
+    }
+
+    function isLamaranClientMode() {
+        return lamaranSearchInput?.value.trim() !== '';
+    }
+
+    function getLamaranClientPerPage() {
+        const value = parseInt(lamaranRowsPerPageSelect?.value || '5', 10);
+        return Number.isNaN(value) ? 5 : value;
+    }
+
+    function getFilteredLamaran() {
+        const query = lamaranSearchInput?.value.toLowerCase().trim() ?? '';
+
+        return allLamaran.filter(function (item) {
+            const nama = (item.pelamar?.nama_lengkap ?? '').toLowerCase();
+            const email = (item.pelamar?.email ?? '').toLowerCase();
+            const posisi = (item.lowongan?.judul ?? '').toLowerCase();
+
+            return !query || nama.includes(query) || email.includes(query) || posisi.includes(query);
+        });
+    }
+
+    function restoreLamaranServerPaginationUI() {
+        if (lamaranRowsInfoSpan) lamaranRowsInfoSpan.textContent = initialLamaranRowsInfo;
+        if (lamaranCurrentPageInput) lamaranCurrentPageInput.value = initialLamaranCurrentPage;
+        if (lamaranTotalPagesSpan) lamaranTotalPagesSpan.textContent = initialLamaranTotalPages;
+
+        lamaranPaginationNav?.querySelectorAll('a').forEach(function (link) {
+            link.style.pointerEvents = '';
+            link.style.opacity = '';
+        });
+    }
+
+    function updateLamaranClientPaginationUI(total, page, perPage) {
+        if (!lamaranPaginationNav) return;
+
+        const totalPages = Math.max(1, Math.ceil(total / perPage) || 1);
+        const safePage = Math.min(Math.max(page, 1), totalPages);
+        const firstRow = total > 0 ? (safePage - 1) * perPage + 1 : 0;
+        const lastRow = Math.min(safePage * perPage, total);
+
+        if (lamaranRowsInfoSpan) {
+            lamaranRowsInfoSpan.textContent = `${firstRow}–${lastRow} of ${total} rows`;
+        }
+        if (lamaranCurrentPageInput) {
+            lamaranCurrentPageInput.value = safePage;
+        }
+        if (lamaranTotalPagesSpan) {
+            lamaranTotalPagesSpan.textContent = `of ${totalPages}`;
+        }
+
+        lamaranPaginationNav.querySelectorAll('button, a').forEach(function (control) {
+            const label = control.getAttribute('aria-label') || '';
+            let disabled = false;
+
+            if (label === 'First page' || label === 'Previous page') {
+                disabled = safePage <= 1;
+            }
+            if (label === 'Next page' || label === 'Last page') {
+                disabled = safePage >= totalPages;
+            }
+
+            if (control.tagName === 'BUTTON') {
+                control.disabled = disabled;
+            } else if (control.tagName === 'A') {
+                control.style.pointerEvents = disabled ? 'none' : '';
+                control.style.opacity = disabled ? '0.45' : '';
+            }
+        });
+
+        lamaranClientPage = safePage;
+    }
+
+    function renderLamaranTable(resetPage) {
+        if (!lamaranTbody || !lamaranSearchInput) return;
+
+        if (resetPage) lamaranClientPage = 1;
+
+        if (!isLamaranClientMode()) {
+            lamaranClientModeActive = false;
+            lamaranTbody.innerHTML = initialLamaranTbodyHtml;
+            lamaranPaginationNav?.classList.remove('hidden');
+            restoreLamaranServerPaginationUI();
+            lamaranSearchCount?.classList.add('hidden');
+            return;
+        }
+
+        lamaranClientModeActive = true;
+        const filtered = getFilteredLamaran();
+        const perPage = getLamaranClientPerPage();
+        const totalPages = Math.max(1, Math.ceil(filtered.length / perPage) || 1);
+
+        if (lamaranClientPage > totalPages) lamaranClientPage = totalPages;
+        if (lamaranClientPage < 1) lamaranClientPage = 1;
+
+        const start = (lamaranClientPage - 1) * perPage;
+        const pageItems = filtered.slice(start, start + perPage);
+
+        lamaranTbody.innerHTML = pageItems.length
+            ? pageItems.map(renderLamaranRow).join('')
+            : renderLamaranEmptyFiltered();
+
+        lamaranPaginationNav?.classList.remove('hidden');
+        updateLamaranClientPaginationUI(filtered.length, lamaranClientPage, perPage);
+
+        if (lamaranSearchCount) {
+            lamaranSearchCount.textContent = `${filtered.length} hasil`;
+            lamaranSearchCount.classList.remove('hidden');
+        }
+    }
+
+    if (lamaranSearchInput) {
+        let lamaranDebounceTimer;
+        lamaranSearchInput.addEventListener('input', function () {
+            clearTimeout(lamaranDebounceTimer);
+            lamaranDebounceTimer = setTimeout(function () {
+                renderLamaranTable(true);
+            }, 200);
+        });
+
+        lamaranRowsPerPageSelect?.form?.addEventListener('submit', function (e) {
+            if (lamaranClientModeActive) e.preventDefault();
+        });
+
+        lamaranRowsPerPageSelect?.addEventListener('change', function () {
+            if (!lamaranClientModeActive) return;
+            renderLamaranTable(true);
+        });
+
+        lamaranPaginationNav?.addEventListener('click', function (e) {
+            if (!lamaranClientModeActive) return;
+
+            const control = e.target.closest('a, button');
+            if (!control || control.disabled) return;
+
+            const label = control.getAttribute('aria-label');
+            if (!label) return;
+
+            e.preventDefault();
+
+            const filtered = getFilteredLamaran();
+            const perPage = getLamaranClientPerPage();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+
+            if (label === 'First page') lamaranClientPage = 1;
+            else if (label === 'Previous page') lamaranClientPage = Math.max(1, lamaranClientPage - 1);
+            else if (label === 'Next page') lamaranClientPage = Math.min(totalPages, lamaranClientPage + 1);
+            else if (label === 'Last page') lamaranClientPage = totalPages;
+            else return;
+
+            renderLamaranTable(false);
         });
     }
 });

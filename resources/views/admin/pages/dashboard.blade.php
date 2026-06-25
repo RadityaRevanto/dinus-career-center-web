@@ -27,7 +27,6 @@
         $pending   = collect($perusahaan)->where('status_verifikasi', 'pending')->count();
         $accepted  = collect($perusahaan)->where('status_verifikasi', 'accepted')->count();
         $rejected  = collect($perusahaan)->where('status_verifikasi', 'rejected')->count();
-        $pendings  = collect($perusahaan)->where('status_verifikasi', 'pending')->values();
 
         $registrationMonths = collect(range(5, 0))->map(
             fn ($monthOffset) => now()->startOfMonth()->subMonths($monthOffset)
@@ -193,7 +192,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            @forelse($pendings->take(5) as $p)
+                            @forelse($pendings as $p)
                             <tr class="hover:bg-amber-50/30 transition-colors group">
                                 <td class="py-4 px-5">
                                     <div class="flex items-center gap-3">
@@ -247,6 +246,14 @@
                         </tbody>
                     </table>
                 </div>
+                @if(($pendingTotal ?? 0) > 0)
+                @include('company.components.table-pagination', [
+                    'id' => 'dashboard-pending',
+                    'paginator' => $pendings,
+                    'rowsPerPageOptions' => $pendingPerPageOptions ?? [5, 10, 25, 50],
+                    'label' => 'Pending companies pagination',
+                ])
+                @endif
             </div>
         </div>
 
