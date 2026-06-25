@@ -31,13 +31,16 @@ Route::middleware(['auth.supabase', 'role:admin'])->prefix('admin')->group(funct
     Route::post('/password', [AdminController::class, 'updatePassword'])->name('admin.password.update');
     Route::get('/companies', [AdminController::class, 'companies'])->name('companies');
     Route::get('/companies/{id}', [AdminController::class, 'showCompany'])->name('companies.show');
+    Route::delete('/companies/{id}', [AdminController::class, 'destroyCompany'])->name('companies.destroy');
     Route::get('/lowongan', [AdminController::class, 'lowongan'])->name('lowongan.index');
     Route::get('/lowongan/{id}', [AdminController::class, 'showLowongan'])->name('lowongan.show');
+    Route::delete('/lowongan/{id}', [AdminController::class, 'destroyLowongan'])->name('lowongan.destroy');
     Route::get('/events', [AdminController::class, 'events'])->name('events');
     Route::get('/events/create', fn() => view('admin.pages.event.create'))->name('events.create');
     Route::post('/events', [AdminController::class, 'storeEvent'])->name('events.store');
     Route::get('/events/{id}/edit', [AdminController::class, 'editEvent'])->name('events.edit');
     Route::patch('/events/{id}', [AdminController::class, 'updateEvent'])->name('events.update');
+    Route::delete('/events/{id}', [AdminController::class, 'destroyEvent'])->name('events.destroy');
     Route::get('/notifications/latest', [AdminController::class, 'notificationsLatest'])->name('admin.notifications.latest');
     Route::post('/verify-company', [AdminController::class, 'verifyCompany'])->name('admin.verify.company');
     Route::get('/audit-log', [AdminController::class, 'auditLog'])->name('audit-log.index');
@@ -64,6 +67,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
         Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
         Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
         Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
+        Route::delete('/applicants/{id}', [LamaranController::class, 'destroy'])->name('applicants.destroy');
         Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
         Route::patch('/applicants/{id}/notes', [LamaranController::class, 'updateNotes'])->name('applicants.notes');
         Route::post('/applicants/{id}/review-result-email', [LamaranController::class, 'sendReviewResultEmail'])->name('applicants.review-result-email');

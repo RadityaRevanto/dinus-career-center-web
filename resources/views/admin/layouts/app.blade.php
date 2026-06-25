@@ -51,6 +51,7 @@
             @include('admin.components.footer')
         </div>
     </div>
+    <x-confirm-dialog />
 </body>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @yield('scripts')

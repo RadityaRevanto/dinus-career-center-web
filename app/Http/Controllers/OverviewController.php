@@ -25,6 +25,7 @@ class OverviewController extends Controller
             'apikey'        => $this->serviceRole,
             'Authorization' => 'Bearer ' . $this->serviceRole,
             'Content-Type'  => 'application/json',
+            'x-client-ip'   => request()->ip(),
         ];
     }
 
@@ -125,38 +126,17 @@ class OverviewController extends Controller
             $chartDataDiterima[] = $monthlyCounts[$key]['diterima'];
         }
 
-        // --- Lamaran Terbaru (filter + paginated) ---
-        $namaFilter = trim((string) $request->query('nama', ''));
-        $posisiFilter = trim((string) $request->query('posisi', ''));
-
-        $lamaranForTable = $lamaran;
-
-        if ($namaFilter !== '') {
-            $needle = strtolower($namaFilter);
-            $lamaranForTable = array_values(array_filter($lamaranForTable, function ($l) use ($needle) {
-                $nama = strtolower($l['pelamar']['nama_lengkap'] ?? '');
-
-                return str_contains($nama, $needle);
-            }));
-        }
-
-        if ($posisiFilter !== '') {
-            $needle = strtolower($posisiFilter);
-            $lamaranForTable = array_values(array_filter($lamaranForTable, function ($l) use ($needle) {
-                $judul = strtolower($l['lowongan']['judul'] ?? '');
-
-                return str_contains($judul, $needle);
-            }));
-        }
+        // --- Lamaran Terbaru (paginated) ---
+        $allLamaranTerbaru = $lamaran;
 
         $lamaranPerPageOptions = [5, 10, 25, 50];
         $lamaranPerPage = (int) $request->query('per_page', 5);
         $lamaranPerPage = in_array($lamaranPerPage, $lamaranPerPageOptions, true) ? $lamaranPerPage : 5;
 
-        $totalLamaranTerbaru = count($lamaranForTable);
+        $totalLamaranTerbaru = count($allLamaranTerbaru);
         $lastPage = max(1, (int) ceil($totalLamaranTerbaru / $lamaranPerPage));
         $currentPage = min(max(1, (int) $request->query('page', 1)), $lastPage);
-        $lamaranItems = array_slice($lamaranForTable, ($currentPage - 1) * $lamaranPerPage, $lamaranPerPage);
+        $lamaranItems = array_slice($allLamaranTerbaru, ($currentPage - 1) * $lamaranPerPage, $lamaranPerPage);
 
         $lamaranTerbaru = new \Illuminate\Pagination\LengthAwarePaginator(
             $lamaranItems,
@@ -260,9 +240,8 @@ class OverviewController extends Controller
             'chartDataPelamar',
             'chartDataDiterima',
             'lamaranTerbaru',
+            'allLamaranTerbaru',
             'lamaranPerPageOptions',
-            'namaFilter',
-            'posisiFilter',
             'interviews',
             'activeJobs'
         ));

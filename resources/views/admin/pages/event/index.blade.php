@@ -79,28 +79,34 @@
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200" placeholder="Cari event...">
+                <input type="text" id="admin-events-search"
+                    class="block w-full pl-11 pr-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200"
+                    placeholder="Cari event..." autocomplete="off">
             </div>
 
-            <div class="relative w-full sm:w-40">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                </div>
-                <select class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
-                    <option value="">Semua Status</option>
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="closed">Closed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                <p id="admin-events-search-count" class="hidden text-xs font-medium text-gray-500 whitespace-nowrap"></p>
+                <div class="relative w-full sm:w-40">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    </div>
+                    <select id="admin-events-status"
+                        class="block w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 appearance-none shadow-sm cursor-pointer">
+                        <option value="">Semua Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="closed">Closed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-100">
+            <table id="admin-events-table" class="min-w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50/80">
                     <tr>
                         <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Event</th>
@@ -121,7 +127,6 @@
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ $event['title'] ?? '-' }}</div>
-                                    <div class="text-xs text-gray-500 mt-1">{{ $event['description'] ?? $event['category'] ?? '-' }}</div>
                                 </div>
                             </div>
                         </td>
@@ -174,9 +179,18 @@
                                 <a href="{{ route('events.edit', $event['id']) }}" class="p-2.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-200" title="Edit">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </a>
-                                <button class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Hapus">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
+                                <form action="{{ route('events.destroy', $event['id']) }}" method="POST"
+                                    class="inline-block"
+                                    data-confirm="{{ e('Yakin ingin menghapus event ' . ($event['title'] ?? 'ini') . '? Data speaker terkait akan ikut dihapus.') }}"
+                                    data-confirm-title="Hapus Event"
+                                    data-confirm-label="Ya, hapus"
+                                    data-confirm-tone="danger">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Hapus">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -209,3 +223,178 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script type="application/json" id="admin-events-data">{!! json_encode($allEvents ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
+<script type="application/json" id="admin-events-config">{!! json_encode(['editUrlBase' => url('/admin/events'), 'csrfToken' => csrf_token()], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const allEvents = JSON.parse(document.getElementById('admin-events-data')?.textContent || '[]');
+    const { editUrlBase, csrfToken } = JSON.parse(document.getElementById('admin-events-config')?.textContent || '{}');
+    const tbody = document.querySelector('#admin-events-table tbody');
+    const searchInput = document.getElementById('admin-events-search');
+    const statusFilter = document.getElementById('admin-events-status');
+    const searchCount = document.getElementById('admin-events-search-count');
+    const paginationNav = document.querySelector('nav[aria-label="Events table pagination"]');
+    const initialTbodyHtml = tbody ? tbody.innerHTML : '';
+
+    if (!tbody || !searchInput) return;
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatEventDate(value) {
+        if (!value) return '-';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '-';
+        return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function formatTime(value) {
+        if (!value) return '';
+        return String(value).slice(0, 5);
+    }
+
+    function renderStatusBadge(status) {
+        const normalized = status || 'draft';
+
+        if (normalized === 'published') {
+            return '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Published</span>';
+        }
+        if (normalized === 'draft') {
+            return '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Draft</span>';
+        }
+        if (normalized === 'closed') {
+            return '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Closed</span>';
+        }
+        return '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Cancelled</span>';
+    }
+
+    function renderDeleteForm(event) {
+        const title = event.title ?? 'event ini';
+        const eventId = event.id ?? '';
+        const confirmMessage = `Yakin ingin menghapus event ${title}? Data speaker terkait akan ikut dihapus.`;
+
+        return `
+            <form action="${editUrlBase}/${encodeURIComponent(eventId)}" method="POST"
+                class="inline-block"
+                data-confirm="${escapeHtml(confirmMessage)}"
+                data-confirm-title="Hapus Event"
+                data-confirm-label="Ya, hapus"
+                data-confirm-tone="danger">
+                <input type="hidden" name="_token" value="${escapeHtml(csrfToken)}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Hapus">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+            </form>
+        `;
+    }
+
+    function renderRow(event) {
+        const title = event.title ?? '-';
+        const location = event.location_name ?? '-';
+        const eventId = event.id ?? '';
+        const dateText = formatEventDate(event.event_date);
+        const timeText = formatTime(event.start_time);
+        const dateDisplay = timeText ? `${dateText} <span class="text-gray-400">•</span> ${escapeHtml(timeText)}` : escapeHtml(dateText);
+
+        return `
+            <tr class="hover:bg-indigo-50/30 transition-colors group">
+                <td class="px-6 py-5 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="shrink-0 h-12 w-12 flex items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-sm group-hover:border-indigo-200 group-hover:shadow-indigo-100 transition-all duration-200">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">${escapeHtml(title)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-5 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="text-sm text-gray-700">${dateDisplay}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-5 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm text-gray-700">${escapeHtml(location)}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-5 whitespace-nowrap">${renderStatusBadge(event.status)}</td>
+                <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end items-center gap-2">
+                        <a href="${editUrlBase}/${encodeURIComponent(eventId)}/edit" class="p-2.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-200" title="Edit">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </a>
+                        ${renderDeleteForm(event)}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function renderEmptyFiltered() {
+        return `
+            <tr>
+                <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center">
+                        <p class="text-gray-900 font-semibold text-lg">Tidak ada event yang cocok</p>
+                        <p class="text-gray-400 text-sm mt-1">Coba ubah kata kunci atau filter status.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase().trim();
+        const status = statusFilter?.value ?? '';
+        const isFiltering = query !== '' || status !== '';
+
+        if (!isFiltering) {
+            tbody.innerHTML = initialTbodyHtml;
+            if (paginationNav) paginationNav.classList.remove('hidden');
+            if (searchCount) searchCount.classList.add('hidden');
+            return;
+        }
+
+        const filtered = allEvents.filter(function (event) {
+            const title = (event.title ?? '').toLowerCase();
+            const location = (event.location_name ?? '').toLowerCase();
+            const address = (event.address ?? '').toLowerCase();
+            const matchesQuery = !query || title.includes(query) || location.includes(query) || address.includes(query);
+            const matchesStatus = !status || (event.status ?? 'draft') === status;
+
+            return matchesQuery && matchesStatus;
+        });
+
+        tbody.innerHTML = filtered.length
+            ? filtered.map(renderRow).join('')
+            : renderEmptyFiltered();
+
+        if (paginationNav) paginationNav.classList.add('hidden');
+        if (searchCount) {
+            searchCount.textContent = `Menampilkan ${filtered.length} hasil`;
+            searchCount.classList.remove('hidden');
+        }
+    }
+
+    let debounceTimer;
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(applyFilters, 200);
+    });
+
+    statusFilter?.addEventListener('change', applyFilters);
+});
+</script>
+@endpush

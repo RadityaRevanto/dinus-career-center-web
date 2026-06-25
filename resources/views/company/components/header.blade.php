@@ -1,4 +1,15 @@
-<header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6">
+<header class="min-h-16 bg-white border-b border-gray-100 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-0 shrink-0">
+
+    <button
+        type="button"
+        @click="sidebarOpen = true"
+        class="lg:hidden p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition shrink-0"
+        aria-label="Buka menu navigasi"
+    >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
 
     @php
         $breadcrumbParent = null;
@@ -36,34 +47,39 @@
     @endphp
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-1.5 text-sm">
-        <a href="{{ route('overview') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition">
+    <nav class="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm min-w-0 flex-1 overflow-hidden" aria-label="Breadcrumb">
+        <a href="{{ route('overview') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition shrink-0">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
             </svg>
         </a>
 
         @if($breadcrumbParent)
-            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <a href="{{ $breadcrumbParent['route'] }}" class="{{ $breadcrumbCurrent ? 'text-gray-500 hover:text-blue-600' : 'font-medium text-gray-800' }} transition">
+            <a href="{{ $breadcrumbParent['route'] }}" class="{{ $breadcrumbCurrent ? 'text-gray-500 hover:text-blue-600 truncate' : 'font-medium text-gray-800 truncate' }} transition min-w-0">
                 {{ $breadcrumbParent['label'] }}
             </a>
         @endif
 
         @if($breadcrumbCurrent)
-            <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="font-medium text-gray-800">
+            <span class="font-medium text-gray-800 truncate min-w-0">
                 {{ $breadcrumbCurrent }}
             </span>
+        @elseif(!$breadcrumbParent)
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="font-medium text-gray-800 truncate min-w-0">Dashboard</span>
         @endif
     </nav>
 
     <!-- Right Section -->
-    <div class="flex items-center gap-3 ml-6">
+    <div class="flex items-center gap-1.5 sm:gap-3 ml-2 sm:ml-4 shrink-0">
         <!-- Notification -->
         <div x-data="notificationDropdown()" class="relative">
             <button @click="toggle()" class="relative p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">
@@ -88,7 +104,7 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-                class="absolute right-0 mt-2 w-96 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden"
+                class="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-sm bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden"
                 x-cloak>
 
                 <!-- Header -->
@@ -233,7 +249,7 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1.5"
+                class="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1.5"
                 x-cloak>
 
                 <div class="px-4 py-2.5 border-b border-gray-100">

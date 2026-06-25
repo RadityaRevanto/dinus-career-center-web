@@ -27,10 +27,11 @@ class AdminController extends Controller
             'apikey'        => $this->serviceRole,
             'Authorization' => 'Bearer ' . $this->serviceRole,
             'Content-Type'  => 'application/json',
+            'x-client-ip'   => request()->ip(),
         ];
     }
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $perusahaan = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/perusahaan', [
@@ -38,7 +39,39 @@ class AdminController extends Controller
                 'order'  => 'created_at.desc',
             ])->json();
 
-        return view('admin.pages.dashboard', compact('perusahaan'));
+        $perusahaan = is_array($perusahaan) ? $perusahaan : [];
+
+        $allPending = collect($perusahaan)
+            ->where('status_verifikasi', 'pending')
+            ->values()
+            ->all();
+
+        $pendingPerPageOptions = [5, 10, 25, 50];
+        $pendingPerPage = (int) $request->query('per_page', 5);
+        $pendingPerPage = in_array($pendingPerPage, $pendingPerPageOptions, true) ? $pendingPerPage : 5;
+
+        $pendingTotal = count($allPending);
+        $pendingLastPage = max(1, (int) ceil($pendingTotal / $pendingPerPage));
+        $pendingCurrentPage = min(max(1, (int) $request->query('page', 1)), $pendingLastPage);
+        $pendingItems = array_slice($allPending, ($pendingCurrentPage - 1) * $pendingPerPage, $pendingPerPage);
+
+        $pendings = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pendingItems,
+            $pendingTotal,
+            $pendingPerPage,
+            $pendingCurrentPage,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return view('admin.pages.dashboard', compact(
+            'perusahaan',
+            'pendings',
+            'pendingPerPageOptions',
+            'pendingTotal',
+        ));
     }
 
     public function companies(Request $request)
@@ -185,6 +218,8 @@ class AdminController extends Controller
         $lowonganPerPage = (int) request('per_page', 10);
         $lowonganPerPage = in_array($lowonganPerPage, $lowonganPerPageOptions, true) ? $lowonganPerPage : 10;
 
+        $allLowongan = $lowongan;
+
         $lastPage = max(1, (int) ceil($totalLowongan / $lowonganPerPage));
         $currentPage = min(max(1, (int) request('page', 1)), $lastPage);
         $items = array_slice($lowongan, ($currentPage - 1) * $lowonganPerPage, $lowonganPerPage);
@@ -200,7 +235,7 @@ class AdminController extends Controller
             ]
         );
 
-        return view('admin.pages.lowongan.index', compact('lowongan', 'totalLowongan', 'lowonganAktif', 'lowonganTutup', 'lowonganPerPageOptions'));
+        return view('admin.pages.lowongan.index', compact('lowongan', 'allLowongan', 'totalLowongan', 'lowonganAktif', 'lowonganTutup', 'lowonganPerPageOptions'));
     }
 
     public function showLowongan(Request $request, string $id)
@@ -256,6 +291,54 @@ class AdminController extends Controller
         return view('admin.pages.lowongan.show', compact('data', 'lamaran', 'totalPelamar', 'statusPelamar', 'pelamarPerPageOptions'));
     }
 
+    public function destroyLowongan(string $id)
+    {
+        $lowongan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'lowongan_id' => 'eq.' . $id,
+                'select'      => 'lowongan_id,judul',
+            ])->json();
+
+        if (empty($lowongan)) {
+            return redirect()->route('lowongan.index')->with('error', 'Lowongan tidak ditemukan.');
+        }
+
+        $judul = $lowongan[0]['judul'] ?? 'Lowongan';
+
+        $lamaran = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lowongan_id' => 'eq.' . $id,
+                'select'      => 'lamaran_id',
+            ])->json();
+
+        $lamaranIds = is_array($lamaran)
+            ? collect($lamaran)->pluck('lamaran_id')->filter()->values()->all()
+            : [];
+
+        if (! empty($lamaranIds)) {
+            $lamaranFilter = 'in.(' . implode(',', $lamaranIds) . ')';
+
+            Http::withHeaders($this->headers())
+                ->delete($this->baseUrl . '/rest/v1/notifikasi?lamaran_id=' . $lamaranFilter);
+
+            $resLamaran = Http::withHeaders($this->headers())
+                ->delete($this->baseUrl . '/rest/v1/lamaran?lamaran_id=' . $lamaranFilter);
+
+            if ($resLamaran->failed()) {
+                return redirect()->route('lowongan.index')->with('error', 'Gagal menghapus lamaran terkait: ' . $resLamaran->body());
+            }
+        }
+
+        $resLowongan = Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/lowongan?lowongan_id=eq.' . $id);
+
+        if ($resLowongan->failed()) {
+            return redirect()->route('lowongan.index')->with('error', 'Gagal menghapus lowongan: ' . $resLowongan->body());
+        }
+
+        return redirect()->route('lowongan.index')->with('success', "Lowongan \"{$judul}\" berhasil dihapus.");
+    }
+
     public function events(Request $request)
     {
         $allEvents = Http::withHeaders($this->headers())
@@ -290,6 +373,7 @@ class AdminController extends Controller
 
         return view('admin.pages.event.index', compact(
             'events',
+            'allEvents',
             'totalEvents',
             'activeEvents',
             'inactiveEvents',
@@ -608,6 +692,38 @@ class AdminController extends Controller
         return redirect()->route('events')->with('success', 'Event berhasil diupdate.');
     }
 
+    public function destroyEvent(string $id)
+    {
+        $event = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/events', [
+                'id'     => 'eq.' . $id,
+                'select' => 'id,title',
+                'limit'  => 1,
+            ])->json();
+
+        if (empty($event) || ! is_array($event)) {
+            return redirect()->route('events')->with('error', 'Event tidak ditemukan.');
+        }
+
+        $title = $event[0]['title'] ?? 'Event';
+
+        $resSpeakers = Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/event_speakers?event_id=eq.' . $id);
+
+        if ($resSpeakers->failed()) {
+            return redirect()->route('events')->with('error', 'Gagal menghapus data speaker: ' . $resSpeakers->body());
+        }
+
+        $resEvent = Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/events?id=eq.' . $id);
+
+        if ($resEvent->failed()) {
+            return redirect()->route('events')->with('error', 'Gagal menghapus event: ' . $resEvent->body());
+        }
+
+        return redirect()->route('events')->with('success', "Event \"{$title}\" berhasil dihapus.");
+    }
+
     public function auditLog(Request $request)
     {
         $allLogs = Http::withHeaders($this->headers())
@@ -649,6 +765,7 @@ class AdminController extends Controller
 
         return view('admin.pages.audit-log.index', compact(
             'logs',
+            'allLogs',
             'totalLog',
             'todayLog',
             'activeModuleCount',
@@ -882,5 +999,80 @@ class AdminController extends Controller
         };
 
         return redirect()->route('companies.show', $request->id)->with('success', "Perusahaan berhasil {$label} dan email notifikasi telah dikirim");
+    }
+
+    public function destroyCompany(string $id)
+    {
+        $perusahaan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/perusahaan', [
+                'perusahaan_id' => 'eq.' . $id,
+                'select'        => 'perusahaan_id,nama_perusahaan',
+            ])->json();
+
+        if (empty($perusahaan)) {
+            return redirect()->route('companies')->with('error', 'Perusahaan tidak ditemukan.');
+        }
+
+        $nama = $perusahaan[0]['nama_perusahaan'] ?? 'Perusahaan';
+
+        $lowongan = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lowongan', [
+                'perusahaan_id' => 'eq.' . $id,
+                'select'        => 'lowongan_id',
+            ])->json();
+
+        $lowonganIds = is_array($lowongan)
+            ? collect($lowongan)->pluck('lowongan_id')->filter()->values()->all()
+            : [];
+
+        if (! empty($lowonganIds)) {
+            $lowonganFilter = 'in.(' . implode(',', $lowonganIds) . ')';
+
+            $lamaran = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/rest/v1/lamaran', [
+                    'lowongan_id' => $lowonganFilter,
+                    'select'      => 'lamaran_id',
+                ])->json();
+
+            $lamaranIds = is_array($lamaran)
+                ? collect($lamaran)->pluck('lamaran_id')->filter()->values()->all()
+                : [];
+
+            if (! empty($lamaranIds)) {
+                $lamaranFilter = 'in.(' . implode(',', $lamaranIds) . ')';
+
+                Http::withHeaders($this->headers())
+                    ->delete($this->baseUrl . '/rest/v1/notifikasi?lamaran_id=' . $lamaranFilter);
+
+                $resLamaran = Http::withHeaders($this->headers())
+                    ->delete($this->baseUrl . '/rest/v1/lamaran?lamaran_id=' . $lamaranFilter);
+
+                if ($resLamaran->failed()) {
+                    return redirect()->route('companies')->with('error', 'Gagal menghapus lamaran terkait: ' . $resLamaran->body());
+                }
+            }
+
+            $resLowongan = Http::withHeaders($this->headers())
+                ->delete($this->baseUrl . '/rest/v1/lowongan?perusahaan_id=eq.' . $id);
+
+            if ($resLowongan->failed()) {
+                return redirect()->route('companies')->with('error', 'Gagal menghapus lowongan perusahaan: ' . $resLowongan->body());
+            }
+        }
+
+        $resPerusahaan = Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/perusahaan?perusahaan_id=eq.' . $id);
+
+        if ($resPerusahaan->failed()) {
+            return redirect()->route('companies')->with('error', 'Gagal menghapus perusahaan: ' . $resPerusahaan->body());
+        }
+
+        Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/profiles?id=eq.' . $id);
+
+        Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/auth/v1/admin/users/' . $id);
+
+        return redirect()->route('companies')->with('success', 'Perusahaan "' . $nama . '" berhasil dihapus.');
     }
 }

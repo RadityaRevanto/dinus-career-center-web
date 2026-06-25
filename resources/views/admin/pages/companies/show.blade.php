@@ -314,7 +314,7 @@
             @endif
         </div>
 
-        @if(($data['status_verifikasi'] ?? '') !== 'rejected')
+        @if(($data['status_verifikasi'] ?? '') === 'pending')
         <form method="POST" action="{{ route('admin.verify.company') }}" class="border-t border-gray-100 pt-5 space-y-4"
             onsubmit="return confirm('Tolak perusahaan ini? Alasan penolakan akan dikirim ke email perusahaan.')">
             @csrf
