@@ -27,6 +27,7 @@ class AdminController extends Controller
             'apikey'        => $this->serviceRole,
             'Authorization' => 'Bearer ' . $this->serviceRole,
             'Content-Type'  => 'application/json',
+            'x-client-ip'   => request()->ip(),
         ];
     }
 
@@ -764,6 +765,7 @@ class AdminController extends Controller
 
         return view('admin.pages.audit-log.index', compact(
             'logs',
+            'allLogs',
             'totalLog',
             'todayLog',
             'activeModuleCount',

@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified.company'           => \App\Http\Middleware\VerifiedCompany::class,
             'redirect.if.authenticated'  => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
+
+        // Percayai header proxy (X-Forwarded-For) agar request()->ip()
+        // mengembalikan IP asli pengunjung saat di belakang proxy/LB.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

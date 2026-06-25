@@ -26,6 +26,7 @@ class LamaranController extends Controller
             'apikey'        => $this->serviceRole,
             'Authorization' => 'Bearer ' . $this->serviceRole,
             'Content-Type'  => 'application/json',
+            'x-client-ip'   => request()->ip(),
         ];
     }
 
@@ -717,5 +718,41 @@ class LamaranController extends Controller
             'Cache-Control'       => 'private, max-age=3600',
         ]);
     }
-    
+
+    public function destroy(string $id)
+    {
+        $perusahaanId = session('user')['id'];
+
+        $response = Http::withHeaders($this->headers())
+            ->get($this->baseUrl . '/rest/v1/lamaran', [
+                'lamaran_id' => 'eq.' . $id,
+                'select'     => 'lamaran_id,pelamar:pelamar_id(nama_lengkap),lowongan:lowongan_id(judul,perusahaan_id)',
+            ])->json();
+
+        if (empty($response) || ! is_array($response)) {
+            return redirect()->route('applicants')->with('error', 'Lamaran tidak ditemukan.');
+        }
+
+        $lamaran = $response[0];
+
+        if (($lamaran['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $nama = $lamaran['pelamar']['nama_lengkap'] ?? 'pelamar';
+        $posisi = $lamaran['lowongan']['judul'] ?? 'lowongan';
+
+        Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/notifikasi?lamaran_id=eq.' . $id);
+
+        $res = Http::withHeaders($this->headers())
+            ->delete($this->baseUrl . '/rest/v1/lamaran?lamaran_id=eq.' . $id);
+
+        if ($res->failed()) {
+            return redirect()->route('applicants')->with('error', 'Gagal menghapus lamaran: ' . $res->body());
+        }
+
+        return redirect()->route('applicants')->with('success', "Lamaran {$nama} untuk posisi \"{$posisi}\" berhasil dihapus.");
+    }
+
 }

@@ -30,7 +30,20 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-base-100 text-base-content antialiased" style="font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;">
+<body class="bg-base-100 text-base-content antialiased" style="font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
+    <div
+        x-show="sidebarOpen"
+        x-cloak
+        @click="sidebarOpen = false"
+        x-transition:enter="transition-opacity ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm lg:hidden"
+        aria-hidden="true"
+    ></div>
     <div class="flex h-screen overflow-hidden">
         @include('company.components.sidebar')
         <div class="flex-1 flex flex-col min-w-0 bg-base-100 relative">

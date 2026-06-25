@@ -67,6 +67,7 @@ Route::middleware(['auth.supabase', 'role:perusahaan'])->prefix('company')->grou
         Route::get('/applicants', [LamaranController::class, 'index'])->name('applicants');
         Route::get('/applicants/export', [LamaranController::class, 'export'])->name('applicants.export');
         Route::get('/applicants/{id}/edit', [LamaranController::class, 'edit'])->name('applicants.edit');
+        Route::delete('/applicants/{id}', [LamaranController::class, 'destroy'])->name('applicants.destroy');
         Route::patch('/applicants/{id}/status', [LamaranController::class, 'updateStatus'])->name('applicants.status');
         Route::patch('/applicants/{id}/notes', [LamaranController::class, 'updateNotes'])->name('applicants.notes');
         Route::post('/applicants/{id}/review-result-email', [LamaranController::class, 'sendReviewResultEmail'])->name('applicants.review-result-email');

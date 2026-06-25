@@ -2,6 +2,19 @@
 
 @section('content')
 <div class=" space-y-8">
+
+    @if(session('success'))
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        {{ session('success') }}
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        {{ session('error') }}
+    </div>
+    @endif
     
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -172,16 +185,42 @@
 
                         {{-- DOKUMEN --}}
                         <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                            <div class="flex flex-col gap-1">
-                                @if(!empty($berkas['cv']))
-                                <a href="{{ route('applicants.berkas', ['id' => $l['lamaran_id'], 'tipe' => 'cv']) }}" target="_blank"
+                            @php
+                                $docTypes = [
+                                    ['key' => 'cv', 'label' => 'CV'],
+                                    ['key' => 'portofolio', 'label' => 'Portofolio'],
+                                    ['key' => 'surat_lamaran', 'label' => 'Surat'],
+                                    ['key' => 'transkip_nilai', 'label' => 'Transkip'],
+                                    ['key' => 'pas_foto', 'label' => 'Foto'],
+                                ];
+                                $availableDocs = array_values(array_filter($docTypes, fn ($d) => ! empty($berkas[$d['key']])));
+                                $primaryDoc = $availableDocs[0] ?? null;
+                                $extraDocs = array_slice($availableDocs, 1);
+                            @endphp
+                            <div class="flex items-center gap-1.5">
+                                @if (! $primaryDoc)
+                                <span class="text-xs text-gray-400">Tidak ada dokumen</span>
+                                @else
+                                <a href="{{ route('applicants.berkas', ['id' => $l['lamaran_id'], 'tipe' => $primaryDoc['key']]) }}" target="_blank"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-blue-200">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    CV
+                                    {{ $primaryDoc['label'] }}
                                 </a>
+                                @if (count($extraDocs) > 0)
+                                <div class="relative" data-docs-menu>
+                                    <button type="button" data-docs-more-btn
+                                        class="inline-flex items-center justify-center min-w-7 h-7 px-1.5 bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-bold border border-gray-200 hover:border-blue-200 transition-colors"
+                                        title="{{ count($extraDocs) }} dokumen lainnya">+{{ count($extraDocs) }}</button>
+                                    <div data-docs-menu-panel class="hidden fixed z-50 min-w-36 py-1 bg-white border border-gray-200 rounded-xl shadow-lg">
+                                        @foreach ($extraDocs as $doc)
+                                        <a href="{{ route('applicants.berkas', ['id' => $l['lamaran_id'], 'tipe' => $doc['key']]) }}" target="_blank"
+                                            class="block px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                            {{ $doc['label'] }}
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                </div>
                                 @endif
-                                @if(empty($berkas['cv']))
-                                <span class="text-xs text-gray-400">Tidak ada dokumen</span>
                                 @endif
                             </div>
                         </td>
@@ -212,9 +251,18 @@
                                 <a href="{{ route('applicants.edit', $l['lamaran_id']) }}" class="p-2.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-200" title="Edit">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </a>
-                                <button class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Delete">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
+                                <form action="{{ route('applicants.destroy', $l['lamaran_id']) }}" method="POST"
+                                    class="inline-block"
+                                    data-confirm="{{ e('Yakin ingin menghapus lamaran ' . ($pelamar['nama_lengkap'] ?? 'pelamar ini') . ' untuk posisi ' . ($l['lowongan']['judul'] ?? 'lowongan') . '? Tindakan ini tidak dapat dibatalkan.') }}"
+                                    data-confirm-title="Hapus Lamaran"
+                                    data-confirm-label="Ya, hapus"
+                                    data-confirm-tone="danger">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Hapus">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -247,11 +295,13 @@
 <script type="application/json" id="applicants-config">{!! json_encode([
     'editUrlBase' => url('/company/applicants'),
     'berkasUrlBase' => url('/company/applicants'),
+    'deleteUrlBase' => url('/company/applicants'),
+    'csrfToken' => csrf_token(),
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const allApplicants = JSON.parse(document.getElementById('applicants-data')?.textContent || '[]');
-    const { editUrlBase, berkasUrlBase } = JSON.parse(document.getElementById('applicants-config')?.textContent || '{}');
+    const { editUrlBase, berkasUrlBase, deleteUrlBase, csrfToken } = JSON.parse(document.getElementById('applicants-config')?.textContent || '{}');
     const tbody = document.querySelector('#applicants-table tbody');
     const searchInput = document.getElementById('applicants-search');
     const statusFilter = document.getElementById('applicants-status');
@@ -311,19 +361,82 @@ document.addEventListener('DOMContentLoaded', function () {
         return `https://ui-avatars.com/api/?name=${name}&background=e0e7ff&color=4f46e5&bold=true`;
     }
 
-    function renderCvLink(item) {
-        const cv = item.berkas?.cv;
-        if (!cv) {
+    const DOC_TYPES = [
+        { key: 'cv', label: 'CV' },
+        { key: 'portofolio', label: 'Portofolio' },
+        { key: 'surat_lamaran', label: 'Surat' },
+        { key: 'transkip_nilai', label: 'Transkip' },
+        { key: 'pas_foto', label: 'Foto' },
+    ];
+
+    const docLinkClass = 'inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-blue-200';
+
+    function getAvailableDocs(berkas) {
+        return DOC_TYPES.filter(function (doc) {
+            return berkas?.[doc.key];
+        });
+    }
+
+    function renderBerkasLinks(item) {
+        const available = getAvailableDocs(item.berkas);
+        if (!available.length) {
             return '<span class="text-xs text-gray-400">Tidak ada dokumen</span>';
         }
 
         const lamaranId = encodeURIComponent(item.lamaran_id ?? '');
-        return `
-            <a href="${escapeHtml(berkasUrlBase)}/${lamaranId}/berkas/cv" target="_blank"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-semibold transition-colors w-fit border border-gray-200 hover:border-blue-200">
+        const primary = available[0];
+        const extra = available.slice(1);
+
+        let html = `<div class="flex items-center gap-1.5">`;
+        html += `
+            <a href="${escapeHtml(berkasUrlBase)}/${lamaranId}/berkas/${primary.key}" target="_blank"
+                class="${docLinkClass}">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                CV
+                ${escapeHtml(primary.label)}
             </a>
+        `;
+
+        if (extra.length > 0) {
+            html += `
+                <div class="relative" data-docs-menu>
+                    <button type="button" data-docs-more-btn
+                        class="inline-flex items-center justify-center min-w-7 h-7 px-1.5 bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-xs font-bold border border-gray-200 hover:border-blue-200 transition-colors"
+                        title="${extra.length} dokumen lainnya">+${extra.length}</button>
+                    <div data-docs-menu-panel class="hidden fixed z-50 min-w-36 py-1 bg-white border border-gray-200 rounded-xl shadow-lg">
+                        ${extra.map(function (doc) {
+                            return `<a href="${escapeHtml(berkasUrlBase)}/${lamaranId}/berkas/${doc.key}" target="_blank"
+                                class="block px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                ${escapeHtml(doc.label)}
+                            </a>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function renderDeleteForm(item) {
+        const lamaranId = item.lamaran_id ?? '';
+        const nama = item.pelamar?.nama_lengkap ?? 'pelamar ini';
+        const posisi = item.lowongan?.judul ?? 'lowongan';
+        const confirmMessage = `Yakin ingin menghapus lamaran ${nama} untuk posisi ${posisi}? Tindakan ini tidak dapat dibatalkan.`;
+
+        return `
+            <form action="${deleteUrlBase}/${encodeURIComponent(lamaranId)}" method="POST"
+                class="inline-block"
+                data-confirm="${escapeHtml(confirmMessage)}"
+                data-confirm-title="Hapus Lamaran"
+                data-confirm-label="Ya, hapus"
+                data-confirm-tone="danger">
+                <input type="hidden" name="_token" value="${escapeHtml(csrfToken)}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Hapus">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </form>
         `;
     }
 
@@ -354,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="text-xs text-gray-500 mt-1">${escapeHtml(formatRelativeDate(item.created_at))}</div>
                 </td>
                 <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
-                    <div class="flex flex-col gap-1">${renderCvLink(item)}</div>
+                    <div class="flex flex-col gap-1">${renderBerkasLinks(item)}</div>
                 </td>
                 <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
                     <div class="flex flex-col gap-1.5">
@@ -369,9 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <a href="${escapeHtml(editUrlBase)}/${lamaranId}/edit" class="p-2.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-200" title="Edit">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </a>
-                        <button type="button" class="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" title="Delete">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
+                        ${renderDeleteForm(item)}
                     </div>
                 </td>
             </tr>
@@ -546,6 +657,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
         renderClientTable(false);
     });
+
+    function closeAllDocsPanels() {
+        document.querySelectorAll('[data-docs-menu-panel]').forEach(function (el) {
+            el.classList.add('hidden');
+            el.style.top = '';
+            el.style.left = '';
+        });
+    }
+
+    function positionDocsPanel(btn, panel) {
+        panel.classList.remove('hidden');
+        panel.style.visibility = 'hidden';
+
+        const rect = btn.getBoundingClientRect();
+        const panelHeight = panel.offsetHeight;
+        const panelWidth = panel.offsetWidth;
+        let top = rect.bottom + 4;
+        let left = rect.left;
+
+        if (top + panelHeight > window.innerHeight - 8) {
+            top = rect.top - panelHeight - 4;
+        }
+        if (left + panelWidth > window.innerWidth - 8) {
+            left = Math.max(8, window.innerWidth - panelWidth - 8);
+        }
+
+        panel.style.top = `${top}px`;
+        panel.style.left = `${left}px`;
+        panel.style.visibility = '';
+    }
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-docs-more-btn]');
+        if (btn) {
+            e.stopPropagation();
+            const panel = btn.closest('[data-docs-menu]')?.querySelector('[data-docs-menu-panel]');
+            const isOpen = panel && !panel.classList.contains('hidden');
+            closeAllDocsPanels();
+            if (panel && !isOpen) {
+                positionDocsPanel(btn, panel);
+            }
+            return;
+        }
+
+        if (!e.target.closest('[data-docs-menu]') && !e.target.closest('[data-docs-menu-panel]')) {
+            closeAllDocsPanels();
+        }
+    });
+
+    window.addEventListener('scroll', closeAllDocsPanels, true);
+    window.addEventListener('resize', closeAllDocsPanels);
 });
 </script>
 @endpush

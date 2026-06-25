@@ -23,6 +23,7 @@ class InterviewController extends Controller
             'apikey'        => $this->serviceRole,
             'Authorization' => 'Bearer ' . $this->serviceRole,
             'Content-Type'  => 'application/json',
+            'x-client-ip'   => request()->ip(),
         ];
     }
 
