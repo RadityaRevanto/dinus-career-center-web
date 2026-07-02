@@ -1,5 +1,6 @@
 <header class="min-h-16 bg-white border-b border-gray-100 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-0 shrink-0">
 
+    @if(session('company_status') !== 'rejected')
     <button
         type="button"
         @click="sidebarOpen = true"
@@ -10,6 +11,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
     </button>
+    @endif
 
     @php
         $breadcrumbParent = null;
@@ -48,19 +50,33 @@
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm min-w-0 flex-1 overflow-hidden" aria-label="Breadcrumb">
+        @if(session('company_status') !== 'rejected')
         <a href="{{ route('overview') }}" class="flex items-center text-gray-400 hover:text-blue-600 transition shrink-0">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
             </svg>
         </a>
+        @else
+        <div class="flex items-center text-gray-400 transition shrink-0">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+            </svg>
+        </div>
+        @endif
 
         @if($breadcrumbParent)
             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
+            @if(session('company_status') !== 'rejected')
             <a href="{{ $breadcrumbParent['route'] }}" class="{{ $breadcrumbCurrent ? 'text-gray-500 hover:text-blue-600 truncate' : 'font-medium text-gray-800 truncate' }} transition min-w-0">
                 {{ $breadcrumbParent['label'] }}
             </a>
+            @else
+            <span class="{{ $breadcrumbCurrent ? 'text-gray-500 truncate' : 'font-medium text-gray-800 truncate' }} min-w-0">
+                {{ $breadcrumbParent['label'] }}
+            </span>
+            @endif
         @endif
 
         @if($breadcrumbCurrent)
@@ -81,6 +97,7 @@
     <!-- Right Section -->
     <div class="flex items-center gap-1.5 sm:gap-3 ml-2 sm:ml-4 shrink-0">
         <!-- Notification -->
+        @if(session('company_status') !== 'rejected')
         <div x-data="notificationDropdown()" class="relative">
             <button @click="toggle()" class="relative p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">
                 <svg class="w-5 h-5" :class="{ 'animate-bell': hasUnread }" fill="none" stroke="currentColor" stroke-width="2"
@@ -230,6 +247,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Settings Dropdown -->
         <div x-data="{ open: false }" class="relative">

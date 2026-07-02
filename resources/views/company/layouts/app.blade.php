@@ -45,7 +45,9 @@
         aria-hidden="true"
     ></div>
     <div class="flex h-screen overflow-hidden">
-        @include('company.components.sidebar')
+        
+            @include('company.components.sidebar')
+       
         <div class="flex-1 flex flex-col min-w-0 bg-base-100 relative">
             @include('company.components.header')
             <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">

@@ -243,38 +243,63 @@ public function registerCompany(Request $request)
         'logo'              => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
     ]);
 
+    // Gunakan Admin API agar tidak mengirim OTP/konfirmasi email ke perusahaan
     $res = Http::withHeaders([
-        'apikey'       => $this->apiKey,
-        'Content-Type' => 'application/json',
-    ])->post($this->baseUrl . '/auth/v1/signup', [
-        'email'    => $request->email,
-        'password' => $request->password,
-        'data'     => [
+        'apikey'        => $this->serviceRole,
+        'Authorization' => 'Bearer ' . $this->serviceRole,
+        'Content-Type'  => 'application/json',
+    ])->post($this->baseUrl . '/auth/v1/admin/users', [
+        'email'         => $request->email,
+        'password'      => $request->password,
+        'email_confirm' => true, // langsung konfirmasi, tanpa kirim OTP
+        'user_metadata' => [
             'role'      => 'perusahaan',
             'full_name' => $request->nama_perusahaan,
         ],
     ]);
 
     if ($res->failed()) {
-        $errorCode = $res->json()['error_code'] ?? '';
-        
-        $error = match($errorCode) {
-            'user_already_exists' => 'Email sudah terdaftar, gunakan email lain.',
+        $errorData = $res->json() ?? [];
+        $errorCode = $errorData['error_code']
+            ?? $errorData['code']
+            ?? '';
+
+        $rawMessage = $errorData['msg']
+            ?? $errorData['message']
+            ?? $errorData['error_description']
+            ?? 'Register gagal.';
+
+        $error = match ($errorCode) {
+            'user_already_exists', 'email_exists' => 'Email sudah terdaftar, gunakan email lain.',
             'invalid_email'       => 'Format email tidak valid.',
             'weak_password'       => 'Password terlalu lemah, minimal 8 karakter.',
-            default               => $res->json()['msg'] ?? 'Register gagal.',
+            default               => $rawMessage,
         };
 
-        return back()->with('error', $error)->withInput();
+        Log::warning('Supabase admin create user gagal', [
+            'status'   => $res->status(),
+            'response' => $errorData ?: $res->body(),
+        ]);
+
+        return back()
+            ->with('error', $error)
+            ->withInput($request->except('password'));
     }
 
-    $data   = $res->json();
-    $userId = $data['user']['id']
-        ?? $data['session']['user']['id']
-        ?? null;
+    $data = $res->json() ?? [];
+
+    $userId = data_get($data, 'id')
+        ?? data_get($data, 'user.id');
 
     if (!$userId) {
-        return back()->with('error', 'User tidak terbentuk: ' . json_encode($data))->withInput();
+        Log::error('User ID tidak ditemukan dari respons Supabase Admin', [
+            'status'   => $res->status(),
+            'response' => $data,
+        ]);
+
+        return back()
+            ->with('error', 'Akun berhasil dibuat tetapi ID pengguna tidak ditemukan.')
+            ->withInput($request->except('password'));
     }
 
     $logo = null;
