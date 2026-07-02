@@ -768,7 +768,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Show / Hide interview panel ──────────────────────────────────────────
     function toggleInterviewPanel() {
-        if (statusSelect.value === 'interview') {
+        const movingToInterview = statusSelect.value === 'interview';
+        // Jangan tampilkan detail jadwal interview saat masih di tahap review
+        // dan email hasil review belum dikirim. Fokus tetap di section
+        // "Kirim hasil review ke pelamar" sampai email review terkirim.
+        const blockedByReview = currentStatus === 'reviewed' && !reviewResultEmailSent;
+
+        if (movingToInterview && !blockedByReview) {
             interviewPanel.style.maxHeight = '600px';
             interviewPanel.style.opacity   = '1';
         } else {
@@ -777,23 +783,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    statusSelect.addEventListener('change', toggleInterviewPanel);
+    statusSelect.addEventListener('change', function () {
+        // Peringatan: tahap saat ini harus diselesaikan dulu sebelum lanjut.
+        // Tidak boleh pindah ke Interview kalau email hasil review belum dikirim.
+        if (currentStatus === 'reviewed' && statusSelect.value === 'interview' && !reviewResultEmailSent) {
+            showReviewEmailRequiredModal();
+            statusSelect.value = currentStatus; // kembalikan pilihan ke status semula
+        }
+        toggleInterviewPanel();
+    });
     toggleInterviewPanel(); // run on load (if status already interview)
 
     // ── Review result email ──────────────────────────────────────────────────
     document.querySelectorAll('[data-review-result-email]').forEach(function (emailButton) {
-        emailButton.addEventListener('click', function () {
+        emailButton.addEventListener('click', async function () {
             if (this.disabled) return;
 
             const result = this.dataset.reviewResultEmail;
             const message = document.getElementById('review_result_message')?.value || '';
             const feedback = document.getElementById('review-result-feedback');
             const defaultText = this.textContent.trim();
-            const confirmText = result === 'accepted'
-                ? 'Kirim email bahwa kandidat diterima pada tahap review?'
-                : 'Kirim email bahwa kandidat ditolak pada tahap review? Proses lamaran akan diselesaikan.';
 
-            if (!confirm(confirmText)) return;
+            const confirmed = await window.showConfirmDialog({
+                title: result === 'accepted' ? 'Kirim Email Diterima' : 'Kirim Email Ditolak',
+                message: result === 'accepted'
+                    ? 'Kirim email bahwa kandidat diterima pada tahap review?'
+                    : 'Kirim email bahwa kandidat ditolak pada tahap review? Proses lamaran akan diselesaikan.',
+                confirmLabel: 'Ya, kirim',
+                cancelLabel: 'Batal',
+                tone: result === 'accepted' ? 'default' : 'danger',
+            });
+
+            if (!confirmed) return;
 
             this.disabled = true;
             this.classList.add('opacity-75', 'cursor-not-allowed');
@@ -837,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Interview result email ───────────────────────────────────────────────
     document.querySelectorAll('[data-result-email]').forEach(function (emailButton) {
-        emailButton.addEventListener('click', function () {
+        emailButton.addEventListener('click', async function () {
             if (this.disabled) return;
 
             const result = this.dataset.resultEmail;
@@ -850,11 +871,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const message = document.getElementById('interview_result_message')?.value || '';
             const feedback = document.getElementById('interview-result-feedback');
             const defaultText = this.textContent.trim();
-            const confirmText = result === 'accepted'
-                ? 'Kirim email bahwa kandidat diterima?'
-                : 'Kirim email bahwa kandidat ditolak?';
 
-            if (!confirm(confirmText)) return;
+            const confirmed = await window.showConfirmDialog({
+                title: result === 'accepted' ? 'Kirim Email Diterima' : 'Kirim Email Ditolak',
+                message: result === 'accepted'
+                    ? 'Kirim email bahwa kandidat diterima?'
+                    : 'Kirim email bahwa kandidat ditolak?',
+                confirmLabel: 'Ya, kirim',
+                cancelLabel: 'Batal',
+                tone: result === 'accepted' ? 'default' : 'danger',
+            });
+
+            if (!confirmed) return;
 
             this.disabled = true;
             this.classList.add('opacity-75', 'cursor-not-allowed');
