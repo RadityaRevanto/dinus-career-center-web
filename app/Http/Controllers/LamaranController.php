@@ -7,7 +7,6 @@ use App\Support\LamaranStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class LamaranController extends Controller
 {
@@ -463,11 +462,8 @@ class LamaranController extends Controller
             return response()->json(['error' => 'Email perusahaan tidak ditemukan.'], 422);
         }
 
-        $fromAddress = config('mail.from.address');
-        $fromName = $companyName . ' via Dinus Career Center';
-
         try {
-            Mail::send('emails.review-result', [
+            $htmlContent = view('emails.review-result', [
                 'result'        => $request->result,
                 'resultLabel'   => $resultLabel,
                 'customMessage' => $request->message,
@@ -475,19 +471,26 @@ class LamaranController extends Controller
                 'position'      => $lamaran['lowongan']['judul'] ?? 'posisi yang dilamar',
                 'companyName'   => $companyName,
                 'companyEmail'  => $companyEmail,
-            ], function ($message) use ($pelamarEmail, $lamaran, $resultLabel, $fromAddress, $fromName, $companyEmail, $companyName) {
-                $message->from($fromAddress, $fromName)
-                    ->replyTo($companyEmail, $companyName)
-                    ->to($pelamarEmail, $lamaran['pelamar']['nama_lengkap'] ?? null)
-                    ->subject('Hasil Review Lamaran Anda: ' . $resultLabel);
-            });
+            ])->render();
+
+            $brevoService = app(\App\Services\BrevoMailService::class);
+            $brevoService->send(
+                $pelamarEmail,
+                $lamaran['pelamar']['nama_lengkap'] ?? 'Kandidat',
+                'Hasil Review Lamaran Anda: ' . $resultLabel,
+                $htmlContent,
+                [
+                    'email' => $companyEmail,
+                    'name' => $companyName,
+                ]
+            );
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim email hasil review', [
                 'lamaran_id' => $lamaranId,
                 'error'      => $e->getMessage(),
             ]);
 
-            return response()->json(['error' => 'Gagal mengirim email. Pastikan konfigurasi SMTP sudah benar.'], 500);
+            return response()->json(['error' => 'Gagal mengirim email. Pastikan konfigurasi Brevo sudah benar.'], 500);
         }
 
         session()->put('review_result_email_sent.' . $lamaranId, true);
@@ -591,11 +594,8 @@ class LamaranController extends Controller
             return response()->json(['error' => 'Email perusahaan tidak ditemukan.'], 422);
         }
 
-        $fromAddress = config('mail.from.address');
-        $fromName = $companyName . ' via Dinus Career Center';
-
         try {
-            Mail::send('emails.interview-result', [
+            $htmlContent = view('emails.interview-result', [
                 'result'       => $request->result,
                 'resultLabel'  => $resultLabel,
                 'customMessage'=> $request->message,
@@ -603,19 +603,26 @@ class LamaranController extends Controller
                 'position'     => $lamaran['lowongan']['judul'] ?? 'posisi yang dilamar',
                 'companyName'  => $companyName,
                 'companyEmail' => $companyEmail,
-            ], function ($message) use ($pelamarEmail, $lamaran, $resultLabel, $fromAddress, $fromName, $companyEmail, $companyName) {
-                $message->from($fromAddress, $fromName)
-                    ->replyTo($companyEmail, $companyName)
-                    ->to($pelamarEmail, $lamaran['pelamar']['nama_lengkap'] ?? null)
-                    ->subject('Hasil Interview Lamaran Anda: ' . $resultLabel);
-            });
+            ])->render();
+
+            $brevoService = app(\App\Services\BrevoMailService::class);
+            $brevoService->send(
+                $pelamarEmail,
+                $lamaran['pelamar']['nama_lengkap'] ?? 'Kandidat',
+                'Hasil Interview Lamaran Anda: ' . $resultLabel,
+                $htmlContent,
+                [
+                    'email' => $companyEmail,
+                    'name' => $companyName,
+                ]
+            );
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim email hasil interview', [
                 'lamaran_id' => $lamaranId,
                 'error'      => $e->getMessage(),
             ]);
 
-            return response()->json(['error' => 'Gagal mengirim email. Pastikan konfigurasi SMTP sudah benar.'], 500);
+            return response()->json(['error' => 'Gagal mengirim email. Pastikan konfigurasi Brevo sudah benar.'], 500);
         }
 
         session()->put('interview_result_email_sent.' . $lamaranId, true);
