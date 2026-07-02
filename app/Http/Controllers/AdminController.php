@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\CompanyVerified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -984,12 +984,26 @@ class AdminController extends Controller
         }
 
         if (in_array($request->status, ['accepted', 'rejected'], true)) {
-            Mail::to($perusahaan[0]['email_perusahaan'])
-                ->send(new CompanyVerified(
+            $mailable = new CompanyVerified(
+                $perusahaan[0]['nama_perusahaan'],
+                $request->status,
+                $request->status === 'rejected' ? $request->alasan_penolakan : null,
+            );
+
+            try {
+                $brevoService = app(\App\Services\BrevoMailService::class);
+                $brevoService->send(
+                    $perusahaan[0]['email_perusahaan'],
                     $perusahaan[0]['nama_perusahaan'],
-                    $request->status,
-                    $request->status === 'rejected' ? $request->alasan_penolakan : null,
-                ));
+                    $mailable->envelope()->subject,
+                    $mailable->render()
+                );
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengirim email verifikasi perusahaan ke Brevo', [
+                    'email' => $perusahaan[0]['email_perusahaan'],
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         $label = match($request->status) {  

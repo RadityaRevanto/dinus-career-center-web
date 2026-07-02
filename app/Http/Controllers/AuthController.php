@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -174,18 +173,20 @@ class AuthController extends Controller
         }
 
         $userName = $profile[0]['full_name'] ?? 'Pengguna';
-        $fromAddress = config('mail.from.address');
-        $fromName = config('mail.from.name', 'Dinus Career Center');
 
         try {
-            Mail::send('emails.password-reset', [
+            $htmlContent = view('emails.password-reset', [
                 'userName'  => $userName,
                 'resetLink' => $resetLink,
-            ], function ($message) use ($request, $fromAddress, $fromName, $userName) {
-                $message->from($fromAddress, $fromName)
-                    ->to($request->email, $userName)
-                    ->subject('Reset Password - Dinus Career Center');
-            });
+            ])->render();
+
+            $brevoService = app(\App\Services\BrevoMailService::class);
+            $brevoService->send(
+                $request->email,
+                $userName,
+                'Reset Password - Dinus Career Center',
+                $htmlContent
+            );
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim email reset password', [
                 'email' => $request->email,
@@ -193,7 +194,7 @@ class AuthController extends Controller
             ]);
 
             return back()
-                ->with('error', 'Gagal mengirim email reset password. Pastikan konfigurasi SMTP di file .env sudah benar.')
+                ->with('error', 'Gagal mengirim email reset password. Pastikan konfigurasi Brevo di file .env sudah benar.')
                 ->withInput($request->only('email'));
         }
 

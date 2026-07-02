@@ -14,7 +14,8 @@ class BrevoMailService
         string $recipientEmail,
         string $recipientName,
         string $subject,
-        string $htmlContent
+        string $htmlContent,
+        ?array $replyTo = null
     ): array {
         $apiKey = config('services.brevo.api_key');
         $fromEmail = config('services.brevo.from_email');
@@ -26,11 +27,7 @@ class BrevoMailService
             );
         }
 
-        $response = Http::withHeaders([
-            'accept' => 'application/json',
-            'api-key' => $apiKey,
-            'content-type' => 'application/json',
-        ])->post('https://api.brevo.com/v3/smtp/email', [
+        $payload = [
             'sender' => [
                 'name' => $fromName,
                 'email' => $fromEmail,
@@ -43,7 +40,20 @@ class BrevoMailService
             ],
             'subject' => $subject,
             'htmlContent' => $htmlContent,
-        ]);
+        ];
+
+        if ($replyTo) {
+            $payload['replyTo'] = [
+                'email' => $replyTo['email'] ?? null,
+                'name' => $replyTo['name'] ?? null,
+            ];
+        }
+
+        $response = Http::withHeaders([
+            'accept' => 'application/json',
+            'api-key' => $apiKey,
+            'content-type' => 'application/json',
+        ])->post('https://api.brevo.com/v3/smtp/email', $payload);
 
         if ($response->failed()) {
             throw new RuntimeException(
