@@ -14,13 +14,6 @@
         $statusBg = $isAccepted ? '#ecfdf5' : '#fff1f2';
     @endphp
 
-    <p style="margin:20px 0;">
-        <strong>Status Hasil Interview:</strong>
-        <span style="display:inline-block; margin-top:8px; padding:8px 16px; border-radius:8px; font-weight:bold; color:{{ $statusColor }}; background:{{ $statusBg }};">
-            {{ $statusLabel }}
-        </span>
-    </p>
-
     @if($isAccepted)
         <p>
             Selamat, berdasarkan hasil interview untuk posisi <strong>{{ $position }}</strong> di <strong>{{ $companyName }}</strong>, Anda dinyatakan <strong>diterima</strong>.

@@ -14,13 +14,6 @@
         $statusBg = $isAccepted ? '#ecfdf5' : '#fff1f2';
     @endphp
 
-    <p style="margin:20px 0;">
-        <strong>Status Review Lamaran:</strong>
-        <span style="display:inline-block; margin-top:8px; padding:8px 16px; border-radius:8px; font-weight:bold; color:{{ $statusColor }}; background:{{ $statusBg }};">
-            {{ $statusLabel }}
-        </span>
-    </p>
-
     @if($isAccepted)
         <p>
             Selamat, lamaran Anda untuk posisi <strong>{{ $position }}</strong> di <strong>{{ $companyName }}</strong> telah <strong>diterima</strong> pada tahap review dokumen.
