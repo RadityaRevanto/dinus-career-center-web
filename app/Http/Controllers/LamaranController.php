@@ -301,7 +301,7 @@ class LamaranController extends Controller
         $lamaran = Http::withHeaders($this->headers())
             ->get($this->baseUrl . '/rest/v1/lamaran', [
                 'lamaran_id' => 'eq.' . $lamaranId,
-                'select'     => 'lamaran_id,pelamar_id,status_terakhir,lowongan:lowongan_id(perusahaan_id,judul)',
+                'select'     => 'lamaran_id,pelamar_id,status_terakhir,pelamar:pelamar_id(nama_lengkap,email),lowongan:lowongan_id(perusahaan_id,judul)',
             ])->json();
 
         if (empty($lamaran) || ($lamaran[0]['lowongan']['perusahaan_id'] ?? null) !== $perusahaanId) {
@@ -350,6 +350,65 @@ class LamaranController extends Controller
             return response()->json([
                 'error' => 'Pelamar harus diterima pada tahap review sebelum lanjut ke interview.',
             ], 422);
+        }
+
+        // Jika status interview, kirim email undangan terlebih dahulu sebelum update database
+        if ($request->status === LamaranStatus::INTERVIEW) {
+            $judulLowongan = $lamaran[0]['lowongan']['judul'] ?? 'posisi ini';
+            $jamFormatted  = \Carbon\Carbon::parse($request->interview_time)
+                                ->translatedFormat('l, d M Y \p\u\k\u\l H:i');
+
+            $pelamarEmail = $lamaran[0]['pelamar']['email'] ?? null;
+            $pelamarName  = $lamaran[0]['pelamar']['nama_lengkap'] ?? 'Kandidat';
+
+            if (empty($pelamarEmail)) {
+                return response()->json(['error' => 'Email pelamar tidak ditemukan.'], 422);
+            }
+
+            $perusahaan = Http::withHeaders($this->headers())
+                ->get($this->baseUrl . '/rest/v1/perusahaan', [
+                    'perusahaan_id' => 'eq.' . $perusahaanId,
+                    'select'        => 'nama_perusahaan,email_perusahaan',
+                    'limit'         => 1,
+                ])->json();
+
+            $companyName = $perusahaan[0]['nama_perusahaan'] ?? session('full_name', 'Perusahaan');
+            $companyEmail = $perusahaan[0]['email_perusahaan'] ?? session('email');
+
+            if (empty($companyEmail)) {
+                return response()->json(['error' => 'Email perusahaan tidak ditemukan.'], 422);
+            }
+
+            try {
+                $htmlContent = view('emails.interview-schedule', [
+                    'pelamarName'   => $pelamarName,
+                    'position'      => $judulLowongan,
+                    'companyName'   => $companyName,
+                    'companyEmail'  => $companyEmail,
+                    'interviewTime' => $jamFormatted,
+                    'linkMeet'      => $request->link_meet,
+                    'pesanTambahan' => $request->pesan_tambahan,
+                ])->render();
+
+                $brevoService = app(\App\Services\BrevoMailService::class);
+                $brevoService->send(
+                    $pelamarEmail,
+                    $pelamarName,
+                    'Undangan Interview: ' . $judulLowongan,
+                    $htmlContent,
+                    [
+                        'email' => $companyEmail,
+                        'name'  => $companyName,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                \Log::error('Gagal mengirim email undangan interview', [
+                    'lamaran_id' => $lamaranId,
+                    'error'      => $e->getMessage(),
+                ]);
+
+                return response()->json(['error' => 'Gagal mengirim email undangan. Pastikan konfigurasi Brevo sudah benar.'], 500);
+            }
         }
 
         $res = Http::withHeaders($this->headers())
